@@ -195,6 +195,36 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
     te: 'టికెట్ ఐడీ నమోదు చేయండి',
     ten: 'Ticket ID search చెయ్యండి'
   },
+  'grievance.locationSubheader': {
+    en: 'Location Details',
+    te: 'స్థాన వివరాలు',
+    ten: 'Location Details'
+  },
+  'grievance.selectLocationTitle': {
+    en: 'Select Village / Area',
+    te: 'గ్రామం / ప్రాంతాన్ని ఎంచుకోండి',
+    ten: 'Select Village / Area'
+  },
+  'grievance.noLocationsFound': {
+    en: 'No locations found for this pincode.',
+    te: 'ఈ పిన్‌కోడ్‌కు ఎటువంటి ప్రాంతాలు లభించలేదు.',
+    ten: 'Pincode కి ఏ areas దొరకలేదు.'
+  },
+  'grievance.manualEntryTitle': {
+    en: 'Enter Details Manually',
+    te: 'వివరాలను మాన్యువల్‌గా నమోదు చేయండి',
+    ten: 'Details manual గా enter చెయ్యండి'
+  },
+  'grievance.changeLocation': {
+    en: 'Change Location',
+    te: 'స్థానాన్ని మార్చండి',
+    ten: 'Location ని change చెయ్యండి'
+  },
+  'grievance.enterManually': {
+    en: 'Can\'t find your village? Enter manually',
+    te: 'మీ గ్రామం లేదా ప్రాంతం లేదా వార్డు కనపడలేదా? ఇక్కడ నమోదు చేయండి',
+    ten: 'Village లేకపోతే manual గా enter చెయ్యండి'
+  },
 
   // Contact Page
   'contact.header': {

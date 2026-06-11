@@ -20,7 +20,8 @@ import {
   MapPin,
   Building,
   Upload,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react'
 
 // Simple client-side canvas-confetti import
@@ -108,7 +109,13 @@ function GrievancePortal() {
   }
   const [pincodeRecords, setPincodeRecords] = useState<PincodeRec[]>([])
   const [isLoadingPincode, setIsLoadingPincode] = useState(false)
-  const [villageSelectMode, setVillageSelectMode] = useState<'select' | 'input'>('input')
+  
+  // Location selection modal states
+  const [showLocationModal, setShowLocationModal] = useState(false)
+  const [manualLocationMode, setManualLocationMode] = useState(false)
+  const [modalState, setModalState] = useState('')
+  const [modalDistrict, setModalDistrict] = useState('')
+  const [modalVillage, setModalVillage] = useState('')
 
   // Helper to format place names nicely (e.g. PALNADU -> Palnadu)
   const formatPlaceName = (str: string) => {
@@ -118,25 +125,6 @@ function GrievancePortal() {
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
-  }
-
-  // Handle village select option change
-  const handleVillageSelectChange = (val: string) => {
-    if (val === 'custom') {
-      setVillageSelectMode('input')
-      setVillageWard('')
-    } else {
-      setVillageWard(val)
-      const matched = pincodeRecords.find(r => formatPlaceName(r.name) === val)
-      if (matched) {
-        setDistrict(formatPlaceName(matched.district))
-        setStateName(formatPlaceName(matched.state))
-        // Prefill cityTown as well if empty
-        if (!cityTown) {
-          setCityTown(val)
-        }
-      }
-    }
   }
 
   // Fetch details when a 6-digit pincode is entered
@@ -150,28 +138,32 @@ function GrievancePortal() {
             const data = await res.json()
             if (data.success && data.records && data.records.length > 0) {
               setPincodeRecords(data.records)
-              setVillageSelectMode('select')
-              
-              // Prefill details from the first match
-              const first = data.records[0]
-              setStateName(formatPlaceName(first.state))
-              setDistrict(formatPlaceName(first.district))
-              setVillageWard(formatPlaceName(first.name))
-              if (!cityTown) {
-                setCityTown(formatPlaceName(first.name))
-              }
+              setManualLocationMode(false)
+              setShowLocationModal(true)
             } else {
               setPincodeRecords([])
-              setVillageSelectMode('input')
+              setManualLocationMode(true)
+              setShowLocationModal(true)
+              setStateName('')
+              setDistrict('')
+              setVillageWard('')
             }
           } else {
             setPincodeRecords([])
-            setVillageSelectMode('input')
+            setManualLocationMode(true)
+            setShowLocationModal(true)
+            setStateName('')
+            setDistrict('')
+            setVillageWard('')
           }
         } catch (err) {
           console.error('Error fetching pincode details:', err)
           setPincodeRecords([])
-          setVillageSelectMode('input')
+          setManualLocationMode(true)
+          setShowLocationModal(true)
+          setStateName('')
+          setDistrict('')
+          setVillageWard('')
         } finally {
           setIsLoadingPincode(false)
         }
@@ -179,7 +171,10 @@ function GrievancePortal() {
       fetchPincodeDetails()
     } else {
       setPincodeRecords([])
-      setVillageSelectMode('input')
+      setShowLocationModal(false)
+      setStateName('')
+      setDistrict('')
+      setVillageWard('')
     }
   }, [pincode])
 
@@ -220,10 +215,10 @@ function GrievancePortal() {
     if (!phone.trim() || !/^\+?[0-9]{10,14}$/.test(phone.replace(/[\s-]/g, ''))) {
       errors.phone = t('validation.phoneInvalid')
     }
-    if (!stateName.trim()) errors.state = t('validation.stateRequired')
-    if (!district.trim()) errors.district = t('validation.districtRequired')
     if (!pincode.trim() || !/^\d{6}$/.test(pincode)) {
       errors.pincode = t('validation.pincodeInvalid')
+    } else if (!villageWard.trim() || !stateName.trim() || !district.trim()) {
+      errors.pincode = 'Please select a village/area matching this pincode'
     }
     if (!category) errors.category = t('validation.categoryRequired')
     if (!subject.trim()) errors.subject = t('validation.subjectRequired')
@@ -550,185 +545,79 @@ function GrievancePortal() {
                       </div>
                     </div>
 
-                    {/* Location Header */}
-                    <div className="flex items-center space-x-2.5 pt-4 pb-2 border-b border-slate-100">
-                      <MapPin className="w-4.5 h-4.5 text-saffron-600" />
-                      <h3 className="text-sm font-bold text-navy-900">{t('grievance.locationSubheader')}</h3>
-                    </div>
-
-                    {/* State & District */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.state')} *
-                        </label>
-                        <input
-                          type="text"
-                          value={stateName}
-                          onChange={(e) => setStateName(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.state ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.statePlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.state && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.state}</span>
-                        )}
+                    {/* Location Details (Redesigned) */}
+                    <div className="p-6 rounded-2xl border border-slate-100 bg-slate-50/30 space-y-4">
+                      <div className="flex items-center space-x-2.5 pb-2 border-b border-slate-100">
+                        <MapPin className="w-4.5 h-4.5 text-saffron-600 animate-pulse" />
+                        <h3 className="text-sm font-bold text-navy-900">{t('grievance.locationSubheader')}</h3>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.district')} *
-                        </label>
-                        <input
-                          type="text"
-                          value={district}
-                          onChange={(e) => setDistrict(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.district ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.districtPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.district && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.district}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* City / Mandal / Village */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.cityTown')}
-                        </label>
-                        <input
-                          type="text"
-                          value={cityTown}
-                          onChange={(e) => setCityTown(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder={t('grievance.cityTownPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.mandal')}
-                        </label>
-                        <input
-                          type="text"
-                          value={mandal}
-                          onChange={(e) => setMandal(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder={t('grievance.mandalPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div>
-                        {villageSelectMode === 'select' && pincodeRecords.length > 0 ? (
-                          <>
-                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2 flex justify-between items-center">
-                              <span>{t('grievance.villageWard')}</span>
-                              <button
-                                type="button"
-                                onClick={() => setVillageSelectMode('input')}
-                                className="text-[10px] font-bold text-saffron-600 hover:text-saffron-700 underline capitalize"
-                              >
-                                Type manually
-                              </button>
-                            </label>
-                            <select
-                              value={villageWard}
-                              onChange={(e) => handleVillageSelectChange(e.target.value)}
-                              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none cursor-pointer"
-                              disabled={isSubmitting}
-                            >
-                              <option value="">-- Select Village / Town --</option>
-                              {pincodeRecords.map((rec, index) => {
-                                const nameFormatted = formatPlaceName(rec.name)
-                                return (
-                                  <option key={index} value={nameFormatted}>
-                                    {nameFormatted} ({formatPlaceName(rec.district)})
-                                  </option>
-                                )
-                              })}
-                              <option value="custom">✍️ Type manually...</option>
-                            </select>
-                          </>
-                        ) : (
-                          <>
-                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2 flex justify-between items-center">
-                              <span>{t('grievance.villageWard')}</span>
-                              {pincodeRecords.length > 0 && (
-                                <button
-                                  type="button"
-                                  onClick={() => setVillageSelectMode('select')}
-                                  className="text-[10px] font-bold text-saffron-600 hover:text-saffron-700 underline capitalize"
-                                >
-                                  Select from list
-                                </button>
-                              )}
-                            </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                        {/* Pincode Input */}
+                        <div>
+                          <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                            {t('grievance.pincode')} *
+                          </label>
+                          <div className="relative">
                             <input
                               type="text"
-                              value={villageWard}
-                              onChange={(e) => setVillageWard(e.target.value)}
-                              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                              placeholder={t('grievance.villageWardPlaceholder')}
+                              value={pincode}
+                              onChange={(e) => setPincode(e.target.value)}
+                              className={`w-full px-4 py-3 rounded-xl border ${
+                                validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                              } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
+                              placeholder={t('grievance.pincodePlaceholder')}
                               disabled={isSubmitting}
                             />
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Address & Pincode */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <div className="sm:col-span-2">
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.addressLabelField')}
-                        </label>
-                        <input
-                          type="text"
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder={t('grievance.addressPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.pincode')} *
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={pincode}
-                            onChange={(e) => setPincode(e.target.value)}
-                            className={`w-full px-4 py-3 rounded-xl border ${
-                              validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                            } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
-                            placeholder={t('grievance.pincodePlaceholder')}
-                            disabled={isSubmitting}
-                          />
-                          {isLoadingPincode && (
-                            <div className="absolute right-3 top-3 flex items-center justify-center">
-                              <RefreshCw className="w-4 h-4 text-saffron-500 animate-spin" />
-                            </div>
-                          )}
-                          {!isLoadingPincode && pincodeRecords.length > 0 && /^\d{6}$/.test(pincode) && (
-                            <div className="absolute right-3 top-3 flex items-center justify-center">
-                              <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Found</span>
-                            </div>
+                            {isLoadingPincode && (
+                              <div className="absolute right-3 top-3 flex items-center justify-center">
+                                <RefreshCw className="w-4 h-4 text-saffron-500 animate-spin" />
+                              </div>
+                            )}
+                            {!isLoadingPincode && pincodeRecords.length > 0 && /^\d{6}$/.test(pincode) && (
+                              <div className="absolute right-3 top-3 flex items-center justify-center">
+                                <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Found</span>
+                              </div>
+                            )}
+                          </div>
+                          {validationErrors.pincode && (
+                            <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.pincode}</span>
                           )}
                         </div>
-                        {validationErrors.pincode && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.pincode}</span>
+
+                        {/* Selected Location Card */}
+                        {villageWard && district && stateName ? (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="p-4 rounded-xl border border-slate-100 bg-white flex items-center justify-between shadow-sm relative overflow-hidden group"
+                          >
+                            <div className="flex items-start space-x-3">
+                              <Building className="w-5 h-5 text-saffron-500 mt-0.5 shrink-0" />
+                              <div>
+                                <h4 className="text-sm font-bold text-navy-900">{villageWard}</h4>
+                                <p className="text-xs text-slate-400 font-medium">
+                                  {district} District, {stateName}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setManualLocationMode(false)
+                                setShowLocationModal(true)
+                              }}
+                              className="px-3 py-1.5 rounded-lg bg-saffron-500/10 hover:bg-saffron-500 hover:text-navy-900 text-[10px] font-bold text-saffron-600 transition-all cursor-pointer font-sans"
+                            >
+                              {t('grievance.changeLocation')}
+                            </button>
+                          </motion.div>
+                        ) : (
+                          <div className="p-4 rounded-xl border border-dashed border-slate-200 bg-white text-center py-6">
+                            <span className="text-xs text-slate-400 font-medium leading-relaxed block">
+                              Enter a valid 6-digit Pincode to choose your village / location.
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1049,6 +938,164 @@ function GrievancePortal() {
           )}
         </AnimatePresence>
 
+        {/* Dynamic Location Selection Popup Modal */}
+        <AnimatePresence>
+          {showLocationModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh]"
+              >
+                {/* Header */}
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                  <div className="flex items-center space-x-2.5">
+                    <MapPin className="w-5 h-5 text-saffron-600 animate-bounce" />
+                    <h3 className="text-base font-bold text-navy-900">
+                      {manualLocationMode 
+                        ? t('grievance.manualEntryTitle') 
+                        : `${t('grievance.selectLocationTitle')} (${pincode})`
+                      }
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowLocationModal(false)
+                      if (!villageWard) {
+                        setPincode('')
+                      }
+                    }}
+                    className="w-8 h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Scrollable Content */}
+                <div className="p-6 overflow-y-auto flex-1 min-h-0">
+                  {!manualLocationMode ? (
+                    <div className="space-y-4">
+                      <p className="text-slate-500 text-xs leading-relaxed mb-4">
+                        Choose your village or area name matching pincode <strong className="text-navy-900 font-bold">{pincode}</strong> to auto-fill location details:
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {pincodeRecords.map((rec, index) => {
+                          const formattedName = formatPlaceName(rec.name)
+                          const formattedDistrict = formatPlaceName(rec.district)
+                          return (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => {
+                                setVillageWard(formattedName)
+                                setDistrict(formattedDistrict)
+                                setStateName(formatPlaceName(rec.state))
+                                setShowLocationModal(false)
+                              }}
+                              className="flex flex-col text-left p-3.5 rounded-xl border border-slate-100 bg-slate-50 hover:border-saffron-400 hover:bg-saffron-50/20 hover:scale-[1.01] transition-all cursor-pointer group"
+                            >
+                              <span className="text-sm font-bold text-navy-900 group-hover:text-saffron-600 transition-colors">
+                                {formattedName}
+                              </span>
+                              <span className="text-[11px] text-slate-400 font-medium">
+                                {formattedDistrict} District
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-100 flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setManualLocationMode(true)
+                            setModalVillage('')
+                            setModalDistrict(pincodeRecords[0]?.district ? formatPlaceName(pincodeRecords[0].district) : '')
+                            setModalState(pincodeRecords[0]?.state ? formatPlaceName(pincodeRecords[0].state) : '')
+                          }}
+                          className="text-xs font-bold text-saffron-600 hover:text-saffron-700 underline flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {t('grievance.enterManually')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Manual fallback form
+                    <div className="space-y-5">
+                      <div>
+                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                          Village / Town / Ward *
+                        </label>
+                        <input
+                          type="text"
+                          value={modalVillage}
+                          onChange={(e) => setModalVillage(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                          placeholder="Enter village, area, or ward name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                          District *
+                        </label>
+                        <input
+                          type="text"
+                          value={modalDistrict}
+                          onChange={(e) => setModalDistrict(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                          placeholder="District name"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          value={modalState}
+                          onChange={(e) => setModalState(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                          placeholder="State name"
+                        />
+                      </div>
+
+                      <div className="pt-4 flex items-center justify-between gap-4">
+                        {pincodeRecords.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setManualLocationMode(false)}
+                            className="px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Back to list
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          disabled={!modalVillage.trim() || !modalDistrict.trim() || !modalState.trim()}
+                          onClick={() => {
+                            setVillageWard(modalVillage.trim())
+                            setDistrict(modalDistrict.trim())
+                            setStateName(modalState.trim())
+                            setShowLocationModal(false)
+                          }}
+                          className="flex-1 px-5 py-3 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-navy-900 text-xs font-bold transition-all text-center cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Save & Confirm
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
