@@ -430,6 +430,41 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
     te: 'ఫిర్యాదును భద్రంగా నమోదు చేస్తున్నాము...',
     ten: 'Filing Grievance securely...'
   },
+  'grievance.citizenNameLabel': {
+    en: 'Citizen Full Name *',
+    te: 'పౌరుడి పూర్తి పేరు *',
+    ten: 'Citizen Full Name *'
+  },
+  'grievance.phoneLabel': {
+    en: 'Contact Phone Number *',
+    te: 'ఫోన్ నంబర్ *',
+    ten: 'Phone Number *'
+  },
+  'grievance.categoryLabel': {
+    en: 'Grievance Category *',
+    te: 'సమస్య విభాగం *',
+    ten: 'Grievance Category *'
+  },
+  'grievance.descriptionLabel': {
+    en: 'Detailed Description of Issue *',
+    te: 'సమస్య పూర్తి వివరాలు *',
+    ten: 'Issue complete details *'
+  },
+  'grievance.submitButton': {
+    en: 'Lodge Grievance Securely',
+    te: 'ఫిర్యాదును భద్రంగా సమర్పించండి',
+    ten: 'Submit Grievance securely'
+  },
+  'grievance.trackButton': {
+    en: 'Track Grievance',
+    te: 'ఫిర్యాదు స్థితిని తనిఖీ చేయండి',
+    ten: 'Track Grievance'
+  },
+  'grievance.categoryLabelField': {
+    en: 'Grievance Category',
+    te: 'సమస్య విభాగం',
+    ten: 'Grievance Category'
+  },
   'grievance.trackHeader': {
     en: 'Track Existing Grievance',
     te: 'ఇప్పటికే ఉన్న ఫిర్యాదును ట్రాక్ చేయండి',
