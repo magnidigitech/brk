@@ -1,6 +1,7 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { schemaTypes } from './src/sanity/schema'
+import { TranslateDocumentAction } from './src/sanity/actions/TranslateDocumentAction'
 
 export default defineConfig({
   name: 'default',
@@ -15,4 +16,11 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
   },
+
+  document: {
+    actions: (prev, context) => {
+      // Add the translation action to the standard list of document actions
+      return [...prev, TranslateDocumentAction]
+    }
+  }
 })

@@ -8,7 +8,7 @@ export const gallery = defineType({
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'string',
+      type: 'localeString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -23,7 +23,7 @@ export const gallery = defineType({
     defineField({
       name: 'caption',
       title: 'Caption',
-      type: 'string',
+      type: 'localeString',
     }),
     defineField({
       name: 'date',

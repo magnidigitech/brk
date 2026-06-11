@@ -9,9 +9,10 @@ export default async function Page() {
   let updates: any[] = []
   let news: any[] = []
   let gallery: any[] = []
+  let settings: any = null
 
   try {
-    const [fetchedUpdates, fetchedNews, fetchedGallery] = await Promise.all([
+    const [fetchedUpdates, fetchedNews, fetchedGallery, fetchedSettings] = await Promise.all([
       sanityFetch<any[]>({
         query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...3] {
           _id,
@@ -38,12 +39,25 @@ export default async function Page() {
           date,
           image
         }`
+      }),
+      sanityFetch<any>({
+        query: `*[_type == "siteSettings"][0] {
+          candidateName,
+          roleBadge,
+          tagline,
+          partyName,
+          stateRepresented,
+          socialLinks,
+          delhiOffice,
+          stateOffice
+        }`
       })
     ])
 
     updates = fetchedUpdates || []
     news = fetchedNews || []
     gallery = fetchedGallery || []
+    settings = fetchedSettings
   } catch (error) {
     console.error('Failed to fetch from Sanity, using fallback content:', error)
   }
@@ -109,15 +123,28 @@ export default async function Page() {
       date: '2026-06-07',
       image: '/images/WhatsApp Image 2026-06-06 at 14.20.21.jpeg'
     }
-
-
   ]
+
+  const displaySettings = settings || {
+    candidateName: 'Bhashyam Ramakrishna',
+    roleBadge: 'Rajya Sabha Nominee',
+    tagline: 'Educationist | Public Service Leader | Rajya Sabha Candidate from Andhra Pradesh',
+    partyName: 'Telugu Desam Party (TDP)',
+    stateRepresented: 'Andhra Pradesh',
+    socialLinks: {
+      instagram: 'https://www.instagram.com/ramakrishnabhashyam/',
+      youtube: 'https://www.youtube.com/@bhashyamrakakrishnaoffical',
+      twitter: 'https://x.com/bhashyambrk'
+    }
+  }
 
   return (
     <HomeDashboard
       updates={displayUpdates}
       news={displayNews}
       gallery={displayGallery}
+      settings={displaySettings}
     />
   )
 }
+

@@ -3,6 +3,8 @@
 import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useLanguage } from '@/components/LanguageContext'
+import { grievanceCategories } from '@/lib/translations'
 import { 
   LifeBuoy, 
   Search, 
@@ -63,6 +65,13 @@ interface MockTicket {
 function GrievancePortal() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { t, tContent, language } = useLanguage()
+
+  // Localized Categories
+  const categoriesList = Object.entries(grievanceCategories).map(([key, cat]) => ({
+    id: key,
+    label: cat[language] || cat['en']
+  }))
   
   // Set active tab based on query params or default to 'submit'
   const initialTab = searchParams.get('tab') === 'track' ? 'track' : 'submit'
@@ -123,20 +132,20 @@ function GrievancePortal() {
   // Validate form
   const validateForm = () => {
     const errors: Record<string, string> = {}
-    if (!name.trim()) errors.name = 'Full name is required'
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) errors.email = 'Please provide a valid email'
+    if (!name.trim()) errors.name = t('validation.nameRequired')
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) errors.email = t('validation.emailInvalid')
     if (!phone.trim() || !/^\+?[0-9]{10,14}$/.test(phone.replace(/[\s-]/g, ''))) {
-      errors.phone = 'Provide a valid phone number (10-12 digits)'
+      errors.phone = t('validation.phoneInvalid')
     }
-    if (!stateName.trim()) errors.state = 'State is required'
-    if (!district.trim()) errors.district = 'District is required'
+    if (!stateName.trim()) errors.state = t('validation.stateRequired')
+    if (!district.trim()) errors.district = t('validation.districtRequired')
     if (!pincode.trim() || !/^\d{6}$/.test(pincode)) {
-      errors.pincode = 'Provide a valid 6-digit pincode'
+      errors.pincode = t('validation.pincodeInvalid')
     }
-    if (!category) errors.category = 'Please select a category'
-    if (!subject.trim()) errors.subject = 'Subject is required'
+    if (!category) errors.category = t('validation.categoryRequired')
+    if (!subject.trim()) errors.subject = t('validation.subjectRequired')
     if (!description.trim() || description.length < 20) {
-      errors.description = 'Provide a detailed description (at least 20 characters)'
+      errors.description = t('validation.descriptionRequired')
     }
     setValidationErrors(errors)
     return Object.keys(errors).length === 0
@@ -263,10 +272,10 @@ function GrievancePortal() {
             <LifeBuoy className="w-7 h-7 text-saffron-500" />
           </div>
           <h1 className="text-3xl font-extrabold text-navy-900 tracking-tight">
-            Public Grievance Portal
+            {t('grievance.portalTitle')}
           </h1>
           <p className="mt-2 text-slate-600 text-sm max-w-lg mx-auto leading-relaxed">
-            Submit policy issues, civic difficulties, or local grievances directly to the office of Hon. MP Bhashyam Ramakrishna. Track ticket status transparently.
+            {t('grievance.portalSubtitle')}
           </p>
         </div>
 
@@ -280,7 +289,7 @@ function GrievancePortal() {
                 : 'text-slate-500 hover:text-navy-900 hover:bg-slate-50'
             }`}
           >
-            Submit Grievance
+            {t('grievance.submitTab')}
           </button>
           <button
             onClick={() => switchTab('track')}
@@ -290,7 +299,7 @@ function GrievancePortal() {
                 : 'text-slate-500 hover:text-navy-900 hover:bg-slate-50'
             }`}
           >
-            Track Status
+            {t('grievance.trackTab')}
           </button>
         </div>
 
@@ -309,17 +318,17 @@ function GrievancePortal() {
                   <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle className="w-10 h-10 text-emerald-500" />
                   </div>
-                  <h2 className="text-2xl font-bold text-navy-900 mb-2">Grievance Logged Securely!</h2>
+                  <h2 className="text-2xl font-bold text-navy-900 mb-2">{t('grievance.successTitle')}</h2>
                   <p className="text-slate-500 text-sm mb-6">
-                    We have successfully registered your ticket. Please note down your unique tracking ID below to check live status updates.
+                    {t('grievance.successDesc')}
                   </p>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8 flex items-center justify-between">
                     <div>
                       <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider text-left">
-                        Your Tracking ID
+                        {t('grievance.trackingIdLabel')}
                       </span>
-                      <span className="text-lg font-mono font-black text-navy-900 select-all tracking-wider">
+                      <span className="text-lg font-mono font-black text-navy-900 select-all tracking-wider text-left block">
                         {submitSuccess.id}
                       </span>
                     </div>
@@ -329,7 +338,7 @@ function GrievancePortal() {
                       title="Copy Tracking ID"
                     >
                       {copied ? (
-                        <span className="text-xs font-semibold text-emerald-600">Copied!</span>
+                        <span className="text-xs font-semibold text-emerald-600">{t('grievance.copied')}</span>
                       ) : (
                         <Copy className="w-4 h-4" />
                       )}
@@ -345,13 +354,13 @@ function GrievancePortal() {
                       }}
                       className="px-6 py-3.5 bg-navy-900 text-white hover:bg-navy-800 rounded-xl text-sm font-bold shadow-md transition-all"
                     >
-                      Track this Ticket
+                      {t('grievance.trackThisButton')}
                     </button>
                     <button
                       onClick={() => setSubmitSuccess(null)}
                       className="px-6 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-navy-900 rounded-xl text-sm font-bold shadow-sm transition-all"
                     >
-                      Submit Another Grievance
+                      {t('grievance.submitAnotherButton')}
                     </button>
                   </div>
                 </div>
@@ -360,7 +369,7 @@ function GrievancePortal() {
                 <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-md">
                   <div className="flex items-center space-x-2.5 pb-6 border-b border-slate-100 mb-6">
                     <ShieldCheck className="w-5 h-5 text-saffron-600" />
-                    <h2 className="text-lg font-bold text-navy-900">Public Grievance / Citizen Issue Submission Form</h2>
+                    <h2 className="text-lg font-bold text-navy-900">{t('grievance.formHeader')}</h2>
                   </div>
 
                   {validationErrors.form && (
@@ -375,7 +384,7 @@ function GrievancePortal() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Citizen Full Name *
+                          {t('grievance.citizenNameLabel')}
                         </label>
                         <input
                           type="text"
@@ -384,7 +393,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.name ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="Full Name"
+                          placeholder={t('grievance.citizenNamePlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.name && (
@@ -394,7 +403,7 @@ function GrievancePortal() {
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Email Address *
+                          {t('grievance.emailLabel')}
                         </label>
                         <input
                           type="email"
@@ -403,7 +412,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.email ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="email@example.com"
+                          placeholder={t('grievance.emailPlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.email && (
@@ -416,7 +425,7 @@ function GrievancePortal() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Phone Number (with Country Code) *
+                          {t('grievance.phoneLabel')}
                         </label>
                         <input
                           type="tel"
@@ -425,7 +434,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.phone ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="+91 98765 43210"
+                          placeholder={t('grievance.phonePlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.phone && (
@@ -435,7 +444,7 @@ function GrievancePortal() {
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Grievance Category *
+                          {t('grievance.categoryLabel')}
                         </label>
                         <select
                           value={category}
@@ -445,10 +454,10 @@ function GrievancePortal() {
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none text-slate-800`}
                           disabled={isSubmitting}
                         >
-                          <option value="">Select Category</option>
-                          {categories.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
+                          <option value="">{t('grievance.categorySelect')}</option>
+                          {categoriesList.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.label}
                             </option>
                           ))}
                         </select>
@@ -461,14 +470,14 @@ function GrievancePortal() {
                     {/* Location Header */}
                     <div className="flex items-center space-x-2.5 pt-4 pb-2 border-b border-slate-100">
                       <MapPin className="w-4.5 h-4.5 text-saffron-600" />
-                      <h3 className="text-sm font-bold text-navy-900">Geographic & Location Details</h3>
+                      <h3 className="text-sm font-bold text-navy-900">{t('grievance.locationSubheader')}</h3>
                     </div>
 
                     {/* State & District */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          State *
+                          {t('grievance.state')} *
                         </label>
                         <input
                           type="text"
@@ -477,7 +486,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.state ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="e.g. Andhra Pradesh"
+                          placeholder={t('grievance.statePlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.state && (
@@ -487,7 +496,7 @@ function GrievancePortal() {
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          District *
+                          {t('grievance.district')} *
                         </label>
                         <input
                           type="text"
@@ -496,7 +505,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.district ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="District Name"
+                          placeholder={t('grievance.districtPlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.district && (
@@ -509,42 +518,42 @@ function GrievancePortal() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          City / Town
+                          {t('grievance.cityTown')}
                         </label>
                         <input
                           type="text"
                           value={cityTown}
                           onChange={(e) => setCityTown(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder="City/Town Name"
+                          placeholder={t('grievance.cityTownPlaceholder')}
                           disabled={isSubmitting}
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Mandal
+                          {t('grievance.mandal')}
                         </label>
                         <input
                           type="text"
                           value={mandal}
                           onChange={(e) => setMandal(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder="Mandal Name"
+                          placeholder={t('grievance.mandalPlaceholder')}
                           disabled={isSubmitting}
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Village / Ward
+                          {t('grievance.villageWard')}
                         </label>
                         <input
                           type="text"
                           value={villageWard}
                           onChange={(e) => setVillageWard(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder="Village / Ward No."
+                          placeholder={t('grievance.villageWardPlaceholder')}
                           disabled={isSubmitting}
                         />
                       </div>
@@ -554,21 +563,21 @@ function GrievancePortal() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Address Details
+                          {t('grievance.addressLabelField')}
                         </label>
                         <input
                           type="text"
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder="House No., Street name, Landmark"
+                          placeholder={t('grievance.addressPlaceholder')}
                           disabled={isSubmitting}
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Pincode *
+                          {t('grievance.pincode')} *
                         </label>
                         <input
                           type="text"
@@ -577,7 +586,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="6-digit PIN"
+                          placeholder={t('grievance.pincodePlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.pincode && (
@@ -590,7 +599,7 @@ function GrievancePortal() {
                     <div className="space-y-6">
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Issue Title / Subject *
+                          {t('grievance.subjectLabel')}
                         </label>
                         <input
                           type="text"
@@ -599,7 +608,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.subject ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="Brief title of the grievance"
+                          placeholder={t('grievance.subjectPlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.subject && (
@@ -609,7 +618,7 @@ function GrievancePortal() {
 
                       <div>
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          Detailed Description *
+                          {t('grievance.descriptionLabel')}
                         </label>
                         <textarea
                           value={description}
@@ -618,7 +627,7 @@ function GrievancePortal() {
                           className={`w-full px-4 py-3 rounded-xl border ${
                             validationErrors.description ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                           } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder="Provide details about the issue, how long it has been ongoing, and any previous administrative attempts..."
+                          placeholder={t('grievance.descriptionPlaceholder')}
                           disabled={isSubmitting}
                         />
                         {validationErrors.description && (
@@ -630,16 +639,16 @@ function GrievancePortal() {
                     {/* Mock Document Upload */}
                     <div>
                       <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                        Upload Supporting Document / Image (Optional)
+                        {t('grievance.uploadDocLabel')}
                       </label>
                       <div className="flex items-center justify-center w-full">
                         <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-300 hover:border-navy-900 rounded-xl bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Upload className="w-8 h-8 text-slate-400 mb-2" />
                             <p className="text-xs text-slate-500 font-bold mb-1">
-                              {uploadedFileName ? `Selected: ${uploadedFileName}` : 'Drag & Drop or Click to Upload'}
+                              {uploadedFileName ? `${t('grievance.copied') === 'కాపీ చేయబడింది!' ? 'ఎంచుకోబడింది' : 'Selected'}: ${uploadedFileName}` : t('grievance.dragDropText')}
                             </p>
-                            <p className="text-[10px] text-slate-400">PDF, PNG, JPG, or DOC (Max 5MB)</p>
+                            <p className="text-[10px] text-slate-400">{t('grievance.dragDropSub')}</p>
                           </div>
                           <input 
                             type="file" 
@@ -654,9 +663,7 @@ function GrievancePortal() {
                     {/* Notice */}
                     <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500 flex items-start leading-relaxed">
                       <ShieldCheck className="w-4.5 h-4.5 mr-2 text-saffron-600 shrink-0 mt-0.5" />
-                      <span>
-                        <strong>Public Service Privacy Notice:</strong> All personal contact details are stored strictly server-side in our private PostgreSQL database. They will never be exposed on public trackers.
-                      </span>
+                      <span>{t('grievance.privacyNotice')}</span>
                     </div>
 
                     {/* Submit Button */}
@@ -668,12 +675,12 @@ function GrievancePortal() {
                       {isSubmitting ? (
                         <>
                           <RefreshCw className="w-4.5 h-4.5 animate-spin text-saffron-500" />
-                          <span>Filing Grievance securely...</span>
+                          <span>{t('grievance.submittingText')}</span>
                         </>
                       ) : (
                         <>
                           <Send className="w-4.5 h-4.5 text-saffron-500" />
-                          <span>Submit Grievance</span>
+                          <span>{t('grievance.submitButton')}</span>
                         </>
                       )}
                     </button>
@@ -691,9 +698,9 @@ function GrievancePortal() {
             >
               {/* Tracker Search Form */}
               <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-md mb-8">
-                <h2 className="text-lg font-bold text-navy-900 mb-2">Track Existing Grievance</h2>
+                <h2 className="text-lg font-bold text-navy-900 mb-2">{t('grievance.trackHeader')}</h2>
                 <p className="text-slate-500 text-xs mb-6">
-                  Enter your unique tracking ID (e.g. GRV-YYYYMMDD-XXXX) below to fetch your ticket status.
+                  {t('grievance.trackSub')}
                 </p>
 
                 <form onSubmit={(e) => handleTrack(e)} className="flex flex-col sm:flex-row gap-4">
@@ -703,7 +710,7 @@ function GrievancePortal() {
                       value={trackingId}
                       onChange={(e) => setTrackingId(e.target.value)}
                       className="w-full px-4 py-3.5 pl-11 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-sm outline-none font-mono"
-                      placeholder="GRV-20260607-1234"
+                      placeholder={t('grievance.trackPlaceholder')}
                       disabled={isSearching}
                     />
                     <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
@@ -716,10 +723,10 @@ function GrievancePortal() {
                     {isSearching ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin text-saffron-500" />
-                        <span>Searching...</span>
+                        <span>{t('grievance.searchingText')}</span>
                       </>
                     ) : (
-                      <span>Track Status</span>
+                      <span>{t('grievance.trackButton')}</span>
                     )}
                   </button>
                 </form>
@@ -729,14 +736,14 @@ function GrievancePortal() {
               {isSearching ? (
                 <div className="text-center py-12">
                   <RefreshCw className="w-8 h-8 animate-spin text-saffron-500 mx-auto mb-4" />
-                  <p className="text-slate-500 text-sm">Fetching ticket status from server...</p>
+                  <p className="text-slate-500 text-sm">{t('grievance.fetchingText')}</p>
                 </div>
               ) : searchResult === null ? (
                 <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 shadow-sm text-center">
                   <HelpCircle className="w-10 h-10 text-rose-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold text-rose-800 mb-1">Ticket Not Found</h3>
+                  <h3 className="text-lg font-bold text-rose-800 mb-1">{t('grievance.notFoundTitle')}</h3>
                   <p className="text-rose-600 text-sm max-w-md mx-auto">
-                    We could not find any grievance ticket with the ID <strong className="font-mono">{trackingId}</strong>. Please verify the ID and try again.
+                    {t('grievance.notFoundDesc')} <strong className="font-mono">{trackingId}</strong>. {t('grievance.notFoundVerify')}
                   </p>
                 </div>
               ) : searchResult ? (
@@ -749,8 +756,8 @@ function GrievancePortal() {
                   <div>
                     <div className="flex justify-between items-center mb-6">
                       <div>
-                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                          Ticket Reference
+                        <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider text-left">
+                          {t('grievance.ticketRef')}
                         </span>
                         <span className="text-lg font-mono font-black text-navy-900 tracking-wider">
                           {searchResult.id}
@@ -762,7 +769,10 @@ function GrievancePortal() {
                         searchResult.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700' :
                         'bg-slate-100 text-slate-700'
                       }`}>
-                        {searchResult.status.replace('_', ' ')}
+                        {searchResult.status === 'PENDING' ? t('grievance.statusPending') :
+                         searchResult.status === 'IN_PROGRESS' ? t('grievance.statusInProgress') :
+                         searchResult.status === 'RESOLVED' ? t('grievance.statusResolved') :
+                         searchResult.status}
                       </span>
                     </div>
 
@@ -786,7 +796,7 @@ function GrievancePortal() {
                           }`}>
                             <Calendar className="w-4 h-4" />
                           </div>
-                          <span className="text-[10px] font-bold text-navy-900 mt-2">SUBMITTED</span>
+                          <span className="text-[10px] font-bold text-navy-900 mt-2">{t('grievance.statusPending')}</span>
                         </div>
 
                         {/* Point 2 */}
@@ -800,7 +810,7 @@ function GrievancePortal() {
                           }`}>
                             <Clock className="w-4 h-4" />
                           </div>
-                          <span className="text-[10px] font-bold text-navy-900 mt-2">UNDER REVIEW</span>
+                          <span className="text-[10px] font-bold text-navy-900 mt-2">{t('grievance.statusInProgress')}</span>
                         </div>
 
                         {/* Point 3 */}
@@ -814,7 +824,7 @@ function GrievancePortal() {
                           }`}>
                             <CheckCircle className="w-4 h-4" />
                           </div>
-                          <span className="text-[10px] font-bold text-navy-900 mt-2">RESOLUTION</span>
+                          <span className="text-[10px] font-bold text-navy-900 mt-2">{t('grievance.statusResolved')}</span>
                         </div>
                       </div>
                     </div>
@@ -824,12 +834,17 @@ function GrievancePortal() {
                   <div className="border-t border-slate-100 pt-6 space-y-4 text-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <span className="block text-xs text-slate-400 font-semibold mb-0.5">Category</span>
-                        <span className="font-bold text-navy-900">{searchResult.category}</span>
+                        <span className="block text-xs text-slate-400 font-semibold mb-0.5">{t('grievance.categoryLabelField')}</span>
+                        <span className="font-bold text-navy-900">
+                          {(() => {
+                            const catObj = grievanceCategories[searchResult.category]
+                            return catObj ? (catObj[language] || catObj['en']) : searchResult.category
+                          })()}
+                        </span>
                       </div>
                       <div>
-                        <span className="block text-xs text-slate-400 font-semibold mb-0.5">Registered Date</span>
-                        <span className="font-bold text-navy-900">{new Date(searchResult.createdAt).toLocaleDateString()}</span>
+                        <span className="block text-xs text-slate-400 font-semibold mb-0.5">{t('grievance.registeredDate')}</span>
+                        <span className="font-bold text-navy-900">{new Date(searchResult.createdAt).toLocaleDateString(language === 'te' ? 'te-IN' : 'en-IN')}</span>
                       </div>
                     </div>
 
@@ -838,28 +853,28 @@ function GrievancePortal() {
                       <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl">
                         <span className="block text-xs text-slate-400 font-semibold mb-1 flex items-center">
                           <MapPin className="w-3.5 h-3.5 mr-1 text-saffron-600" />
-                          Citizen Geographic Area / Address
+                          {t('grievance.geoArea')}
                         </span>
-                        <div className="font-semibold text-navy-900 text-sm space-y-1">
+                        <div className="font-semibold text-navy-900 text-sm space-y-1 text-left">
                           <div>
-                            <span className="text-slate-400 font-normal">State: </span>{searchResult.state || 'N/A'}
+                            <span className="text-slate-400 font-normal">{t('grievance.stateLabelField')}: </span>{searchResult.state || 'N/A'}
                             <span className="text-slate-300 mx-2">|</span>
-                            <span className="text-slate-400 font-normal">District: </span>{searchResult.district || 'N/A'}
+                            <span className="text-slate-400 font-normal">{t('grievance.districtLabelField')}: </span>{searchResult.district || 'N/A'}
                           </div>
                           {(searchResult.cityTown || searchResult.mandal || searchResult.villageWard) && (
                             <div>
-                              <span className="text-slate-400 font-normal">Area: </span>
+                              <span className="text-slate-400 font-normal">{t('grievance.areaLabelField')}: </span>
                               {[searchResult.villageWard, searchResult.mandal, searchResult.cityTown].filter(Boolean).join(', ')}
                             </div>
                           )}
                           {searchResult.address && (
                             <div>
-                              <span className="text-slate-400 font-normal">Address: </span>{searchResult.address}
+                              <span className="text-slate-400 font-normal">{t('grievance.addressLabelField')}: </span>{searchResult.address}
                             </div>
                           )}
                           {searchResult.pincode && (
                             <div>
-                              <span className="text-slate-400 font-normal">Pincode: </span>{searchResult.pincode}
+                              <span className="text-slate-400 font-normal">{t('grievance.pincodeLabelField')}: </span>{searchResult.pincode}
                             </div>
                           )}
                         </div>
@@ -867,22 +882,22 @@ function GrievancePortal() {
                     )}
 
                     <div>
-                      <span className="block text-xs text-slate-400 font-semibold mb-0.5">Subject</span>
-                      <span className="font-bold text-navy-900 text-base">{searchResult.subject}</span>
+                      <span className="block text-xs text-slate-400 font-semibold mb-0.5">{t('grievance.subjectLabelField')}</span>
+                      <span className="font-bold text-navy-900 text-base block text-left">{searchResult.subject}</span>
                     </div>
 
                     <div>
-                      <span className="block text-xs text-slate-400 font-semibold mb-0.5">Description Submitted</span>
-                      <p className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl text-sm border border-slate-100">
+                      <span className="block text-xs text-slate-400 font-semibold mb-0.5">{t('grievance.descriptionLabelField')}</span>
+                      <p className="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 text-left">
                         {searchResult.description}
                       </p>
                     </div>
 
                     {searchResult.adminNotes && (
-                      <div className="p-4 bg-saffron-100/50 border border-saffron-200/60 text-slate-800 rounded-xl">
+                      <div className="p-4 bg-saffron-100/50 border border-saffron-200/60 text-slate-800 rounded-xl text-left">
                         <span className="block text-xs font-bold text-saffron-700 uppercase tracking-wider mb-1.5 flex items-center">
                           <AlertCircle className="w-3.5 h-3.5 mr-1" />
-                          Official Office Response
+                          {t('grievance.officialResponse')}
                         </span>
                         <p className="text-sm font-medium leading-relaxed">
                           {searchResult.adminNotes}

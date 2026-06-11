@@ -1,28 +1,83 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Landmark, FileText, LifeBuoy, Image as ImageIcon } from 'lucide-react'
+import { Menu, X, LifeBuoy, Globe } from 'lucide-react'
+import { useLanguage } from '@/components/LanguageContext'
+import { Language } from '@/lib/translations'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const { language, setLanguage, t } = useLanguage()
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+
+  const [settings, setSettings] = useState({
+    candidateName: 'B. Ramakrishna',
+    roleBadge: 'Rajya Sabha MP'
+  })
+
+  useEffect(() => {
+    import('@/sanity/lib/client').then(({ client }) => {
+      client.fetch(`*[_type == "siteSettings"][0] { candidateName, roleBadge }`)
+        .then((data) => {
+          if (data) {
+            let dispName = data.candidateName || 'B. Ramakrishna'
+            if (typeof dispName === 'object') {
+              // Localized string fallback
+              dispName = dispName[language] || dispName['en'] || 'B. Ramakrishna'
+            }
+            if (dispName.startsWith('Bhashyam')) {
+              dispName = 'B. Ramakrishna'
+            }
+
+            let badge = data.roleBadge || 'Rajya Sabha MP'
+            if (typeof badge === 'object') {
+              badge = badge[language] || badge['en'] || 'Rajya Sabha MP'
+            }
+
+            setSettings({
+              candidateName: dispName,
+              roleBadge: badge
+            })
+          }
+        })
+        .catch((err) => console.error('Error fetching settings in Navbar:', err))
+    })
+  }, [language])
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang)
+    setLangDropdownOpen(false)
+  }
+
+  const languageLabels: Record<Language, string> = {
+    en: 'English',
+    te: 'తెలుగు',
+    ten: 'Tenglish'
+  }
 
   return (
-    <nav className="sticky top-0 z-50 glass-panel border-b border-slate-200">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-saffron-400 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
+          
           {/* Logo Brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-12 h-12 bg-navy-900 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-                <Landmark className="w-6 h-6 text-saffron-500" />
+              <div className="w-12 h-12 bg-navy-900 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 border border-navy-950 shadow-md">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src="/images/telugudesamlogo.png" 
+                  alt="TDP Logo" 
+                  className="w-8 h-8 object-contain" 
+                />
               </div>
               <div>
-                <span className="block font-bold text-lg text-navy-900 tracking-wide leading-tight uppercase">
-                  B. Ramakrishna
+                <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-tight uppercase">
+                  {settings.candidateName}
                 </span>
-                <span className="block text-xs font-semibold text-saffron-600 tracking-widest uppercase">
-                  Rajya Sabha MP
+                <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase">
+                  {settings.roleBadge}
                 </span>
               </div>
             </Link>
@@ -32,45 +87,86 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/"
-              className="text-sm font-semibold text-navy-900 hover:text-saffron-600 transition-colors"
+              className="text-sm font-bold text-navy-900 hover:text-saffron-600 transition-colors"
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               href="/about"
-              className="text-sm font-semibold text-slate-600 hover:text-saffron-600 transition-colors"
+              className="text-sm font-bold text-slate-600 hover:text-saffron-600 transition-colors"
             >
-              About MP
+              {t('nav.about')}
             </Link>
             <Link
               href="/state-focus"
-              className="text-sm font-semibold text-slate-600 hover:text-saffron-600 transition-colors"
+              className="text-sm font-bold text-slate-600 hover:text-saffron-600 transition-colors"
             >
-              State Focus
+              {t('nav.stateFocus')}
             </Link>
             <Link
               href="/development-works"
-              className="text-sm font-semibold text-slate-600 hover:text-saffron-600 transition-colors"
+              className="text-sm font-bold text-slate-600 hover:text-saffron-600 transition-colors"
             >
-              Public Initiatives
+              {t('nav.publicInitiatives')}
             </Link>
             <Link
               href="/contact"
-              className="text-sm font-semibold text-slate-600 hover:text-saffron-600 transition-colors"
+              className="text-sm font-bold text-slate-600 hover:text-saffron-600 transition-colors"
             >
-              Contact Office
+              {t('nav.contact')}
             </Link>
+
+            {/* Language Switcher Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center space-x-1 px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <Globe className="w-3.5 h-3.5 text-navy-900" />
+                <span>{languageLabels[language]}</span>
+              </button>
+
+              {langDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-32 rounded-xl bg-white border border-slate-200 shadow-xl py-1 z-50">
+                  {(['en', 'te', 'ten'] as Language[]).map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => handleLanguageChange(lang)}
+                      className={`block w-full text-left px-4 py-2 text-xs font-bold transition-colors cursor-pointer hover:bg-slate-50 ${
+                        language === lang ? 'text-saffron-600 bg-saffron-50/50' : 'text-slate-700'
+                      }`}
+                    >
+                      {languageLabels[lang]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Grievance Portal CTA */}
             <Link
               href="/grievance"
-              className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-bold text-white bg-navy-900 hover:bg-navy-800 border border-navy-900 shadow-md transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-extrabold text-white bg-navy-900 hover:bg-navy-800 border border-navy-950 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
-              <LifeBuoy className="w-4 h-4 mr-2 text-saffron-500" />
-              Grievance Portal
+              <LifeBuoy className="w-4 h-4 mr-2 text-saffron-400" />
+              {t('nav.grievancePortal')}
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden space-x-2">
+            {/* Quick Language switch on mobile header */}
+            <button
+              onClick={() => {
+                const nextLang: Record<Language, Language> = { en: 'te', te: 'ten', ten: 'en' }
+                setLanguage(nextLang[language])
+              }}
+              className="p-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 bg-slate-50 flex items-center space-x-1"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span className="uppercase">{language}</span>
+            </button>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg text-slate-600 hover:text-navy-900 hover:bg-slate-100 transition-colors"
@@ -84,50 +180,74 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {isOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white/95 backdrop-blur-md transition-all">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="md:hidden border-t border-slate-100 bg-white/98 backdrop-blur-md transition-all">
+          <div className="px-3 pt-3 pb-5 space-y-1 sm:px-4">
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-navy-900 hover:bg-slate-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-bold text-navy-900 hover:bg-slate-50"
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               href="/about"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
             >
-              About MP
+              {t('nav.about')}
             </Link>
             <Link
               href="/state-focus"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
             >
-              State Focus
+              {t('nav.stateFocus')}
             </Link>
             <Link
               href="/development-works"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
             >
-              Public Initiatives
+              {t('nav.publicInitiatives')}
             </Link>
             <Link
               href="/contact"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-50"
+              className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
             >
-              Contact Office
+              {t('nav.contact')}
             </Link>
+
+            {/* Mobile language switchers */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Select Language</span>
+              <div className="flex space-x-2">
+                {(['en', 'te', 'ten'] as Language[]).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      handleLanguageChange(lang)
+                      setIsOpen(false)
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                      language === lang 
+                        ? 'bg-saffron-500 border-saffron-500 text-navy-900 shadow-sm' 
+                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {languageLabels[lang]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <Link
               href="/grievance"
               onClick={() => setIsOpen(false)}
-              className="flex items-center px-3 py-3 mt-2 rounded-md text-base font-bold text-white bg-navy-900 hover:bg-navy-800"
+              className="flex items-center px-4 py-3.5 mt-4 rounded-xl text-base font-black text-white bg-navy-900 hover:bg-navy-800 shadow-md"
             >
-              <LifeBuoy className="w-5 h-5 mr-2 text-saffron-500" />
-              Grievance Portal
+              <LifeBuoy className="w-5 h-5 mr-2 text-saffron-400 animate-pulse" />
+              {t('nav.grievancePortal')}
             </Link>
           </div>
         </div>

@@ -1,0 +1,42 @@
+import { defineField, defineType } from 'sanity'
+
+export const stateSector = defineType({
+  name: 'stateSector',
+  title: 'State Focus Sector',
+  type: 'document',
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Sector Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'short',
+      title: 'Short Description',
+      type: 'localeString',
+    }),
+    defineField({
+      name: 'iconName',
+      title: 'Icon Name (Lucide)',
+      type: 'string',
+      description: 'E.g. BookOpen, HeartPulse, Sprout, Navigation, Briefcase, Users, Cpu, Leaf',
+    }),
+    defineField({
+      name: 'vision',
+      title: 'Development Vision',
+      type: 'localeText',
+    }),
+    defineField({
+      name: 'concerns',
+      title: 'Key Focus Points & Concerns',
+      type: 'array',
+      of: [{ type: 'localeString' }],
+    }),
+    defineField({
+      name: 'order',
+      title: 'Display Order',
+      type: 'number',
+    }),
+  ],
+})
