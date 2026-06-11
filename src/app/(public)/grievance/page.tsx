@@ -182,6 +182,7 @@ function GrievancePortal() {
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '')
   const [isSearching, setIsSearching] = useState(false)
   const [searchResult, setSearchResult] = useState<MockTicket | null | undefined>(undefined) // undefined = not searched, null = not found
+  const [lastSearchedId, setLastSearchedId] = useState('')
 
   // Sync tab with URL
   useEffect(() => {
@@ -193,13 +194,21 @@ function GrievancePortal() {
     }
   }, [searchParams])
 
-  // If tracking ID was in URL on mount, search it immediately
+  // Sync trackingId input when URL id query param changes
   useEffect(() => {
     const id = searchParams.get('id')
-    if (id && activeTab === 'track') {
+    if (id) {
+      setTrackingId(id)
+    }
+  }, [searchParams])
+
+  // If tracking ID was in URL on mount, search it immediately (prevent loop using lastSearchedId)
+  useEffect(() => {
+    const id = searchParams.get('id')
+    if (id && activeTab === 'track' && lastSearchedId !== id && !isSearching) {
       handleTrack(null, id)
     }
-  }, [activeTab, searchParams])
+  }, [activeTab, searchParams, lastSearchedId, isSearching])
 
   // Handle Tab Switch
   const switchTab = (tab: 'submit' | 'track') => {
@@ -304,6 +313,7 @@ function GrievancePortal() {
     const queryId = directId || trackingId
     if (!queryId.trim()) return
 
+    setLastSearchedId(queryId) // Record search to prevent loop
     setIsSearching(true)
     setSearchResult(undefined)
 
