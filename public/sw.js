@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brk-mp-cache-v1';
+const CACHE_NAME = 'brk-mp-cache-v2';
 const ASSETS = [
   '/',
   '/manifest.json',
@@ -38,14 +38,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request)
+  const url = new URL(event.request.url);
+  const isNavigate = event.request.mode === 'navigate';
+  const isApi = url.pathname.startsWith('/api/');
+
+  // Network-First strategy for documents (navigation) and API requests
+  if (isNavigate || isApi) {
+    event.respondWith(
+      fetch(event.request)
         .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
@@ -54,10 +56,42 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If offline and requesting navigation, return cache index fallback
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
+          // Offline fallback
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // If it is a navigate request and cache misses, return index fallback
+            if (isNavigate) {
+              return caches.match('/');
+            }
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-First (with network fallback & cache populate) for static assets
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (
+            networkResponse && 
+            networkResponse.status === 200 && 
+            (networkResponse.type === 'basic' || url.origin === self.location.origin)
+          ) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
           }
+          return networkResponse;
+        })
+        .catch(() => {
           return null;
         });
     })
