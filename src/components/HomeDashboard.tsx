@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
+import AnimatedHeaderBanner from '@/components/AnimatedHeaderBanner'
 
 interface UpdateItem {
   _id: string
@@ -188,14 +189,8 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      {/* Full-width Header Banner */}
-      <div className="w-full overflow-hidden bg-white border-b border-slate-200/80 relative aspect-[2.33/1] max-h-[260px] sm:max-h-[380px] md:max-h-[480px] shadow-sm">
-        <img
-          src="/images/header.png"
-          alt="Telugu Desam Party Banner"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Full-width Animated Header Banner */}
+      <AnimatedHeaderBanner />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
@@ -286,10 +281,10 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
             <div className="space-y-3">
               <Link
                 href="/grievance"
-                className="flex items-center justify-between w-full px-5 py-3.5 bg-navy-900 text-white rounded-2xl font-bold text-sm hover:bg-navy-800 shadow-md transition-all group-hover:shadow-lg"
+                className="flex items-center justify-between w-full px-5 py-3.5 bg-saffron-400 text-navy-950 rounded-2xl font-bold text-sm hover:bg-saffron-500 shadow-md transition-all group-hover:shadow-lg"
               >
                 <span>{t('grievance.submitTab')}</span>
-                <ArrowRight className="w-4 h-4 text-saffron-400 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-navy-950 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/grievance?tab=track"
@@ -304,19 +299,28 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
           <motion.div
             variants={itemVariants}
             id="updates"
-            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
+            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
           >
             <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
                 <TrendingUp className="w-5 h-5 text-saffron-600" />
                 <h3 className="text-lg font-bold text-navy-900">{t('section.updates')}</h3>
               </div>
-              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Latest Session</span>
+              <div className="flex items-center space-x-3">
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Session</span>
+                <Link
+                  href="/parliamentary-updates"
+                  className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
+                >
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
 
             {updates && updates.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                   {updates.slice(0, 9).map((update) => {
                     const utitle = tContent(update.title)
                     const usummary = tContent(update.summary)
@@ -331,7 +335,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                           speechUrl: update.speechUrl,
                           documentUrl: update.documentUrl,
                         })}
-                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-5 transition-all duration-200 flex flex-col justify-between"
+                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between"
                       >
                         <div>
                           <div className="flex items-center justify-between mb-2.5">
@@ -369,14 +373,14 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                     )
                   })}
                 </div>
-                {updates.length > 9 && (
+                {updates.length > 0 && (
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/parliamentary-updates"
-                      className="inline-flex items-center px-6 py-3 bg-navy-900 hover:bg-navy-800 text-white text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
                     >
                       <span>View All Updates</span>
-                      <ChevronRight className="w-4 h-4 text-saffron-400" />
+                      <ChevronRight className="w-4 h-4 text-navy-950" />
                     </Link>
                   </div>
                 )}
@@ -390,18 +394,25 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
           <motion.div
             variants={itemVariants}
             id="news"
-            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
+            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
           >
             <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
                 <FileText className="w-5 h-5 text-saffron-600" />
                 <h3 className="text-lg font-bold text-navy-900">{t('section.news')}</h3>
               </div>
+              <Link
+                href="/press-releases"
+                className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
+              >
+                <span>View All</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
 
             {news && news.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                   {news.slice(0, 9).map((item) => {
                     const ntitle = tContent(item.title)
                     const nexcerpt = tContent(item.excerpt)
@@ -412,7 +423,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                     return (
                       <div
                         key={item._id}
-                        className="group flex flex-col cursor-pointer bg-slate-50 hover:bg-saffron-50/20 border border-slate-100 hover:border-saffron-200 rounded-2xl p-5 transition-all duration-300 hover:shadow-md"
+                        className="group flex flex-col cursor-pointer bg-slate-50 hover:bg-saffron-50/20 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md"
                         onClick={() => setActiveContent({
                           type: 'news',
                           title: ntitle,
@@ -450,14 +461,14 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                     )
                   })}
                 </div>
-                {news.length > 9 && (
+                {news.length > 0 && (
                   <div className="mt-8 flex justify-center">
                     <Link
                       href="/press-releases"
-                      className="inline-flex items-center px-6 py-3 bg-navy-900 hover:bg-navy-800 text-white text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
                     >
                       <span>View All Releases</span>
-                      <ChevronRight className="w-4 h-4 text-saffron-400" />
+                      <ChevronRight className="w-4 h-4 text-navy-950" />
                     </Link>
                   </div>
                 )}
@@ -661,9 +672,9 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                       href={activeContent.speechUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-navy-900 text-white text-sm font-bold hover:bg-navy-800 transition-colors shadow-sm"
+                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-saffron-400 text-navy-950 text-sm font-bold hover:bg-saffron-500 transition-colors shadow-sm"
                     >
-                      <Video className="w-4 h-4 mr-2 text-saffron-400" />
+                      <Video className="w-4 h-4 mr-2 text-navy-950" />
                       Watch Speech
                       <ExternalLink className="w-3.5 h-3.5 ml-2 opacity-60" />
                     </a>

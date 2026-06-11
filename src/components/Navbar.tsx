@@ -175,7 +175,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-5 lg:space-x-6">
+            <div className="hidden lg:flex items-center space-x-5 lg:space-x-6">
               <Link
                 href="/"
                 className={`text-sm font-bold transition-colors py-2 ${
@@ -278,15 +278,15 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               {/* Grievance Portal CTA */}
               <Link
                 href="/grievance"
-                className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-extrabold text-white bg-navy-900 hover:bg-navy-800 border border-navy-950 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-extrabold text-navy-950 bg-saffron-400 hover:bg-saffron-500 border border-saffron-500/30 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <LifeBuoy className="w-4 h-4 mr-2 text-saffron-400" />
+                <LifeBuoy className="w-4 h-4 mr-2 text-navy-950" />
                 {t('nav.grievancePortal')}
               </Link>
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="flex items-center md:hidden space-x-2">
+            <div className="flex items-center lg:hidden space-x-2">
               {/* Quick Language switch on mobile header */}
               <button
                 onClick={() => {
@@ -312,7 +312,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
         {/* Mobile Drawer (Hamburger Menu displaying EVERY link) */}
         {isOpen && (
-          <div className="md:hidden absolute top-20 left-0 right-0 z-40 border-t border-slate-100 bg-white/98 backdrop-blur-md transition-all shadow-xl">
+          <div className="lg:hidden absolute top-20 left-0 right-0 z-40 border-t border-slate-100 bg-white/98 backdrop-blur-md transition-all shadow-xl">
             <div className="px-3 pt-3 pb-5 space-y-1 sm:px-4">
               <Link
                 href="/"
@@ -399,7 +399,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       </nav>
 
       {/* Mobile Dedicated Bottom Navigation Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
         <div className="flex justify-around items-center h-16 px-2">
           <Link
             href="/"

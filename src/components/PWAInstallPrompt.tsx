@@ -128,7 +128,7 @@ export default function PWAInstallPrompt() {
               <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex-shrink-0 border-2 border-slate-100 shadow-md">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
-                  src="/images/telugudesamlogo.png" 
+                  src="/images/logo.png?v=2" 
                   alt="App Icon" 
                   className="w-full h-full object-cover"
                 />

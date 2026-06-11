@@ -226,16 +226,16 @@ export default function ContactClient({ settings }: ContactClientProps) {
                 <button
                   type="submit"
                   disabled={isSending || !name || !email || !message}
-                  className="w-full py-3.5 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 bg-saffron-400 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-navy-950 rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2"
                 >
                   {isSending ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-saffron-500" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-navy-950" />
                       <span>{t('contact.sendingText')}</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-4 h-4 text-saffron-500" />
+                      <Send className="w-4 h-4 text-navy-950" />
                       <span>{t('contact.sendButton')}</span>
                     </>
                   )}

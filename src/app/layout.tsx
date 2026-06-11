@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   description: "Official public service portal of Bhashyam Ramakrishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Telugu Desam Party (TDP) Rajya Sabha Candidate from Andhra Pradesh.",
   keywords: ["Bhashyam Ramakrishna", "Rajya Sabha MP AP", "Andhra Pradesh Rajya Sabha", "Telugu Desam Party", "Bhashyam Chairman", "Grievance Portal AP", "State Focus Andhra Pradesh"],
   icons: {
-    icon: "/images/telugudesamlogo.png",
-    shortcut: "/images/telugudesamlogo.png",
-    apple: "/images/telugudesamlogo.png",
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
   },
   manifest: "/manifest.json",
 };
@@ -39,7 +39,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 pb-20 md:pb-0">
+      <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0">
         <PWARegistration />
         <LanguageProvider>
           <PWAInstallPrompt />

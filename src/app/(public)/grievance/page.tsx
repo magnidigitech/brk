@@ -404,7 +404,7 @@ function GrievancePortal() {
             onClick={() => switchTab('submit')}
             className={`flex-1 py-3 text-center rounded-lg text-sm font-bold transition-all ${
               activeTab === 'submit'
-                ? 'bg-navy-900 text-white shadow-md'
+                ? 'bg-saffron-400 text-navy-950 shadow-md'
                 : 'text-slate-500 hover:text-navy-900 hover:bg-slate-50'
             }`}
           >
@@ -414,7 +414,7 @@ function GrievancePortal() {
             onClick={() => switchTab('track')}
             className={`flex-1 py-3 text-center rounded-lg text-sm font-bold transition-all ${
               activeTab === 'track'
-                ? 'bg-navy-900 text-white shadow-md'
+                ? 'bg-saffron-400 text-navy-950 shadow-md'
                 : 'text-slate-500 hover:text-navy-900 hover:bg-slate-50'
             }`}
           >
@@ -471,7 +471,7 @@ function GrievancePortal() {
                         setSubmitSuccess(null)
                         switchTab('track')
                       }}
-                      className="px-6 py-3.5 bg-navy-900 text-white hover:bg-navy-800 rounded-xl text-sm font-bold shadow-md transition-all"
+                      className="px-6 py-3.5 bg-saffron-400 text-navy-950 hover:bg-saffron-500 rounded-xl text-sm font-bold shadow-md transition-all"
                     >
                       {t('grievance.trackThisButton')}
                     </button>
@@ -738,16 +738,16 @@ function GrievancePortal() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-4 bg-navy-900 text-white hover:bg-navy-800 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2"
+                      className="w-full py-4 bg-saffron-400 text-navy-950 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2"
                     >
                       {isSubmitting ? (
                         <>
-                          <RefreshCw className="w-4.5 h-4.5 animate-spin text-saffron-500" />
+                          <RefreshCw className="w-4.5 h-4.5 animate-spin text-navy-950" />
                           <span>{t('grievance.submittingText')}</span>
                         </>
                       ) : (
                         <>
-                          <Send className="w-4.5 h-4.5 text-saffron-500" />
+                          <Send className="w-4.5 h-4.5 text-navy-950" />
                           <span>{t('grievance.submitButton')}</span>
                         </>
                       )}
@@ -786,11 +786,11 @@ function GrievancePortal() {
                   <button
                     type="submit"
                     disabled={isSearching || !trackingId.trim()}
-                    className="px-6 py-3.5 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold shadow-md transition-all shrink-0 flex items-center justify-center space-x-2"
+                    className="px-6 py-3.5 bg-saffron-400 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-navy-950 rounded-xl text-sm font-bold shadow-md transition-all shrink-0 flex items-center justify-center space-x-2"
                   >
                     {isSearching ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-saffron-500" />
+                        <RefreshCw className="w-4 h-4 animate-spin text-navy-950" />
                         <span>{t('grievance.searchingText')}</span>
                       </>
                     ) : (
@@ -1135,7 +1135,7 @@ function GrievancePortal() {
                             setStateName(modalState.trim())
                             setShowLocationModal(false)
                           }}
-                          className="flex-1 px-5 py-3 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-navy-900 text-xs font-bold transition-all text-center cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 px-5 py-3 rounded-xl bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-xs font-bold transition-all text-center cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Save & Confirm
                         </button>

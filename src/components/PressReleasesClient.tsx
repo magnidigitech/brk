@@ -435,9 +435,9 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                       href={activeContent.speechUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-navy-900 text-white text-sm font-bold hover:bg-navy-800 transition-colors shadow-sm"
+                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-saffron-400 text-navy-950 text-sm font-bold hover:bg-saffron-500 transition-colors shadow-sm"
                     >
-                      <Video className="w-4 h-4 mr-2 text-saffron-400" />
+                      <Video className="w-4 h-4 mr-2 text-navy-950" />
                       Watch Speech
                       <ExternalLink className="w-3.5 h-3.5 ml-2 opacity-60" />
                     </a>

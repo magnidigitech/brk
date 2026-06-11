@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brk-mp-cache-v3';
+const CACHE_NAME = 'brk-mp-cache-v4';
 const ASSETS = [
   '/',
   '/manifest.json',
