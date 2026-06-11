@@ -112,6 +112,25 @@ function renderBody(body: any[]): string[] {
   return paragraphs
 }
 
+/** Download an image by fetching it as a blob (works cross-origin) */
+async function downloadImage(src: string, filename: string) {
+  try {
+    const response = await fetch(src)
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename || 'image.jpg'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch {
+    // Fallback: open in new tab so user can save manually
+    window.open(src, '_blank')
+  }
+}
+
 export default function HomeDashboard({ updates, news, gallery, settings }: HomeDashboardProps) {
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
@@ -419,39 +438,66 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setActiveMedia(null)}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm cursor-zoom-out"
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
           >
+            {/* Top bar: close + download */}
+            <div
+              className="w-full max-w-5xl flex items-center justify-between mb-3 px-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="text-white/70 text-xs font-semibold truncate max-w-xs">{activeMedia.title}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => downloadImage(activeMedia.src, `${activeMedia.title.replace(/\s+/g, '-')}.jpg`)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-navy-900 text-xs font-bold transition-colors shadow-lg cursor-pointer"
+                  aria-label="Download image"
+                >
+                  <Download className="w-4 h-4" />
+                  Download
+                </button>
+                <button
+                  onClick={() => setActiveMedia(null)}
+                  className="w-9 h-9 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Full image */}
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl overflow-hidden max-w-3xl w-full border-2 border-saffron-400 shadow-2xl relative cursor-default"
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0"
             >
-              <button
-                onClick={() => setActiveMedia(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/75 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeMedia.src}
+                alt={activeMedia.title}
+                className="max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
+              />
+            </motion.div>
+
+            {/* Caption / date below image */}
+            {(activeMedia.caption || activeMedia.date) && (
+              <div
+                className="mt-4 text-center max-w-2xl"
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={activeMedia.src} alt={activeMedia.title} className="max-h-full max-w-full object-contain" />
-              </div>
-              <div className="p-6 border-t border-slate-100 bg-white">
                 {activeMedia.date && (
-                  <span className="block text-[10px] text-saffron-600 font-bold uppercase tracking-wider mb-1">
+                  <span className="block text-saffron-400 text-[11px] font-bold uppercase tracking-wider mb-1">
                     {new Date(activeMedia.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                   </span>
                 )}
-                <h3 className="text-xl font-bold text-navy-900 mb-2">{activeMedia.title}</h3>
                 {activeMedia.caption && (
-                  <p className="text-slate-600 text-sm leading-relaxed">{activeMedia.caption}</p>
+                  <p className="text-white/75 text-sm leading-relaxed">{activeMedia.caption}</p>
                 )}
               </div>
-            </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -510,15 +556,30 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                   {activeContent.title}
                 </h2>
 
-                {/* Image (if press release with image) */}
+                {/* Image (if press release with image) — click to expand, download button */}
                 {activeContent.imageSrc && (
-                  <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                  <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                    onClick={() => {
+                      setActiveContent(null)
+                      setTimeout(() => setActiveMedia({
+                        src: activeContent.imageSrc!,
+                        title: activeContent.title,
+                        date: activeContent.date,
+                      }), 150)
+                    }}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={activeContent.imageSrc}
                       alt={activeContent.title}
-                      className="w-full object-cover max-h-72"
+                      className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
                     />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                      <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        Click to view full image
+                      </span>
+                    </div>
                   </div>
                 )}
 
