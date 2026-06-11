@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brk-mp-cache-v2';
+const CACHE_NAME = 'brk-mp-cache-v3';
 const ASSETS = [
   '/',
   '/manifest.json',
@@ -39,6 +39,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(event.request.url);
+
+  // Bypass service worker for Sanity Studio administrative routes
+  if (url.pathname.startsWith('/studio')) {
+    return;
+  }
+
   const isNavigate = event.request.mode === 'navigate';
   const isApi = url.pathname.startsWith('/api/');
 
