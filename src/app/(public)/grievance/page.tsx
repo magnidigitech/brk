@@ -100,6 +100,89 @@ function GrievancePortal() {
   const [submitSuccess, setSubmitSuccess] = useState<null | { id: string }>(null)
   const [copied, setCopied] = useState(false)
 
+  // Pincode dynamic lookup states
+  interface PincodeRec {
+    name: string
+    district: string
+    state: string
+  }
+  const [pincodeRecords, setPincodeRecords] = useState<PincodeRec[]>([])
+  const [isLoadingPincode, setIsLoadingPincode] = useState(false)
+  const [villageSelectMode, setVillageSelectMode] = useState<'select' | 'input'>('input')
+
+  // Helper to format place names nicely (e.g. PALNADU -> Palnadu)
+  const formatPlaceName = (str: string) => {
+    if (!str) return ''
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  // Handle village select option change
+  const handleVillageSelectChange = (val: string) => {
+    if (val === 'custom') {
+      setVillageSelectMode('input')
+      setVillageWard('')
+    } else {
+      setVillageWard(val)
+      const matched = pincodeRecords.find(r => formatPlaceName(r.name) === val)
+      if (matched) {
+        setDistrict(formatPlaceName(matched.district))
+        setStateName(formatPlaceName(matched.state))
+        // Prefill cityTown as well if empty
+        if (!cityTown) {
+          setCityTown(val)
+        }
+      }
+    }
+  }
+
+  // Fetch details when a 6-digit pincode is entered
+  useEffect(() => {
+    if (/^\d{6}$/.test(pincode)) {
+      const fetchPincodeDetails = async () => {
+        setIsLoadingPincode(true)
+        try {
+          const res = await fetch(`/api/pincode?code=${pincode}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.success && data.records && data.records.length > 0) {
+              setPincodeRecords(data.records)
+              setVillageSelectMode('select')
+              
+              // Prefill details from the first match
+              const first = data.records[0]
+              setStateName(formatPlaceName(first.state))
+              setDistrict(formatPlaceName(first.district))
+              setVillageWard(formatPlaceName(first.name))
+              if (!cityTown) {
+                setCityTown(formatPlaceName(first.name))
+              }
+            } else {
+              setPincodeRecords([])
+              setVillageSelectMode('input')
+            }
+          } else {
+            setPincodeRecords([])
+            setVillageSelectMode('input')
+          }
+        } catch (err) {
+          console.error('Error fetching pincode details:', err)
+          setPincodeRecords([])
+          setVillageSelectMode('input')
+        } finally {
+          setIsLoadingPincode(false)
+        }
+      }
+      fetchPincodeDetails()
+    } else {
+      setPincodeRecords([])
+      setVillageSelectMode('input')
+    }
+  }, [pincode])
+
   // Track Ticket States
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '')
   const [isSearching, setIsSearching] = useState(false)
@@ -545,17 +628,60 @@ function GrievancePortal() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.villageWard')}
-                        </label>
-                        <input
-                          type="text"
-                          value={villageWard}
-                          onChange={(e) => setVillageWard(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
-                          placeholder={t('grievance.villageWardPlaceholder')}
-                          disabled={isSubmitting}
-                        />
+                        {villageSelectMode === 'select' && pincodeRecords.length > 0 ? (
+                          <>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2 flex justify-between items-center">
+                              <span>{t('grievance.villageWard')}</span>
+                              <button
+                                type="button"
+                                onClick={() => setVillageSelectMode('input')}
+                                className="text-[10px] font-bold text-saffron-600 hover:text-saffron-700 underline capitalize"
+                              >
+                                Type manually
+                              </button>
+                            </label>
+                            <select
+                              value={villageWard}
+                              onChange={(e) => handleVillageSelectChange(e.target.value)}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none cursor-pointer"
+                              disabled={isSubmitting}
+                            >
+                              <option value="">-- Select Village / Town --</option>
+                              {pincodeRecords.map((rec, index) => {
+                                const nameFormatted = formatPlaceName(rec.name)
+                                return (
+                                  <option key={index} value={nameFormatted}>
+                                    {nameFormatted} ({formatPlaceName(rec.district)})
+                                  </option>
+                                )
+                              })}
+                              <option value="custom">✍️ Type manually...</option>
+                            </select>
+                          </>
+                        ) : (
+                          <>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2 flex justify-between items-center">
+                              <span>{t('grievance.villageWard')}</span>
+                              {pincodeRecords.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setVillageSelectMode('select')}
+                                  className="text-[10px] font-bold text-saffron-600 hover:text-saffron-700 underline capitalize"
+                                >
+                                  Select from list
+                                </button>
+                              )}
+                            </label>
+                            <input
+                              type="text"
+                              value={villageWard}
+                              onChange={(e) => setVillageWard(e.target.value)}
+                              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                              placeholder={t('grievance.villageWardPlaceholder')}
+                              disabled={isSubmitting}
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -579,16 +705,28 @@ function GrievancePortal() {
                         <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
                           {t('grievance.pincode')} *
                         </label>
-                        <input
-                          type="text"
-                          value={pincode}
-                          onChange={(e) => setPincode(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.pincodePlaceholder')}
-                          disabled={isSubmitting}
-                        />
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={pincode}
+                            onChange={(e) => setPincode(e.target.value)}
+                            className={`w-full px-4 py-3 rounded-xl border ${
+                              validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                            } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
+                            placeholder={t('grievance.pincodePlaceholder')}
+                            disabled={isSubmitting}
+                          />
+                          {isLoadingPincode && (
+                            <div className="absolute right-3 top-3 flex items-center justify-center">
+                              <RefreshCw className="w-4 h-4 text-saffron-500 animate-spin" />
+                            </div>
+                          )}
+                          {!isLoadingPincode && pincodeRecords.length > 0 && /^\d{6}$/.test(pincode) && (
+                            <div className="absolute right-3 top-3 flex items-center justify-center">
+                              <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Found</span>
+                            </div>
+                          )}
+                        </div>
                         {validationErrors.pincode && (
                           <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.pincode}</span>
                         )}
