@@ -20,7 +20,8 @@ export default async function Page() {
           title,
           date,
           summary,
-          speechUrl
+          speechUrl,
+          "documentUrl": document.asset->url
         }`
       }),
       sanityFetch<any[]>({
@@ -29,6 +30,7 @@ export default async function Page() {
           title,
           publishedAt,
           excerpt,
+          body,
           "image": mainImage
         }`
       }),
