@@ -15,7 +15,7 @@ export async function sanityFetch<
 >({
   query,
   params = {},
-  revalidate = 3600, // Cache content for 1 hour by default
+  revalidate = 0, // Disable Next.js data caching by default for live CMS updates
   tags = [],
 }: {
   query: QueryString

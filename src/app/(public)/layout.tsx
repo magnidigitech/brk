@@ -19,8 +19,7 @@ export default async function PublicLayout({
         socialLinks,
         delhiOffice,
         stateOffice
-      }`,
-      revalidate: 60, // Revalidate every minute in dev/preview
+      }`
     })
   } catch (err) {
     console.error('Failed to fetch siteSettings for layout:', err)
