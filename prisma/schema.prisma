@@ -1,0 +1,40 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum GrievanceStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+model GrievanceTicket {
+  id          String          @id // Unique generated tracking ID (e.g. GRV-YYYYMMDD-XXXX)
+  name        String
+  email       String
+  phone       String
+
+  state       String?
+  district    String?
+  cityTown    String?
+  mandal      String?
+  villageWard String?
+  address     String?
+  pincode     String?
+
+  category    String
+  subject     String
+  description String
+  status      GrievanceStatus @default(PENDING)
+  adminNotes  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([id])
+}
