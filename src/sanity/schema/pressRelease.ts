@@ -8,7 +8,7 @@ export const pressRelease = defineType({
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'localeString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -16,7 +16,7 @@ export const pressRelease = defineType({
       title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title.en', // source from the english title
+        source: 'title',
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
@@ -38,7 +38,7 @@ export const pressRelease = defineType({
     defineField({
       name: 'excerpt',
       title: 'Excerpt',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'body',

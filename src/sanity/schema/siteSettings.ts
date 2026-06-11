@@ -8,28 +8,28 @@ export const siteSettings = defineType({
     defineField({
       name: 'candidateName',
       title: 'Candidate Name',
-      type: 'localeString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'roleBadge',
       title: 'Role Badge Text',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'tagline',
       title: 'Tagline / Subtitle',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'partyName',
       title: 'Party Name',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'stateRepresented',
       title: 'State Represented',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'socialLinks',
@@ -46,7 +46,7 @@ export const siteSettings = defineType({
       title: 'New Delhi Office',
       type: 'object',
       fields: [
-        { name: 'address', title: 'Address', type: 'localeText' },
+        { name: 'address', title: 'Address', type: 'text' },
         { name: 'phone', title: 'Phone Number', type: 'string' },
         { name: 'email', title: 'Email Address', type: 'string' },
       ],
@@ -56,7 +56,7 @@ export const siteSettings = defineType({
       title: 'State Camp Office',
       type: 'object',
       fields: [
-        { name: 'address', title: 'Address', type: 'localeText' },
+        { name: 'address', title: 'Address', type: 'text' },
         { name: 'phone', title: 'Phone Number', type: 'string' },
         { name: 'email', title: 'Email Address', type: 'string' },
       ],

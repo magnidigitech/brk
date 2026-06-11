@@ -8,58 +8,58 @@ export const aboutPage = defineType({
     defineField({
       name: 'title',
       title: 'Page Title',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'subtitle',
       title: 'Page Subtitle',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'badgeText',
       title: 'Badge Text',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'profileShortName',
       title: 'Profile Name',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'bioParagraph1',
       title: 'Bio Paragraph 1',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'bioParagraph2',
       title: 'Bio Paragraph 2',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'eduTitle',
       title: 'Educational Leadership Title',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'eduContent',
       title: 'Educational Leadership Content',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'publicTitle',
       title: 'Public Service Journey Title',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'publicContent',
       title: 'Public Service Journey Content',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'focusAreas',
       title: 'Vision Focus Areas',
       type: 'array',
-      of: [{ type: 'localeString' }],
+      of: [{ type: 'string' }],
     }),
     defineField({
       name: 'values',
@@ -71,8 +71,8 @@ export const aboutPage = defineType({
           name: 'valueItem',
           title: 'Value Item',
           fields: [
-            { name: 'name', title: 'Value Name', type: 'localeString' },
-            { name: 'desc', title: 'Value Description', type: 'localeText' },
+            { name: 'name', title: 'Value Name', type: 'string' },
+            { name: 'desc', title: 'Value Description', type: 'text' },
           ],
         },
       ],
@@ -80,17 +80,17 @@ export const aboutPage = defineType({
     defineField({
       name: 'quoteText',
       title: 'Quote Text',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'quoteAuthor',
       title: 'Quote Author',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'summaryContent',
       title: 'Profile Summary',
-      type: 'localeText',
+      type: 'text',
     }),
   ],
 })

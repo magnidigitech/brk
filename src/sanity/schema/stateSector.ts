@@ -8,13 +8,13 @@ export const stateSector = defineType({
     defineField({
       name: 'title',
       title: 'Sector Title',
-      type: 'localeString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'short',
       title: 'Short Description',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'iconName',
@@ -25,13 +25,13 @@ export const stateSector = defineType({
     defineField({
       name: 'vision',
       title: 'Development Vision',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'concerns',
       title: 'Key Focus Points & Concerns',
       type: 'array',
-      of: [{ type: 'localeString' }],
+      of: [{ type: 'string' }],
     }),
     defineField({
       name: 'order',

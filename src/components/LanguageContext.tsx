@@ -15,12 +15,15 @@ const LanguageContext = createContext<LanguageContextProps | undefined>(undefine
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en')
 
-  // Load language preference from localStorage
+  // Load language preference from localStorage and set cookie
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('user-language') as Language
       if (stored === 'en' || stored === 'te' || stored === 'ten') {
         setLanguageState(stored)
+        document.cookie = `user-language=${stored}; path=/; max-age=31536000; SameSite=Lax`
+      } else {
+        document.cookie = 'user-language=en; path=/; max-age=31536000; SameSite=Lax'
       }
     }
   }, [])
@@ -29,6 +32,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(lang)
     if (typeof window !== 'undefined') {
       localStorage.setItem('user-language', lang)
+      document.cookie = `user-language=${lang}; path=/; max-age=31536000; SameSite=Lax`
+      // Force reload to trigger server-side translation of Sanity content
+      window.location.reload()
     }
   }
 

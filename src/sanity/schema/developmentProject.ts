@@ -8,28 +8,28 @@ export const developmentProject = defineType({
     defineField({
       name: 'category',
       title: 'Category',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'localeString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'location',
       title: 'Location',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'desc',
       title: 'Description',
-      type: 'localeText',
+      type: 'text',
     }),
     defineField({
       name: 'progress',
       title: 'Progress Status',
-      type: 'localeString',
+      type: 'string',
     }),
     defineField({
       name: 'order',

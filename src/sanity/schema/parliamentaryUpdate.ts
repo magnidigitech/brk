@@ -8,7 +8,7 @@ export const parliamentaryUpdate = defineType({
     defineField({
       name: 'title',
       title: 'Title',
-      type: 'localeString',
+      type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -16,7 +16,7 @@ export const parliamentaryUpdate = defineType({
       title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title.en',
+        source: 'title',
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
@@ -30,7 +30,7 @@ export const parliamentaryUpdate = defineType({
     defineField({
       name: 'summary',
       title: 'Summary',
-      type: 'localeText',
+      type: 'text',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

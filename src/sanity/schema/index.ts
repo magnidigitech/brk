@@ -5,7 +5,6 @@ import { siteSettings } from './siteSettings'
 import { aboutPage } from './aboutPage'
 import { stateSector } from './stateSector'
 import { developmentProject } from './developmentProject'
-import { localeString, localeText } from './localeTypes'
 
 export const schemaTypes = [
   pressRelease,
@@ -15,8 +14,6 @@ export const schemaTypes = [
   aboutPage,
   stateSector,
   developmentProject,
-  localeString,
-  localeText,
 ]
 
 
