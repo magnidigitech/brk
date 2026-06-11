@@ -108,7 +108,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
               {langDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-32 rounded-xl bg-white border border-slate-200 shadow-xl py-1 z-50">
-                  {(['en', 'te', 'ten'] as Language[]).map((lang) => (
+                  {(['en', 'te'] as Language[]).map((lang) => (
                     <button
                       key={lang}
                       onClick={() => handleLanguageChange(lang)}
@@ -202,7 +202,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Select Language</span>
               <div className="flex space-x-2">
-                {(['en', 'te', 'ten'] as Language[]).map((lang) => (
+                {(['en', 'te'] as Language[]).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => {

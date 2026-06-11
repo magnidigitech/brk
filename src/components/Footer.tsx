@@ -34,7 +34,7 @@ export default function Footer({ siteSettings }: FooterProps) {
   const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Ramakrishna')
   const roleBadge = tContent(siteSettings?.roleBadge, 'Member of Parliament (Rajya Sabha)')
   const instagram = siteSettings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/'
-  const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamrakakrishnaoffical'
+  const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamramakrishnaofficial'
   const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
   const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
   const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010')

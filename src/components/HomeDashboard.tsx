@@ -351,70 +351,14 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
             </div>
           </motion.div>
 
-          {/* 5. Activity Gallery */}
+          {/* Gallery section temporarily hidden — uncomment to restore
           <motion.div 
             variants={itemVariants}
             id="gallery"
             className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
           >
-            <div className="flex items-center space-x-2.5 mb-8 pb-3 border-b border-slate-100">
-              <Video className="w-5 h-5 text-saffron-600" />
-              <h3 className="text-lg font-bold text-navy-900">{t('section.gallery')}</h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {gallery && gallery.length > 0 ? (
-                gallery.map((img) => {
-                  const imgUrl = img.image 
-                    ? (typeof img.image === 'string' ? img.image : urlFor(img.image).width(800).height(480).url()) 
-                    : '/fallback.jpg'
-                  const gtitle = tContent(img.title)
-                  const gcaption = tContent(img.caption)
-                  return (
-                    <div 
-                      key={img._id} 
-                      onClick={() => {
-                        setActiveMedia({
-                          src: typeof img.image === 'string' ? img.image : urlFor(img.image).width(1200).url(),
-                          title: gtitle,
-                          caption: gcaption,
-                          date: img.date
-                        })
-                      }}
-                      className="group rounded-2xl overflow-hidden border border-slate-150 shadow-sm hover:shadow-md transition-all duration-300 bg-slate-50 cursor-pointer"
-                    >
-                      <div className="h-48 overflow-hidden relative bg-slate-200">
-                        <div className="absolute inset-0 bg-navy-900/10 flex items-center justify-center text-slate-400 group-hover:scale-105 transition-transform duration-500">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
-                            src={imgUrl} 
-                            alt={gtitle} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                      </div>
-                      <div className="p-5">
-                        <span className="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">
-                          {new Date(img.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
-                        </span>
-                        <h4 className="text-sm font-bold text-navy-900 group-hover:text-saffron-600 transition-colors mb-1.5">
-                          {gtitle}
-                        </h4>
-                        {gcaption && (
-                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-2">
-                            {gcaption}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <p className="text-sm text-slate-500 py-6 md:col-span-3 text-center">No images in gallery yet.</p>
-              )}
-            </div>
           </motion.div>
-
+          */}
         </motion.div>
 
       </div>

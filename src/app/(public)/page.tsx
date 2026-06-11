@@ -1,7 +1,8 @@
 import HomeDashboard from '@/components/HomeDashboard'
 import { sanityFetch } from '@/sanity/lib/client'
 
-// Always fetch fresh data - set to 60 for production ISR, 0 disables cache
+// Always fetch live data from Sanity — no caching
+export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function Page() {

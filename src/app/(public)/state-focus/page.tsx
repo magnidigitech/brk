@@ -1,6 +1,7 @@
 import { sanityFetch } from '@/sanity/lib/client'
 import StateFocusClient from '@/components/StateFocusClient'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
 export default async function StateFocusPage() {
