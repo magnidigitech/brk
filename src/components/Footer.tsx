@@ -1,69 +1,45 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Landmark, Mail, Phone, MapPin } from 'lucide-react'
+import { MapPin, Mail, Phone } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 
-export default function Footer() {
+interface FooterProps {
+  siteSettings?: {
+    candidateName?: any
+    roleBadge?: any
+    socialLinks?: {
+      instagram?: string
+      youtube?: string
+      twitter?: string
+    }
+    delhiOffice?: {
+      address?: any
+      phone?: string
+      email?: string
+    }
+    stateOffice?: {
+      address?: any
+      phone?: string
+      email?: string
+    }
+  } | null
+}
+
+export default function Footer({ siteSettings }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const { t, tContent } = useLanguage()
 
-  const [settings, setSettings] = useState({
-    candidateName: 'Bhashyam Ramakrishna' as any,
-    roleBadge: 'Member of Parliament (Rajya Sabha)' as any,
-    socialLinks: {
-      instagram: 'https://www.instagram.com/ramakrishnabhashyam/',
-      youtube: 'https://www.youtube.com/@bhashyamrakakrishnaoffical',
-      twitter: 'https://x.com/bhashyambrk'
-    },
-    delhiOffice: {
-      address: '12, Rajya Sabha Members Residences, New Delhi - 110001' as any,
-      phone: '+91 11 2301 XXXX',
-      email: 'delhi.office@bramakrishna.mp.in'
-    },
-    stateOffice: {
-      address: 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, Andhra Pradesh - 520010' as any,
-      phone: '+91 866 247 XXXX',
-      email: 'state.office@bramakrishna.mp.in'
-    }
-  })
-
-  useEffect(() => {
-    import('@/sanity/lib/client').then(({ client }) => {
-      client.fetch(`*[_type == "siteSettings"][0] {
-        candidateName,
-        roleBadge,
-        socialLinks,
-        delhiOffice,
-        stateOffice
-      }`)
-        .then((data) => {
-          if (data) {
-            setSettings({
-              candidateName: data.candidateName || 'Bhashyam Ramakrishna',
-              roleBadge: data.roleBadge || 'Member of Parliament (Rajya Sabha)',
-              socialLinks: {
-                instagram: data.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/',
-                youtube: data.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamrakakrishnaoffical',
-                twitter: data.socialLinks?.twitter || 'https://x.com/bhashyambrk'
-              },
-              delhiOffice: {
-                address: data.delhiOffice?.address || '12, Rajya Sabha Members Residences, New Delhi - 110001',
-                phone: data.delhiOffice?.phone || '+91 11 2301 XXXX',
-                email: data.delhiOffice?.email || 'delhi.office@bramakrishna.mp.in'
-              },
-              stateOffice: {
-                address: data.stateOffice?.address || 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, Andhra Pradesh - 520010',
-                phone: data.stateOffice?.phone || '+91 866 247 XXXX',
-                email: data.stateOffice?.email || 'state.office@bramakrishna.mp.in'
-              }
-            })
-          }
-        })
-        .catch((err) => console.error('Error fetching settings in Footer:', err))
-    })
-  }, [])
+  // All values resolved from server-passed siteSettings
+  const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Ramakrishna')
+  const roleBadge = tContent(siteSettings?.roleBadge, 'Member of Parliament (Rajya Sabha)')
+  const instagram = siteSettings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/'
+  const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamrakakrishnaoffical'
+  const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
+  const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
+  const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010')
+  const statePhone = siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'
+  const stateEmail = siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'
 
   return (
     <footer className="bg-navy-900 text-slate-300 border-t-2 border-saffron-500">
@@ -82,10 +58,10 @@ export default function Footer() {
               </div>
               <div className="text-left">
                 <span className="block font-bold text-white uppercase tracking-wider text-sm md:text-base">
-                  {tContent(settings.candidateName)}
+                  {candidateName}
                 </span>
                 <span className="block text-xs text-saffron-400 font-semibold tracking-wider uppercase">
-                  {tContent(settings.roleBadge)}
+                  {roleBadge}
                 </span>
               </div>
             </div>
@@ -95,9 +71,9 @@ export default function Footer() {
 
             {/* Social Media Links */}
             <div className="mt-6 flex items-center space-x-4">
-              {settings.socialLinks.instagram && (
+              {instagram && (
                 <a 
-                  href={settings.socialLinks.instagram} 
+                  href={instagram} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-9 h-9 rounded-full bg-navy-800 flex items-center justify-center hover:bg-saffron-500 hover:text-navy-900 transition-all border border-navy-700/50 shadow-sm text-slate-300"
@@ -110,9 +86,9 @@ export default function Footer() {
                   </svg>
                 </a>
               )}
-              {settings.socialLinks.youtube && (
+              {youtube && (
                 <a 
-                  href={settings.socialLinks.youtube} 
+                  href={youtube} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-9 h-9 rounded-full bg-navy-800 flex items-center justify-center hover:bg-saffron-500 hover:text-navy-900 transition-all border border-navy-700/50 shadow-sm text-slate-300"
@@ -124,15 +100,14 @@ export default function Footer() {
                   </svg>
                 </a>
               )}
-              {settings.socialLinks.twitter && (
+              {twitter && (
                 <a 
-                  href={settings.socialLinks.twitter} 
+                  href={twitter} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-9 h-9 rounded-full bg-navy-800 flex items-center justify-center hover:bg-saffron-500 hover:text-navy-900 transition-all border border-navy-700/50 shadow-sm text-slate-300"
                   aria-label="Twitter / X profile"
                 >
-                  {/* Custom X Logo */}
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
                     <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
@@ -191,30 +166,30 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 mr-2.5 text-saffron-500 shrink-0 mt-0.5" />
                 <div className="leading-tight">
                   <span className="block font-bold text-slate-300 text-[10px] uppercase tracking-wider mb-1">{t('contact.delhiTitle')}</span>
-                  <span>{tContent(settings.delhiOffice.address)}</span>
+                  <span>{delhiAddress}</span>
                 </div>
               </li>
               <li className="flex items-start">
                 <MapPin className="w-4 h-4 mr-2.5 text-saffron-500 shrink-0 mt-0.5" />
                 <div className="leading-tight">
                   <span className="block font-bold text-slate-300 text-[10px] uppercase tracking-wider mb-1">{t('contact.stateTitle')}</span>
-                  <span>{tContent(settings.stateOffice.address)}</span>
+                  <span>{stateAddress}</span>
                 </div>
               </li>
               <li className="flex items-center">
                 <Phone className="w-4 h-4 mr-2.5 text-saffron-500" />
-                <span>{settings.stateOffice.phone}</span>
+                <span>{statePhone}</span>
               </li>
               <li className="flex items-center">
                 <Mail className="w-4 h-4 mr-2.5 text-saffron-500" />
-                <span>{settings.stateOffice.email}</span>
+                <span>{stateEmail}</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-navy-800 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-          <p>© {currentYear} {t('footer.office')} {tContent(settings.candidateName)}, MP. {t('footer.rights')}</p>
+          <p>© {currentYear} {t('footer.office')} {candidateName}, MP. {t('footer.rights')}</p>
           <p className="mt-2 md:mt-0 text-left">
             {t('footer.official')}
           </p>

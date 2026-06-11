@@ -1,49 +1,29 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Menu, X, LifeBuoy, Globe } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 
-export default function Navbar() {
+interface NavbarProps {
+  siteSettings?: {
+    candidateName?: any
+    roleBadge?: any
+  } | null
+}
+
+export default function Navbar({ siteSettings }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { language, setLanguage, t } = useLanguage()
+  const { language, setLanguage, t, tContent } = useLanguage()
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
 
-  const [settings, setSettings] = useState({
-    candidateName: 'B. Ramakrishna',
-    roleBadge: 'Rajya Sabha MP'
-  })
+  // Resolve localized name from server-provided settings
+  const rawName = siteSettings?.candidateName
+  let dispName = tContent(rawName, 'B. Ramakrishna')
+  if (dispName.startsWith('Bhashyam')) dispName = 'B. Ramakrishna'
 
-  useEffect(() => {
-    import('@/sanity/lib/client').then(({ client }) => {
-      client.fetch(`*[_type == "siteSettings"][0] { candidateName, roleBadge }`)
-        .then((data) => {
-          if (data) {
-            let dispName = data.candidateName || 'B. Ramakrishna'
-            if (typeof dispName === 'object') {
-              // Localized string fallback
-              dispName = dispName[language] || dispName['en'] || 'B. Ramakrishna'
-            }
-            if (dispName.startsWith('Bhashyam')) {
-              dispName = 'B. Ramakrishna'
-            }
-
-            let badge = data.roleBadge || 'Rajya Sabha MP'
-            if (typeof badge === 'object') {
-              badge = badge[language] || badge['en'] || 'Rajya Sabha MP'
-            }
-
-            setSettings({
-              candidateName: dispName,
-              roleBadge: badge
-            })
-          }
-        })
-        .catch((err) => console.error('Error fetching settings in Navbar:', err))
-    })
-  }, [language])
+  const dispBadge = tContent(siteSettings?.roleBadge, 'Rajya Sabha MP')
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang)
@@ -74,10 +54,10 @@ export default function Navbar() {
               </div>
               <div>
                 <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-tight uppercase">
-                  {settings.candidateName}
+                  {dispName}
                 </span>
                 <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase">
-                  {settings.roleBadge}
+                  {dispBadge}
                 </span>
               </div>
             </Link>

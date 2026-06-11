@@ -5,8 +5,8 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // Use Edge CDN for general fetches
-  timeout: 10000, // 10-second timeout to prevent compilation hangs on connection lag but allow slow connections to complete
+  useCdn: false, // Always fetch live data, no CDN caching
+  timeout: 10000,
 })
 
 export async function sanityFetch<

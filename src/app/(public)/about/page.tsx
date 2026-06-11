@@ -1,7 +1,7 @@
 import { sanityFetch } from '@/sanity/lib/client'
 import AboutClient from '@/components/AboutClient'
 
-export const revalidate = 3600 // Cache static page for 1 hour
+export const revalidate = 0 // Always fetch fresh from Sanity
 
 export default async function AboutPage() {
   let aboutData: any = {}
