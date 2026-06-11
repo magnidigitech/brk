@@ -1,6 +1,6 @@
-export type Language = 'en' | 'te' | 'ten'
+export type Language = 'en' | 'te'
 
-export const uiTranslations: Record<string, Record<Language, string>> = {
+export const uiTranslations: Record<string, Record<Language, string> & { ten?: string }> = {
   // Navigation Links
   'nav.home': {
     en: 'Home',
@@ -31,6 +31,11 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
     en: 'Grievance Portal',
     te: 'ఫిర్యాదుల పోర్టల్',
     ten: 'Grievance Portal'
+  },
+  'nav.updates': {
+    en: 'Updates',
+    te: 'తాజా సమాచారం',
+    ten: 'Updates'
   },
 
   // Titles & Headings
@@ -762,7 +767,7 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
 }
 
 // Localized Categories list for Grievances
-export const grievanceCategories: Record<string, Record<Language, string>> = {
+export const grievanceCategories: Record<string, Record<Language, string> & { ten?: string }> = {
   'infra': { en: 'Infrastructure & Roads', te: 'మౌలిక వసతులు & రోడ్లు', ten: 'Infrastructure & Roads' },
   'water': { en: 'Water & Sanitation', te: 'తాగునీరు & పారిశుధ్యం', ten: 'Water & Sanitation' },
   'agri': { en: 'Agriculture & Subsidies', te: 'వ్యవసాయం & రాయితీలు', ten: 'Agriculture & Subsidies' },

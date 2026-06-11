@@ -7,11 +7,11 @@
   --color-navy-700: #2C4C75;
   --color-navy-600: #3B6B9C;
   
-  --color-saffron-600: #E08E00;
-  --color-saffron-500: #FFB22C;
-  --color-saffron-400: #FFBE4D;
-  --color-saffron-300: #F9D689;
-  --color-saffron-100: #FFF5E1;
+  --color-saffron-600: #CCA300;
+  --color-saffron-500: #FFD200;
+  --color-saffron-400: #FFE600;
+  --color-saffron-300: #FFF066;
+  --color-saffron-100: #FFFDE6;
   
   --color-sand-50: #FDFBF7;
   --color-sand-100: #F5EFEB;
@@ -63,5 +63,11 @@ body {
 .glow-card:hover {
   box-shadow: 0 10px 30px -10px rgba(255, 178, 44, 0.15);
   border-color: rgba(255, 178, 44, 0.3);
+}
+
+.justify-clean {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
 }
 

@@ -15,7 +15,7 @@ export default async function Page() {
   try {
     const [fetchedUpdates, fetchedNews, fetchedGallery, fetchedSettings] = await Promise.all([
       sanityFetch<any[]>({
-        query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...3] {
+        query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...10] {
           _id,
           title,
           date,
@@ -25,7 +25,7 @@ export default async function Page() {
         }`
       }),
       sanityFetch<any[]>({
-        query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...3] {
+        query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...10] {
           _id,
           title,
           publishedAt,

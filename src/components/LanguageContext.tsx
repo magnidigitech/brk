@@ -19,7 +19,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('user-language') as Language
-      if (stored === 'en' || stored === 'te' || stored === 'ten') {
+      if (stored === 'en' || stored === 'te') {
         setLanguageState(stored)
         document.cookie = `user-language=${stored}; path=/; max-age=31536000; SameSite=Lax`
       } else {

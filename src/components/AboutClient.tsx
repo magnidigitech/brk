@@ -101,24 +101,23 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
 
         {/* Profile Card & Bio with TDP Yellow Frame Accents */}
         <div className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-md grid grid-cols-1 md:grid-cols-3 mb-16 relative">
-          <div className="absolute top-0 left-0 bottom-0 w-2 bg-saffron-500"></div>
-          <div className="bg-navy-900 p-8 flex flex-col justify-between text-white md:col-span-1 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-saffron-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-saffron-400 p-8 flex flex-col justify-between text-navy-900 md:col-span-1 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
             <div>
-              <h2 className="text-2xl font-black tracking-wide mb-6">{profileShortName}</h2>
+              <h2 className="text-2xl font-black tracking-wide mb-6 text-navy-900">{profileShortName}</h2>
 
-              <div className="space-y-5 text-sm text-slate-300">
+              <div className="space-y-5 text-sm text-navy-900/80">
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nomination</span>
-                  <span className="font-semibold text-white">{badgeText}</span>
+                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">Nomination</span>
+                  <span className="font-semibold text-navy-900">{badgeText}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">State Represented</span>
-                  <span className="font-semibold text-white">{stateRepresented}</span>
+                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">State Represented</span>
+                  <span className="font-semibold text-navy-900">{stateRepresented}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Party Association</span>
-                  <span className="font-semibold text-saffron-400">{partyName}</span>
+                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">Party Association</span>
+                  <span className="font-extrabold text-navy-950">{partyName}</span>
                 </div>
               </div>
             </div>
@@ -129,10 +128,10 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
               <Compass className="w-5 h-5 mr-2 text-saffron-600" />
               Public Service Profile
             </h3>
-            <p className="text-slate-600 leading-relaxed text-sm mb-4">
+            <p className="text-slate-600 leading-relaxed text-sm mb-4 justify-clean">
               {bioParagraph1}
             </p>
-            <p className="text-slate-600 leading-relaxed text-sm">
+            <p className="text-slate-600 leading-relaxed text-sm justify-clean">
               {bioParagraph2}
             </p>
           </div>
@@ -149,7 +148,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
 
           <div className="md:col-span-3 text-sm text-slate-600 leading-relaxed space-y-3">
             <h4 className="font-bold text-navy-900 text-base">{eduTitle}</h4>
-            <p>{eduContent}</p>
+            <p className="justify-clean">{eduContent}</p>
           </div>
         </div>
 
@@ -163,7 +162,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
           </div>
 
           <div className="md:col-span-3 text-sm text-slate-600 leading-relaxed space-y-3">
-            <p>{publicContent}</p>
+            <p className="justify-clean">{publicContent}</p>
           </div>
         </div>
 
@@ -203,20 +202,20 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
           </div>
         </div>
 
-        {/* Message Quote in Navy/Gold Frame */}
-        <div className="bg-navy-900 rounded-3xl p-8 text-center text-white relative overflow-hidden shadow-lg mb-16 border-2 border-saffron-400">
-          <div className="absolute top-4 left-6 text-white/5 font-serif text-8xl pointer-events-none select-none">“</div>
-          <Quote className="w-8 h-8 text-saffron-400 mx-auto mb-4" />
-          <p className="text-base italic leading-relaxed max-w-3xl mx-auto mb-6 text-slate-200">
+        {/* Message Quote in Yellow Frame */}
+        <div className="bg-saffron-400 rounded-3xl p-8 text-center text-navy-900 relative overflow-hidden shadow-lg mb-16 border-2 border-saffron-500">
+          <div className="absolute top-4 left-6 text-navy-900/5 font-serif text-8xl pointer-events-none select-none">“</div>
+          <Quote className="w-8 h-8 text-navy-950 mx-auto mb-4" />
+          <p className="text-base italic leading-relaxed max-w-3xl mx-auto mb-6 text-navy-900 font-medium">
             &ldquo;{quoteText}&rdquo;
           </p>
-          <span className="block text-xs font-bold text-saffron-400 uppercase tracking-widest">— {quoteAuthor}</span>
+          <span className="block text-xs font-bold text-navy-950 uppercase tracking-widest">— {quoteAuthor}</span>
         </div>
 
         {/* Profile Summary Card with TDP yellow border framing */}
         <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm text-center max-w-3xl mx-auto border-t-4 border-t-saffron-500">
           <h3 className="text-lg font-bold text-navy-900 mb-3">Profile Summary</h3>
-          <p className="text-slate-600 text-xs leading-relaxed">
+          <p className="text-slate-600 text-xs leading-relaxed justify-clean">
             {summaryContent}
           </p>
         </div>

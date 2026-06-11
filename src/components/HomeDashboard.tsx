@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -136,6 +136,50 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
   const { t, tContent } = useLanguage()
 
+  const historyPushedRef = useRef<{ media: boolean; content: boolean }>({ media: false, content: false })
+
+  // Modal History Stack Interception
+  useEffect(() => {
+    const hasMedia = !!activeMedia
+    const hasContent = !!activeContent
+
+    if (hasMedia && !historyPushedRef.current.media) {
+      window.history.pushState({ type: 'activeMedia' }, '')
+      historyPushedRef.current.media = true
+    } else if (!hasMedia && historyPushedRef.current.media) {
+      historyPushedRef.current.media = false
+      if (window.history.state?.type === 'activeMedia') {
+        window.history.back()
+      }
+    }
+
+    if (hasContent && !historyPushedRef.current.content) {
+      window.history.pushState({ type: 'activeContent' }, '')
+      historyPushedRef.current.content = true
+    } else if (!hasContent && historyPushedRef.current.content) {
+      historyPushedRef.current.content = false
+      if (window.history.state?.type === 'activeContent') {
+        window.history.back()
+      }
+    }
+  }, [activeMedia, activeContent])
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (historyPushedRef.current.media) {
+        historyPushedRef.current.media = false
+        setActiveMedia(null)
+      } else if (historyPushedRef.current.content) {
+        historyPushedRef.current.content = false
+        setActiveContent(null)
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
   // Localized values
   const candidateName = tContent(settings.candidateName, 'Bhashyam Ramakrishna')
   const roleBadge = tContent(settings.roleBadge, 'Rajya Sabha Nominee')
@@ -143,20 +187,29 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
   const stateRepresented = tContent(settings.stateRepresented, 'Andhra Pradesh')
 
   return (
-    <div className="py-12 bg-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-slate-50 min-h-screen">
+      {/* Full-width Header Banner */}
+      <div className="w-full overflow-hidden bg-white border-b border-slate-200/80 relative aspect-[2.33/1] max-h-[260px] sm:max-h-[380px] md:max-h-[480px] shadow-sm">
+        <img
+          src="/images/header.png"
+          alt="Telugu Desam Party Banner"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
         {/* Page Heading */}
-        <div className="mb-10 text-center md:text-left relative pb-4 border-b border-slate-200">
-          <div className="absolute left-0 bottom-0 h-1 w-24 bg-saffron-500 rounded-full"></div>
+        <div className="mb-6 sm:mb-8 text-center md:text-left relative pb-4 border-b border-slate-200">
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 h-1 w-24 bg-saffron-500 rounded-full md:left-0 md:translate-x-0"></div>
           <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-wider border border-saffron-200 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 mr-1" />
             {roleBadge}
           </span>
-          <h1 className="text-4xl md:text-5xl font-black text-navy-900 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-navy-900 tracking-tight leading-tight">
             {candidateName}
           </h1>
-          <p className="mt-2 text-base md:text-lg text-slate-600 max-w-3xl font-medium">
+          <p className="mt-2 text-sm sm:text-base md:text-lg text-slate-600 max-w-3xl font-medium">
             {tagline}
           </p>
         </div>
@@ -171,35 +224,46 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
           {/* 1. Profile / Hero Bento Card */}
           <motion.div
             variants={itemVariants}
-            className="md:col-span-2 overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 text-white p-8 relative shadow-lg border-2 border-navy-950 flex flex-col justify-between min-h-[360px]"
+            className="md:col-span-2 overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-300 via-saffron-300 to-saffron-400 text-navy-950 pt-6 px-0 pb-0 sm:p-8 relative shadow-lg border-2 border-saffron-400 min-h-[380px] flex flex-col justify-between"
           >
-            <div className="absolute right-0 bottom-0 opacity-5 pointer-events-none transform translate-x-12 translate-y-12">
+            <div className="absolute right-0 bottom-0 opacity-5 pointer-events-none transform translate-x-12 translate-y-12 text-navy-900">
               <Layers className="w-96 h-96" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2.5 text-saffron-400 font-extrabold text-xs uppercase tracking-widest mb-4">
-                <Award className="w-4 h-4 text-saffron-400" />
-                <span>{t('home.profileIntro')}</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch h-full">
+              <div className="lg:col-span-7 flex flex-col justify-between h-full px-6 sm:px-0">
+                <div>
+                  <div className="flex items-center space-x-2.5 text-navy-900 font-extrabold text-xs uppercase tracking-widest mb-4">
+                    <Award className="w-4 h-4 text-navy-900" />
+                    <span>{t('home.profileIntro')}</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-4 leading-snug text-navy-950">
+                    {t('home.introCommitment')}
+                  </h2>
+                  <p className="text-slate-800 text-sm leading-relaxed mb-6 font-medium">
+                    {candidateName} is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and public service leader from {stateRepresented}. With decades of contribution to the education sector, he has helped shape the academic future of thousands of students.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-4 border-t border-navy-950/15 pt-6">
+                  <div>
+                    <span className="block text-2xl md:text-3xl font-black text-navy-950">98%</span>
+                    <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-700 font-bold">{t('stats.attendance')}</span>
+                  </div>
+                  <div>
+                    <span className="block text-2xl md:text-3xl font-black text-navy-950">120+</span>
+                    <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-700 font-bold">{t('stats.debates')}</span>
+                  </div>
+                  <div>
+                    <span className="block text-2xl md:text-3xl font-black text-navy-950">250+</span>
+                    <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-700 font-bold">{t('stats.questions')}</span>
+                  </div>
+                </div>
               </div>
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-4 max-w-xl leading-snug">
-                {t('home.introCommitment')}
-              </h2>
-              <p className="text-slate-300 text-sm max-w-xl leading-relaxed mb-6">
-                {candidateName} is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and public service leader from {stateRepresented}. With decades of contribution to the education sector, he has helped shape the academic future of thousands of students.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-4 border-t border-navy-800 pt-6">
-              <div>
-                <span className="block text-2xl md:text-3xl font-black text-saffron-500">98%</span>
-                <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-400 font-bold">{t('stats.attendance')}</span>
-              </div>
-              <div>
-                <span className="block text-2xl md:text-3xl font-black text-saffron-500">120+</span>
-                <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-400 font-bold">{t('stats.debates')}</span>
-              </div>
-              <div>
-                <span className="block text-2xl md:text-3xl font-black text-saffron-500">250+</span>
-                <span className="block text-[10px] md:text-xs uppercase tracking-wider text-slate-400 font-bold">{t('stats.questions')}</span>
+              <div className="lg:col-span-5 h-[360px] sm:h-[420px] lg:h-auto min-h-[240px] relative overflow-hidden border-t sm:border border-navy-950/10 sm:rounded-2xl sm:shadow-md self-stretch shrink-0 bg-[#FFE600]">
+                <img
+                  src="/images/brk.png"
+                  alt={candidateName}
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
               </div>
             </div>
           </motion.div>
@@ -250,60 +314,76 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
               <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Latest Session</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {updates && updates.length > 0 ? (
-                updates.map((update, index) => {
-                  const utitle = tContent(update.title)
-                  const usummary = tContent(update.summary)
-                  return (
-                    <div
-                      key={update._id}
-                      onClick={() => setActiveContent({
-                        type: 'update',
-                        title: utitle,
-                        date: update.date,
-                        excerpt: usummary,
-                        speechUrl: update.speechUrl,
-                        documentUrl: update.documentUrl,
-                      })}
-                      className={`group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-5 transition-all duration-200 ${index > 0 ? '' : ''}`}
-                    >
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{new Date(update.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+            {updates && updates.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {updates.slice(0, 9).map((update) => {
+                    const utitle = tContent(update.title)
+                    const usummary = tContent(update.summary)
+                    return (
+                      <div
+                        key={update._id}
+                        onClick={() => setActiveContent({
+                          type: 'update',
+                          title: utitle,
+                          date: update.date,
+                          excerpt: usummary,
+                          speechUrl: update.speechUrl,
+                          documentUrl: update.documentUrl,
+                        })}
+                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-5 transition-all duration-200 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span>{new Date(update.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+                            </div>
+                            <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Read more <ChevronRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                          <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
+                            {utitle}
+                          </h4>
+                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
+                            {usummary}
+                          </p>
                         </div>
-                        <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Read more <ChevronRight className="w-3 h-3" />
-                        </span>
+
+                        {(update.speechUrl || update.documentUrl) && (
+                          <div className="mt-auto pt-3 border-t border-slate-200/50 flex flex-col gap-1.5">
+                            {update.speechUrl && (
+                              <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
+                                <Video className="w-3 h-3 mr-1" /> Speech available
+                              </span>
+                            )}
+                            {update.documentUrl && (
+                              <span className="inline-flex items-center text-[11px] font-bold text-navy-700">
+                                <Download className="w-3 h-3 mr-1" /> Document attached
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors">
-                        {utitle}
-                      </h4>
-                      <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">
-                        {usummary}
-                      </p>
-                      {(update.speechUrl || update.documentUrl) && (
-                        <div className="mt-3 flex items-center gap-3">
-                          {update.speechUrl && (
-                            <span className="inline-flex items-center text-xs font-bold text-saffron-600">
-                              <Video className="w-3 h-3 mr-1" /> Speech available
-                            </span>
-                          )}
-                          {update.documentUrl && (
-                            <span className="inline-flex items-center text-xs font-bold text-navy-700">
-                              <Download className="w-3 h-3 mr-1" /> Document attached
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })
-              ) : (
-                <p className="text-sm text-slate-500 py-6 md:col-span-2 text-center">No updates logged yet.</p>
-              )}
-            </div>
+                    )
+                  })}
+                </div>
+                {updates.length > 9 && (
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/parliamentary-updates"
+                      className="inline-flex items-center px-6 py-3 bg-navy-900 hover:bg-navy-800 text-white text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                    >
+                      <span>View All Updates</span>
+                      <ChevronRight className="w-4 h-4 text-saffron-400" />
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 py-6 text-center">No updates logged yet.</p>
+            )}
           </motion.div>
 
           {/* 4. Press Releases Card */}
@@ -319,107 +399,72 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Featured Press Release (left, 2 cols) */}
-              {news && news.length > 0 ? (
-                (() => {
-                  const ntitle = tContent(news[0].title)
-                  const nexcerpt = tContent(news[0].excerpt)
-                  const imgSrc = news[0].image
-                    ? (typeof news[0].image === 'string' ? news[0].image : urlFor(news[0].image).width(1200).url())
-                    : undefined
-                  return (
-                    <div
-                      className="md:col-span-2 group flex flex-col cursor-pointer"
-                      onClick={() => setActiveContent({
-                        type: 'news',
-                        title: ntitle,
-                        date: news[0].publishedAt,
-                        excerpt: nexcerpt,
-                        body: news[0].body,
-                        imageSrc: imgSrc,
-                      })}
-                    >
-                      {news[0].image && (
-                        <div className="mb-4 rounded-2xl overflow-hidden h-64 relative bg-slate-100 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={typeof news[0].image === 'string' ? news[0].image : urlFor(news[0].image).width(800).url()}
-                            alt={ntitle}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-navy-900/0 group-hover:bg-navy-900/20 transition-colors flex items-end p-4">
-                            <span className="bg-black/70 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                              Click to read full release
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <span className="block text-xs text-slate-500 font-semibold mb-1.5">
-                        {new Date(news[0].publishedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
-                      </span>
-                      <h4 className="text-xl font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2">
-                        {ntitle}
-                      </h4>
-                      {nexcerpt && (
-                        <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 flex-1">
-                          {nexcerpt}
-                        </p>
-                      )}
-                      <span className="mt-3 inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors">
-                        <BookOpen className="w-3.5 h-3.5 mr-1" /> Read full article <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-                      </span>
-                    </div>
-                  )
-                })()
-              ) : (
-                <p className="text-sm text-slate-500 py-6 md:col-span-2 text-center">No press releases published yet.</p>
-              )}
-
-              {/* Other Press Releases (right, 1 col) */}
-              <div className="space-y-5 divide-y divide-slate-100 md:col-span-1">
-                {news && news.length > 1 ? (
-                  news.slice(1).map((item, index) => {
-                    const ititle = tContent(item.title)
-                    const iexcerpt = tContent(item.excerpt)
+            {news && news.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {news.slice(0, 9).map((item) => {
+                    const ntitle = tContent(item.title)
+                    const nexcerpt = tContent(item.excerpt)
                     const imgSrc = item.image
                       ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                       : undefined
+
                     return (
                       <div
                         key={item._id}
-                        className={`group cursor-pointer ${index > 0 ? 'pt-5' : ''}`}
+                        className="group flex flex-col cursor-pointer bg-slate-50 hover:bg-saffron-50/20 border border-slate-100 hover:border-saffron-200 rounded-2xl p-5 transition-all duration-300 hover:shadow-md"
                         onClick={() => setActiveContent({
                           type: 'news',
-                          title: ititle,
+                          title: ntitle,
                           date: item.publishedAt,
-                          excerpt: iexcerpt,
+                          excerpt: nexcerpt,
                           body: item.body,
                           imageSrc: imgSrc,
                         })}
                       >
-                        <span className="block text-xs text-slate-500 font-semibold mb-1">
+                        {item.image && (
+                          <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-slate-100 border border-slate-200/60 shadow-sm shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={imgSrc}
+                              alt={ntitle}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            />
+                          </div>
+                        )}
+                        <span className="block text-xs text-slate-500 font-semibold mb-2">
                           {new Date(item.publishedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                         </span>
-                        <h4 className="text-sm font-bold text-navy-900 group-hover:text-saffron-600 transition-colors line-clamp-2 leading-snug mb-1.5">
-                          {ititle}
+                        <h4 className="text-base font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2 line-clamp-2">
+                          {ntitle}
                         </h4>
-                        {iexcerpt && (
-                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-2">
-                            {iexcerpt}
+                        {nexcerpt && (
+                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4 flex-grow">
+                            {nexcerpt}
                           </p>
                         )}
-                        <span className="mt-2 inline-flex items-center text-[10px] font-bold text-saffron-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Read more <ChevronRight className="w-3 h-3 ml-0.5" />
+                        <span className="inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors mt-auto pt-2">
+                          <BookOpen className="w-3.5 h-3.5 mr-1" /> Read full article <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
                         </span>
                       </div>
                     )
-                  })
-                ) : (
-                  news && news.length > 0 && <p className="text-sm text-slate-400 italic py-6">No additional releases.</p>
+                  })}
+                </div>
+                {news.length > 9 && (
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/press-releases"
+                      className="inline-flex items-center px-6 py-3 bg-navy-900 hover:bg-navy-800 text-white text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                    >
+                      <span>View All Releases</span>
+                      <ChevronRight className="w-4 h-4 text-saffron-400" />
+                    </Link>
+                  </div>
                 )}
-              </div>
-            </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 py-6 text-center">No press releases published yet.</p>
+            )}
           </motion.div>
 
           {/* Gallery section temporarily hidden — uncomment to restore
@@ -434,6 +479,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
       <AnimatePresence>
         {activeMedia && (
           <motion.div
+            data-modal="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -506,6 +552,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
       <AnimatePresence>
         {activeContent && (
           <motion.div
+            data-modal="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -576,7 +623,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                     />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
                       <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
                         Click to view full image
                       </span>
                     </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/components/LanguageContext'
@@ -116,6 +116,37 @@ function GrievancePortal() {
   const [modalState, setModalState] = useState('')
   const [modalDistrict, setModalDistrict] = useState('')
   const [modalVillage, setModalVillage] = useState('')
+
+  const locationHistoryPushedRef = useRef(false)
+
+  // Sync showLocationModal with browser history
+  useEffect(() => {
+    if (showLocationModal && !locationHistoryPushedRef.current) {
+      window.history.pushState({ type: 'locationModal' }, '')
+      locationHistoryPushedRef.current = true
+    } else if (!showLocationModal && locationHistoryPushedRef.current) {
+      locationHistoryPushedRef.current = false
+      if (window.history.state?.type === 'locationModal') {
+        window.history.back()
+      }
+    }
+  }, [showLocationModal])
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (locationHistoryPushedRef.current) {
+        locationHistoryPushedRef.current = false
+        setShowLocationModal(false)
+        if (!villageWard) {
+          setPincode('')
+        }
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [villageWard])
 
   // Helper to format place names nicely (e.g. PALNADU -> Palnadu)
   const formatPlaceName = (str: string) => {
@@ -951,8 +982,18 @@ function GrievancePortal() {
         {/* Dynamic Location Selection Popup Modal */}
         <AnimatePresence>
           {showLocationModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
+            <div 
+              data-modal="true"
+              onClick={() => {
+                setShowLocationModal(false)
+                if (!villageWard) {
+                  setPincode('')
+                }
+              }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm"
+            >
               <motion.div
+                onClick={(e) => e.stopPropagation()}
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
