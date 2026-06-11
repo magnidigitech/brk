@@ -451,7 +451,7 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
     ten: 'Issue complete details *'
   },
   'grievance.submitButton': {
-    en: 'Lodge Grievance Securely',
+    en: 'Submit Grievance Securely',
     te: 'ఫిర్యాదును భద్రంగా సమర్పించండి',
     ten: 'Submit Grievance securely'
   },
@@ -708,6 +708,56 @@ export const uiTranslations: Record<string, Record<Language, string>> = {
     en: 'Office of',
     te: 'కార్యాలయం,',
     ten: 'Office of'
+  },
+  'pwa.installTitle': {
+    en: 'Install MP Portal App',
+    te: 'ఎంపీ పోర్టల్ యాప్‌ని ఇన్‌స్టాల్ చేయండి',
+    ten: 'Install MP Portal App'
+  },
+  'pwa.installDesc': {
+    en: 'Add this portal to your home screen for quick offline access and updates.',
+    te: 'ఆఫ్‌లైన్ యాక్సెస్ మరియు శీఘ్ర అప్‌డేట్స్ కోసం దీనిని మీ హోమ్ స్క్రీన్‌కు చేర్చండి.',
+    ten: 'Add to home screen for offline access and fast updates.'
+  },
+  'pwa.btnInstall': {
+    en: 'Install Now',
+    te: 'ఇప్పుడే ఇన్‌స్టాల్ చేయండి',
+    ten: 'Install Now'
+  },
+  'pwa.dismiss': {
+    en: 'Maybe Later',
+    te: 'తర్వాత చూద్దాం',
+    ten: 'Maybe Later'
+  },
+  'pwa.iosInstructions': {
+    en: 'Safari Installation Instructions',
+    te: 'సఫారీ ఇన్‌స్టాలేషన్ సూచనలు',
+    ten: 'Safari Installation Instructions'
+  },
+  'pwa.iosTapShare': {
+    en: '1. Tap the Share button (⎋) in Safari browser',
+    te: '1. సఫారీ బ్రౌజర్‌లోని షేర్ బటన్ (⎋) పై క్లిక్ చేయండి',
+    ten: '1. Tap the Share button (⎋) in Safari'
+  },
+  'pwa.iosTapAdd': {
+    en: '2. Scroll down and select "Add to Home Screen" (⊞)',
+    te: '2. కిందకు స్క్రోల్ చేసి "యాడ్ టు హోమ్ స్క్రీన్" (⊞) ఎంచుకోండి',
+    ten: '2. Select "Add to Home Screen" (⊞)'
+  },
+  'pwa.androidInstructions': {
+    en: 'Chrome Installation Instructions',
+    te: 'క్రోమ్ ఇన్‌స్టాలేషన్ సూచనలు',
+    ten: 'Chrome Installation Instructions'
+  },
+  'pwa.androidTapMenu': {
+    en: '1. Tap the Chrome menu icon (⁝) in the top-right',
+    te: '1. పైభాగంలో ఉన్న క్రోమ్ మెనూ ఐకాన్ (⁝) పై క్లిక్ చేయండి',
+    ten: '1. Tap the Chrome menu icon (⁝)'
+  },
+  'pwa.androidTapAdd': {
+    en: '2. Select "Add to Home screen" or "Install app"',
+    te: '2. "యాడ్ టు హోమ్ స్క్రీన్" లేదా "యాప్ ఇన్‌స్టాల్" ఎంచుకోండి',
+    ten: '2. Select "Add to Home screen" or "Install"'
   }
 }
 

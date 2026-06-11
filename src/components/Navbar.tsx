@@ -44,20 +44,27 @@ export default function Navbar({ siteSettings }: NavbarProps) {
           {/* Logo Brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-12 h-12 bg-navy-900 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 border border-navy-950 shadow-md">
+              <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 border-2 border-white shadow-md">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src="/images/telugudesamlogo.png" 
                   alt="TDP Logo" 
-                  className="w-8 h-8 object-contain" 
+                  className="w-full h-full object-cover" 
                 />
               </div>
               <div>
                 <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-tight uppercase">
                   {dispName}
                 </span>
-                <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase">
-                  {dispBadge}
+                <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase leading-tight md:leading-normal">
+                  {dispBadge.includes('(') ? (
+                    <>
+                      <span className="block md:inline">{dispBadge.split('(')[0].trim()}</span>
+                      <span className="block md:inline md:ml-1">({dispBadge.split('(')[1]}</span>
+                    </>
+                  ) : (
+                    dispBadge
+                  )}
                 </span>
               </div>
             </Link>

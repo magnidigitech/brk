@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 import PWARegistration from "@/components/PWARegistration";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { LanguageProvider } from "@/components/LanguageContext";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50">
         <PWARegistration />
         <LanguageProvider>
+          <PWAInstallPrompt />
           {children}
         </LanguageProvider>
       </body>
