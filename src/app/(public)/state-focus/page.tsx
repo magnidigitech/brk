@@ -1,4 +1,4 @@
-import { sanityFetch } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import StateFocusClient from '@/components/StateFocusClient'
 
 export const dynamic = 'force-dynamic'

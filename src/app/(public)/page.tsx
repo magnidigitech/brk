@@ -1,5 +1,5 @@
 import HomeDashboard from '@/components/HomeDashboard'
-import { sanityFetch } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/sanityFetch'
 
 // Always fetch live data from Sanity — no caching
 export const dynamic = 'force-dynamic'

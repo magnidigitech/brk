@@ -1,4 +1,4 @@
-import { sanityFetch } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import DevelopmentWorksClient from '@/components/DevelopmentWorksClient'
 
 export const dynamic = 'force-dynamic'

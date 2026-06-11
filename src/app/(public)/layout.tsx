@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { sanityFetch } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/sanityFetch'
 
 // Fetch site settings server-side so Navbar and Footer never need client-side Sanity calls
 export default async function PublicLayout({
