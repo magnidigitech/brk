@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw } from 'lucide-react'
+import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 
 interface ContactClientProps {
@@ -29,21 +29,39 @@ export default function ContactClient({ settings }: ContactClientProps) {
   
   const [isSending, setIsSending] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name || !email || !message) return
 
     setIsSending(true)
-    setTimeout(() => {
-      setIsSending(false)
+    setError('')
+    setSuccess(false)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
       setSuccess(true)
       setName('')
       setEmail('')
       setSubject('')
       setMessage('')
       setTimeout(() => setSuccess(false), 5000)
-    }, 1500)
+    } catch (err: any) {
+      console.error('Contact submission error:', err)
+      setError('An error occurred while sending your message. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -163,6 +181,13 @@ export default function ContactClient({ settings }: ContactClientProps) {
                 </div>
               )}
 
+              {error && (
+                <div className="p-4 bg-rose-50 border border-rose-100 text-rose-800 text-xs rounded-xl mb-6 flex items-start">
+                  <AlertCircle className="w-5 h-5 mr-2 shrink-0 text-rose-500" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-bold text-navy-900 uppercase tracking-wider mb-1.5 text-left">
@@ -236,7 +261,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
                   ) : (
                     <>
                       <Send className="w-4 h-4 text-navy-950" />
-                      <span>{t('contact.sendButton')}</span>
+                      <span>{t('button.send')}</span>
                     </>
                   )}
                 </button>

@@ -16,7 +16,9 @@ import {
   Globe, 
   Calendar,
   LogOut,
-  Map
+  Map,
+  X,
+  Mail
 } from 'lucide-react'
 
 interface AnalyticsData {
@@ -40,6 +42,8 @@ export default function MasterAdminPortal() {
 
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [grievanceStats, setGrievanceStats] = useState<GrievanceStats | null>(null)
+  const [messages, setMessages] = useState<any[]>([])
+  const [selectedMessage, setSelectedMessage] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   // Check auth on mount
@@ -67,6 +71,8 @@ export default function MasterAdminPortal() {
     setIsAuthenticated(false)
     setAnalytics(null)
     setGrievanceStats(null)
+    setMessages([])
+    setSelectedMessage(null)
   }
 
   const fetchDashboardData = async () => {
@@ -88,6 +94,13 @@ export default function MasterAdminPortal() {
           pending: grievancesList.filter((t: any) => t.status === 'PENDING').length,
           resolved: grievancesList.filter((t: any) => t.status === 'RESOLVED').length
         })
+      }
+
+      // Fetch Contact Messages
+      const contactRes = await fetch('/api/admin/contact')
+      if (contactRes.ok) {
+        const contactData = await contactRes.json()
+        setMessages(contactData)
       }
     } catch (err) {
       console.error('Failed to load dashboard statistics', err)
@@ -337,7 +350,7 @@ export default function MasterAdminPortal() {
           </div>
 
           {/* 6. Recent Platform Events Stream */}
-          <div className="md:col-span-3 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <h3 className="text-sm font-black text-navy-900 uppercase tracking-wide border-b border-slate-100 pb-3 mb-4">
               Live Office Event Stream
             </h3>
@@ -388,8 +401,117 @@ export default function MasterAdminPortal() {
             )}
           </div>
 
+          {/* 7. Contact Messages / Inquiries */}
+          <div className="md:col-span-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between max-h-[500px]">
+            <div>
+              <h3 className="text-sm font-black text-navy-900 uppercase tracking-wide border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Mail className="w-4.5 h-4.5 text-saffron-600" />
+                  Contact Inquiries
+                </span>
+                <span className="bg-saffron-100 text-saffron-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                  {messages.length} Total
+                </span>
+              </h3>
+              <div className="space-y-3 overflow-y-auto max-h-[360px] pr-1">
+                {messages.length > 0 ? (
+                  messages.map((msg) => (
+                    <div 
+                      key={msg.id}
+                      onClick={() => setSelectedMessage(msg)}
+                      className="p-3 bg-slate-50 hover:bg-saffron-50 border border-slate-100 hover:border-saffron-200 rounded-2xl cursor-pointer transition-all text-left"
+                    >
+                      <div className="flex justify-between items-start">
+                        <span className="font-extrabold text-xs text-navy-950 truncate max-w-[120px]">{msg.name}</span>
+                        <span className="text-[9px] text-slate-400 font-bold">{new Date(msg.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-500 mt-1 truncate">{msg.subject || 'No Subject'}</p>
+                      <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">{msg.message}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-400 text-xs text-center py-10">No inquiries received.</p>
+                )}
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
+
+      {/* Contact Message Details Modal */}
+      <AnimatePresence>
+        {selectedMessage && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl border-2 border-saffron-400 shadow-2xl p-6 text-slate-800 w-full max-w-lg relative overflow-hidden"
+            >
+              <div className="flex justify-between items-start border-b border-slate-100 pb-4 mb-4">
+                <div>
+                  <span className="text-[9px] font-bold text-saffron-600 tracking-wider uppercase block mb-1 text-left">
+                    Contact Form Submission
+                  </span>
+                  <h3 className="font-black text-navy-900 text-base text-left">
+                    {selectedMessage.subject || 'No Subject'}
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setSelectedMessage(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs text-left">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Sender Name</span>
+                    <span className="font-bold text-navy-900 mt-0.5 block">{selectedMessage.name}</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Submission Date</span>
+                    <span className="font-bold text-slate-700 mt-0.5 block">{new Date(selectedMessage.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
+                  <a 
+                    href={`mailto:${selectedMessage.email}`} 
+                    className="font-bold text-saffron-600 hover:underline mt-0.5 block"
+                  >
+                    {selectedMessage.email}
+                  </a>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 max-h-60 overflow-y-auto">
+                  <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wider mb-2">Message Details</span>
+                  <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{selectedMessage.message}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6 pt-4 border-t border-slate-100">
+                <a 
+                  href={`mailto:${selectedMessage.email}?subject=RE: ${encodeURIComponent(selectedMessage.subject || '')}`}
+                  className="flex-grow py-3 bg-saffron-500 hover:bg-saffron-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all text-center"
+                >
+                  Reply via Email
+                </a>
+                <button
+                  onClick={() => setSelectedMessage(null)}
+                  className="px-6 py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -27,11 +27,30 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   const pathname = usePathname()
   const subpagePushedRef = useRef<string | null>(null)
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('notifications-toggle-state') === 'on'
+  // Helper for safe localStorage access
+  const getSafeLocalStorage = (key: string): string | null => {
+    try {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem(key)
+      }
+    } catch (e) {
+      console.warn('Failed to read from localStorage', e)
     }
-    return false
+    return null
+  }
+
+  const setSafeLocalStorage = (key: string, value: string) => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value)
+      }
+    } catch (e) {
+      console.warn('Failed to write to localStorage', e)
+    }
+  }
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    return getSafeLocalStorage('notifications-toggle-state') === 'on'
   })
   const [oneSignalReady, setOneSignalReady] = useState(false)
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
@@ -41,39 +60,58 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const checkSubscription = async () => {
-      const OneSignal = (window as any).OneSignal
+    const OneSignalDeferred = (window as any).OneSignalDeferred || []
+    
+    OneSignalDeferred.push(async function(OneSignal: any) {
       if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         setOneSignalReady(true)
         const optedIn = OneSignal.User.PushSubscription.optedIn
-        setNotificationsEnabled(optedIn)
-        localStorage.setItem('notifications-toggle-state', optedIn ? 'on' : 'off')
-        setPermissionState(OneSignal.Notifications.permission)
-        
+        const permission = OneSignal.Notifications.permission
+        setPermissionState(permission)
+
+        // Prevent race condition: align OneSignal status with cached user preference
+        const cachedToggle = getSafeLocalStorage('notifications-toggle-state')
+        if (cachedToggle === 'on' && permission === 'granted' && !optedIn) {
+          try {
+            await OneSignal.User.PushSubscription.optIn()
+            setNotificationsEnabled(true)
+            setSafeLocalStorage('notifications-toggle-state', 'on')
+          } catch (e) {
+            console.error('Auto opt-in failed', e)
+            setNotificationsEnabled(false)
+            setSafeLocalStorage('notifications-toggle-state', 'off')
+          }
+        } else if (cachedToggle === 'off' && optedIn) {
+          try {
+            await OneSignal.User.PushSubscription.optOut()
+            setNotificationsEnabled(false)
+            setSafeLocalStorage('notifications-toggle-state', 'off')
+          } catch (e) {
+            console.error('Auto opt-out failed', e)
+          }
+        } else {
+          setNotificationsEnabled(optedIn)
+          setSafeLocalStorage('notifications-toggle-state', optedIn ? 'on' : 'off')
+        }
+
         // Listen for subscription changes
         OneSignal.User.PushSubscription.addEventListener("change", (event: any) => {
           const isSubscribed = event.current.optedIn
           setNotificationsEnabled(isSubscribed)
-          localStorage.setItem('notifications-toggle-state', isSubscribed ? 'on' : 'off')
+          setSafeLocalStorage('notifications-toggle-state', isSubscribed ? 'on' : 'off')
         })
 
         // Check if the user hasn't subscribed yet and hasn't dismissed the initial prompt this session
         const initialPromptShown = sessionStorage.getItem('onesignal-initial-prompt-shown')
-        const isSubscribed = OneSignal.User.PushSubscription.optedIn
-        const permission = OneSignal.Notifications.permission
         
         // Only prompt on public pages, not on admin pages
-        if (!pathname.startsWith('/admin') && !isSubscribed && permission !== 'denied' && !initialPromptShown) {
+        if (!pathname.startsWith('/admin') && !optedIn && permission !== 'denied' && !initialPromptShown) {
           setTimeout(() => {
             setShowNotificationPrompt(true)
           }, 4000)
         }
-      } else {
-        setTimeout(checkSubscription, 1000)
       }
-    }
-
-    checkSubscription()
+    })
   }, [pathname])
 
   const handleToggleNotifications = async () => {
@@ -88,14 +126,14 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         if (isSubscribed) {
           await sdk.User.PushSubscription.optOut()
           setNotificationsEnabled(false)
-          localStorage.setItem('notifications-toggle-state', 'off')
+          setSafeLocalStorage('notifications-toggle-state', 'off')
         } else {
           const permission = await sdk.Notifications.requestPermission()
           setPermissionState(permission)
           if (permission === 'granted') {
             await sdk.User.PushSubscription.optIn()
             setNotificationsEnabled(true)
-            localStorage.setItem('notifications-toggle-state', 'on')
+            setSafeLocalStorage('notifications-toggle-state', 'on')
           }
         }
       } catch (err) {
