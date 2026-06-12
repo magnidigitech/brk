@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 import PWARegistration from "@/components/PWARegistration";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import FloatingSocials from "@/components/FloatingSocials";
+import PullToRefresh from "@/components/PullToRefresh";
 import { LanguageProvider } from "@/components/LanguageContext";
 import Script from "next/script";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0">
+        <PullToRefresh />
         <PWARegistration />
         <LanguageProvider>
           <PWAInstallPrompt />

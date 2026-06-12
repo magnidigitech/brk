@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { X, RefreshCw } from 'lucide-react'
 
+const SW_VERSION = 'v4'
+
 export default function PWARegistration() {
   const pathname = usePathname()
   const [showUpdate, setShowUpdate] = useState(false)
@@ -55,7 +57,11 @@ export default function PWARegistration() {
                   if (installingWorker.state === 'installed') {
                     if (navigator.serviceWorker.controller) {
                       setWaitingWorker(installingWorker)
-                      setShowUpdate(true)
+                      const isDismissed = localStorage.getItem('pwa-update-dismissed') === SW_VERSION
+                      const isUpdated = localStorage.getItem('pwa-updated-version') === SW_VERSION
+                      if (!isDismissed && !isUpdated) {
+                        setShowUpdate(true)
+                      }
                     }
                   }
                 }
@@ -89,6 +95,7 @@ export default function PWARegistration() {
   }, [pathname])
 
   const handleUpdateReload = () => {
+    localStorage.setItem('pwa-updated-version', SW_VERSION)
     if (waitingWorker) {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' })
     }
@@ -137,14 +144,17 @@ export default function PWARegistration() {
               </div>
             </div>
             <button 
-              onClick={() => setShowUpdate(false)}
+              onClick={() => {
+                localStorage.setItem('pwa-update-dismissed', SW_VERSION)
+                setShowUpdate(false)
+              }}
               className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
-
+ 
           <div className="flex space-x-3 mt-4">
             <button
               onClick={handleUpdateReload}
@@ -154,7 +164,10 @@ export default function PWARegistration() {
               Update Now
             </button>
             <button
-              onClick={() => setShowUpdate(false)}
+              onClick={() => {
+                localStorage.setItem('pwa-update-dismissed', SW_VERSION)
+                setShowUpdate(false)
+              }}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer border border-slate-200"
             >
               Dismiss

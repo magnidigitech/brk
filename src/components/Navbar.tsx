@@ -27,7 +27,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   const pathname = usePathname()
   const subpagePushedRef = useRef<string | null>(null)
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('notifications-toggle-state') === 'on'
+    }
+    return false
+  })
   const [oneSignalReady, setOneSignalReady] = useState(false)
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
   const [permissionState, setPermissionState] = useState<string>('default')
@@ -40,12 +45,16 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       const OneSignal = (window as any).OneSignal
       if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
         setOneSignalReady(true)
-        setNotificationsEnabled(OneSignal.User.PushSubscription.optedIn)
+        const optedIn = OneSignal.User.PushSubscription.optedIn
+        setNotificationsEnabled(optedIn)
+        localStorage.setItem('notifications-toggle-state', optedIn ? 'on' : 'off')
         setPermissionState(OneSignal.Notifications.permission)
         
         // Listen for subscription changes
         OneSignal.User.PushSubscription.addEventListener("change", (event: any) => {
-          setNotificationsEnabled(event.current.optedIn)
+          const isSubscribed = event.current.optedIn
+          setNotificationsEnabled(isSubscribed)
+          localStorage.setItem('notifications-toggle-state', isSubscribed ? 'on' : 'off')
         })
 
         // Check if the user hasn't subscribed yet and hasn't dismissed the initial prompt this session
@@ -68,23 +77,39 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   }, [pathname])
 
   const handleToggleNotifications = async () => {
-    const OneSignal = (window as any).OneSignal
-    if (!OneSignal) return
+    if (typeof window === 'undefined') return
 
-    try {
-      if (notificationsEnabled) {
-        await OneSignal.User.PushSubscription.optOut()
-        setNotificationsEnabled(false)
-      } else {
-        const permission = await OneSignal.Notifications.requestPermission()
-        setPermissionState(permission)
-        if (permission === 'granted') {
-          await OneSignal.User.PushSubscription.optIn()
-          setNotificationsEnabled(true)
+    const OneSignal = (window as any).OneSignal
+    const OneSignalDeferred = (window as any).OneSignalDeferred || []
+
+    const performToggle = async (sdk: any) => {
+      try {
+        const isSubscribed = sdk.User.PushSubscription.optedIn
+        if (isSubscribed) {
+          await sdk.User.PushSubscription.optOut()
+          setNotificationsEnabled(false)
+          localStorage.setItem('notifications-toggle-state', 'off')
+        } else {
+          const permission = await sdk.Notifications.requestPermission()
+          setPermissionState(permission)
+          if (permission === 'granted') {
+            await sdk.User.PushSubscription.optIn()
+            setNotificationsEnabled(true)
+            localStorage.setItem('notifications-toggle-state', 'on')
+          }
         }
+      } catch (err) {
+        console.error('Failed to toggle notifications:', err)
       }
-    } catch (err) {
-      console.error('Failed to toggle notifications:', err)
+    }
+
+    if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
+      await performToggle(OneSignal)
+    } else {
+      (window as any).OneSignalDeferred = OneSignalDeferred
+      OneSignalDeferred.push(async function(sdk: any) {
+        await performToggle(sdk)
+      })
     }
   }
 
