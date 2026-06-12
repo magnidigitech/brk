@@ -49,10 +49,6 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     }
   }
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    return getSafeLocalStorage('notifications-toggle-state') === 'on'
-  })
-  const [oneSignalReady, setOneSignalReady] = useState(false)
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
   const [permissionState, setPermissionState] = useState<string>('default')
 
@@ -63,93 +59,28 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     const OneSignalDeferred = (window as any).OneSignalDeferred || []
     
     OneSignalDeferred.push(async function(OneSignal: any) {
-      if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
-        setOneSignalReady(true)
-        const optedIn = OneSignal.User.PushSubscription.optedIn
+      if (OneSignal && OneSignal.Notifications) {
         const permission = OneSignal.Notifications.permission
         setPermissionState(permission)
 
-        // Prevent race condition: align OneSignal status with cached user preference
-        const cachedToggle = getSafeLocalStorage('notifications-toggle-state')
-        if (cachedToggle === 'on' && permission === 'granted' && !optedIn) {
-          try {
-            await OneSignal.User.PushSubscription.optIn()
-            setNotificationsEnabled(true)
-            setSafeLocalStorage('notifications-toggle-state', 'on')
-          } catch (e) {
-            console.error('Auto opt-in failed', e)
-            setNotificationsEnabled(false)
-            setSafeLocalStorage('notifications-toggle-state', 'off')
-          }
-        } else if (cachedToggle === 'off' && optedIn) {
-          try {
-            await OneSignal.User.PushSubscription.optOut()
-            setNotificationsEnabled(false)
-            setSafeLocalStorage('notifications-toggle-state', 'off')
-          } catch (e) {
-            console.error('Auto opt-out failed', e)
-          }
-        } else {
-          setNotificationsEnabled(optedIn)
-          setSafeLocalStorage('notifications-toggle-state', optedIn ? 'on' : 'off')
-        }
+        // Only prompt on public pages, not on admin pages, and only if permission is default (neither granted nor denied)
+        if (!pathname.startsWith('/admin') && permission !== 'granted' && permission !== 'denied') {
+          const lastShown = getSafeLocalStorage('onesignal-prompt-last-shown')
+          const hasBeen24Hours = lastShown 
+            ? Date.now() - parseInt(lastShown, 10) > 24 * 60 * 60 * 1000 
+            : true
 
-        // Listen for subscription changes
-        OneSignal.User.PushSubscription.addEventListener("change", (event: any) => {
-          const isSubscribed = event.current.optedIn
-          setNotificationsEnabled(isSubscribed)
-          setSafeLocalStorage('notifications-toggle-state', isSubscribed ? 'on' : 'off')
-        })
-
-        // Check if the user hasn't subscribed yet and hasn't dismissed the initial prompt this session
-        const initialPromptShown = sessionStorage.getItem('onesignal-initial-prompt-shown')
-        
-        // Only prompt on public pages, not on admin pages
-        if (!pathname.startsWith('/admin') && !optedIn && permission !== 'denied' && !initialPromptShown) {
-          setTimeout(() => {
-            setShowNotificationPrompt(true)
-          }, 4000)
+          if (hasBeen24Hours) {
+            setTimeout(() => {
+              setShowNotificationPrompt(true)
+              // Update last shown timestamp when showing it
+              setSafeLocalStorage('onesignal-prompt-last-shown', Date.now().toString())
+            }, 4000)
+          }
         }
       }
     })
   }, [pathname])
-
-  const handleToggleNotifications = async () => {
-    if (typeof window === 'undefined') return
-
-    const OneSignal = (window as any).OneSignal
-    const OneSignalDeferred = (window as any).OneSignalDeferred || []
-
-    const performToggle = async (sdk: any) => {
-      try {
-        const isSubscribed = sdk.User.PushSubscription.optedIn
-        if (isSubscribed) {
-          await sdk.User.PushSubscription.optOut()
-          setNotificationsEnabled(false)
-          setSafeLocalStorage('notifications-toggle-state', 'off')
-        } else {
-          const permission = await sdk.Notifications.requestPermission()
-          setPermissionState(permission)
-          if (permission === 'granted') {
-            await sdk.User.PushSubscription.optIn()
-            setNotificationsEnabled(true)
-            setSafeLocalStorage('notifications-toggle-state', 'on')
-          }
-        }
-      } catch (err) {
-        console.error('Failed to toggle notifications:', err)
-      }
-    }
-
-    if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
-      await performToggle(OneSignal)
-    } else {
-      (window as any).OneSignalDeferred = OneSignalDeferred
-      OneSignalDeferred.push(async function(sdk: any) {
-        await performToggle(sdk)
-      })
-    }
-  }
 
   // Real-time Sanity Sync subscription listener
   useEffect(() => {
@@ -404,43 +335,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 )}
               </div>
 
-              {/* Push Notifications Toggle Dropdown */}
-              <div ref={notifyRef} className="relative py-5">
-                <button
-                  onClick={() => setNotifyDropdownOpen(!notifyDropdownOpen)}
-                  className="flex items-center space-x-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer outline-none"
-                >
-                  <Bell className={`w-3.5 h-3.5 ${notificationsEnabled ? 'text-emerald-500 fill-emerald-100 animate-pulse' : 'text-slate-500'}`} />
-                  <span>Notifications</span>
-                </button>
 
-                {notifyDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-64 rounded-xl bg-white border border-slate-200 shadow-xl p-4 z-50 text-left">
-                    <div className="flex items-center justify-between">
-                      <div className="pr-4">
-                        <span className="block text-xs font-bold text-navy-900">Push Notifications</span>
-                        <span className="block text-[9px] text-slate-400 font-bold leading-normal mt-0.5">
-                          {permissionState === 'denied' 
-                            ? 'Blocked. Please check browser settings.' 
-                            : 'Get real-time updates on MP works'}
-                        </span>
-                      </div>
-                      <button
-                        onClick={handleToggleNotifications}
-                        disabled={permissionState === 'denied' && !notificationsEnabled}
-                        className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: notificationsEnabled ? '#10B981' : '#D1D5DB' }}
-                        aria-label="Toggle notifications"
-                      >
-                        <span
-                          className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                          style={{ transform: notificationsEnabled ? 'translateX(16px)' : 'translateX(0px)' }}
-                        />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
 
               {/* Grievance Portal CTA */}
               <Link
@@ -537,33 +432,6 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               >
                 {t('nav.grievancePortal')}
               </Link>
-
-              {/* Mobile Push Notifications Toggle */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3 py-2.5">
-                <div className="flex items-center space-x-2">
-                  <Bell className={`w-4 h-4 ${notificationsEnabled ? 'text-emerald-500 fill-emerald-100' : 'text-slate-400'}`} />
-                  <div className="text-left">
-                    <span className="block text-xs font-bold text-slate-700">Push Notifications</span>
-                    <span className="block text-[9px] text-slate-400 font-bold leading-normal mt-0.5">
-                      {permissionState === 'denied' 
-                        ? 'Blocked. Please check settings.' 
-                        : 'Real-time Rajya Sabha updates'}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={handleToggleNotifications}
-                  disabled={permissionState === 'denied' && !notificationsEnabled}
-                  className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50"
-                  style={{ backgroundColor: notificationsEnabled ? '#10B981' : '#D1D5DB' }}
-                  aria-label="Toggle notifications"
-                >
-                  <span
-                    className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                    style={{ transform: notificationsEnabled ? 'translateX(16px)' : 'translateX(0px)' }}
-                  />
-                </button>
-              </div>
 
               {/* Mobile language switchers */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
@@ -670,15 +538,18 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={async () => {
-                    sessionStorage.setItem('onesignal-initial-prompt-shown', 'true')
+                    setSafeLocalStorage('onesignal-prompt-last-shown', Date.now().toString())
                     setShowNotificationPrompt(false)
                     const OneSignal = (window as any).OneSignal
                     if (OneSignal) {
-                      const permission = await OneSignal.Notifications.requestPermission()
-                      setPermissionState(permission)
-                      if (permission === 'granted') {
-                        await OneSignal.User.PushSubscription.optIn()
-                        setNotificationsEnabled(true)
+                      try {
+                        const permission = await OneSignal.Notifications.requestPermission()
+                        setPermissionState(permission)
+                        if (permission === 'granted') {
+                          await OneSignal.User.PushSubscription.optIn()
+                        }
+                      } catch (e) {
+                        console.error('Failed to request notification permission', e)
                       }
                     }
                   }}
@@ -688,7 +559,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 </button>
                 <button
                   onClick={() => {
-                    sessionStorage.setItem('onesignal-initial-prompt-shown', 'true')
+                    setSafeLocalStorage('onesignal-prompt-last-shown', Date.now().toString())
                     setShowNotificationPrompt(false)
                   }}
                   className="px-5 py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition-all cursor-pointer"
