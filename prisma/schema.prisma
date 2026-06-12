@@ -38,3 +38,13 @@ model GrievanceTicket {
 
   @@index([id])
 }
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  type      String   // "VISIT" or "PWA_INSTALL"
+  pathname  String?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}

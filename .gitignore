@@ -49,3 +49,7 @@ next-env.d.ts
 # logs
 *-all-logs-*.txt
 *.log
+
+# zip archives
+*.zip
+

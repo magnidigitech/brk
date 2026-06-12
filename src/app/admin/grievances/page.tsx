@@ -47,7 +47,8 @@ interface Ticket {
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [passcode, setPasscode] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
 
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -66,8 +67,8 @@ export default function AdminDashboard() {
 
   // Check auth on mount
   useEffect(() => {
-    const auth = localStorage.getItem('admin_authenticated')
-    if (auth === 'true') {
+    const auth = localStorage.getItem('admin_authenticated_email')
+    if (auth === 'magnidigitech@gmail.com') {
       setIsAuthenticated(true)
       fetchTickets()
     }
@@ -75,17 +76,17 @@ export default function AdminDashboard() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (passcode === 'admin123') {
-      localStorage.setItem('admin_authenticated', 'true')
+    if (email === 'magnidigitech@gmail.com' && password === 'Magni@221299') {
+      localStorage.setItem('admin_authenticated_email', 'magnidigitech@gmail.com')
       setIsAuthenticated(true)
       fetchTickets()
     } else {
-      setAuthError('Invalid passcode. Please try again.')
+      setAuthError('Invalid email or password. Please try again.')
     }
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_authenticated')
+    localStorage.removeItem('admin_authenticated_email')
     setIsAuthenticated(false)
     setTickets([])
   }
@@ -174,8 +175,8 @@ export default function AdminDashboard() {
             <div className="inline-flex items-center justify-center w-14 h-14 bg-navy-900 border border-navy-800 rounded-2xl mb-4 text-saffron-500">
               <Lock className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-extrabold text-white">Grievance Admin Portal</h1>
-            <p className="text-xs text-slate-400 mt-2">Enter administration passcode to access the office dashboard.</p>
+            <h1 className="text-xl font-extrabold text-white">Grievances Office Access</h1>
+            <p className="text-xs text-slate-400 mt-2">Enter administration credentials to access the citizens' grievances portal.</p>
           </div>
 
           {authError && (
@@ -188,13 +189,27 @@ export default function AdminDashboard() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Passcode *
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 focus:border-saffron-500 transition-all text-sm outline-none text-white"
+                placeholder="admin@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Password
               </label>
               <input
                 type="password"
-                value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 focus:border-saffron-500 transition-all text-sm outline-none text-white font-mono tracking-widest text-center"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 focus:border-saffron-500 transition-all text-sm outline-none text-white"
                 placeholder="••••••••"
                 required
               />
