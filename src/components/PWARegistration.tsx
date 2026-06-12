@@ -11,6 +11,7 @@ export default function PWARegistration() {
 
   // 1. Track page views / visits when pathname changes
   useEffect(() => {
+    if (pathname.startsWith('/admin')) return
     fetch('/api/analytics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,11 +41,11 @@ export default function PWARegistration() {
           .then((reg) => {
             console.log('Service Worker registered successfully with scope:', reg.scope)
             
-            // Check for initial waiting worker (update available but waiting)
-            if (reg.waiting) {
-              setWaitingWorker(reg.waiting)
-              setShowUpdate(true)
-            }
+            // Do not prompt for initial waiting worker on every refresh; only prompt when a new update is detected and installed
+            // if (reg.waiting) {
+            //   setWaitingWorker(reg.waiting)
+            //   setShowUpdate(true)
+            // }
 
             // Listen for subsequent updates
             reg.onupdatefound = () => {
@@ -94,7 +95,7 @@ export default function PWARegistration() {
     setShowUpdate(false)
   }
 
-  if (!showUpdate) return null
+  if (pathname.startsWith('/admin') || !showUpdate) return null
 
   return (
     <>

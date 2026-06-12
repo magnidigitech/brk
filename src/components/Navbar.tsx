@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, X, LifeBuoy, Globe } from 'lucide-react'
+import { Menu, X, LifeBuoy, Globe, Bell } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
@@ -18,12 +18,75 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { language, setLanguage, t, tContent } = useLanguage()
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+  const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false)
 
   const navRef = useRef<HTMLElement>(null)
   const langRef = useRef<HTMLDivElement>(null)
+  const notifyRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
   const subpagePushedRef = useRef<string | null>(null)
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [oneSignalReady, setOneSignalReady] = useState(false)
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
+  const [permissionState, setPermissionState] = useState<string>('default')
+
+  // OneSignal notifications check and subscription listener
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const checkSubscription = async () => {
+      const OneSignal = (window as any).OneSignal
+      if (OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
+        setOneSignalReady(true)
+        setNotificationsEnabled(OneSignal.User.PushSubscription.optedIn)
+        setPermissionState(OneSignal.Notifications.permission)
+        
+        // Listen for subscription changes
+        OneSignal.User.PushSubscription.addEventListener("change", (event: any) => {
+          setNotificationsEnabled(event.current.optedIn)
+        })
+
+        // Check if the user hasn't subscribed yet and hasn't dismissed the initial prompt this session
+        const initialPromptShown = sessionStorage.getItem('onesignal-initial-prompt-shown')
+        const isSubscribed = OneSignal.User.PushSubscription.optedIn
+        const permission = OneSignal.Notifications.permission
+        
+        // Only prompt on public pages, not on admin pages
+        if (!pathname.startsWith('/admin') && !isSubscribed && permission !== 'denied' && !initialPromptShown) {
+          setTimeout(() => {
+            setShowNotificationPrompt(true)
+          }, 4000)
+        }
+      } else {
+        setTimeout(checkSubscription, 1000)
+      }
+    }
+
+    checkSubscription()
+  }, [pathname])
+
+  const handleToggleNotifications = async () => {
+    const OneSignal = (window as any).OneSignal
+    if (!OneSignal) return
+
+    try {
+      if (notificationsEnabled) {
+        await OneSignal.User.PushSubscription.optOut()
+        setNotificationsEnabled(false)
+      } else {
+        const permission = await OneSignal.Notifications.requestPermission()
+        setPermissionState(permission)
+        if (permission === 'granted') {
+          await OneSignal.User.PushSubscription.optIn()
+          setNotificationsEnabled(true)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to toggle notifications:', err)
+    }
+  }
 
   // Real-time Sanity Sync subscription listener
   useEffect(() => {
@@ -43,7 +106,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     }
   }, [router])
 
-  // Click outside listener for mobile navbar & language dropdown
+  // Click outside listener for mobile navbar & dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isOpen && navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -52,12 +115,15 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       if (langDropdownOpen && langRef.current && !langRef.current.contains(event.target as Node)) {
         setLangDropdownOpen(false)
       }
+      if (notifyDropdownOpen && notifyRef.current && !notifyRef.current.contains(event.target as Node)) {
+        setNotifyDropdownOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isOpen, langDropdownOpen])
+  }, [isOpen, langDropdownOpen, notifyDropdownOpen])
 
   // Page entry history state setup for backpress routing
   useEffect(() => {
@@ -275,6 +341,44 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 )}
               </div>
 
+              {/* Push Notifications Toggle Dropdown */}
+              <div ref={notifyRef} className="relative py-5">
+                <button
+                  onClick={() => setNotifyDropdownOpen(!notifyDropdownOpen)}
+                  className="flex items-center space-x-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer outline-none"
+                >
+                  <Bell className={`w-3.5 h-3.5 ${notificationsEnabled ? 'text-emerald-500 fill-emerald-100 animate-pulse' : 'text-slate-500'}`} />
+                  <span>Notifications</span>
+                </button>
+
+                {notifyDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-64 rounded-xl bg-white border border-slate-200 shadow-xl p-4 z-50 text-left">
+                    <div className="flex items-center justify-between">
+                      <div className="pr-4">
+                        <span className="block text-xs font-bold text-navy-900">Push Notifications</span>
+                        <span className="block text-[9px] text-slate-400 font-bold leading-normal mt-0.5">
+                          {permissionState === 'denied' 
+                            ? 'Blocked. Please check browser settings.' 
+                            : 'Get real-time updates on MP works'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleToggleNotifications}
+                        disabled={permissionState === 'denied' && !notificationsEnabled}
+                        className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ backgroundColor: notificationsEnabled ? '#10B981' : '#D1D5DB' }}
+                        aria-label="Toggle notifications"
+                      >
+                        <span
+                          className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                          style={{ transform: notificationsEnabled ? 'translateX(16px)' : 'translateX(0px)' }}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Grievance Portal CTA */}
               <Link
                 href="/grievance"
@@ -371,6 +475,33 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 {t('nav.grievancePortal')}
               </Link>
 
+              {/* Mobile Push Notifications Toggle */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3 py-2.5">
+                <div className="flex items-center space-x-2">
+                  <Bell className={`w-4 h-4 ${notificationsEnabled ? 'text-emerald-500 fill-emerald-100' : 'text-slate-400'}`} />
+                  <div className="text-left">
+                    <span className="block text-xs font-bold text-slate-700">Push Notifications</span>
+                    <span className="block text-[9px] text-slate-400 font-bold leading-normal mt-0.5">
+                      {permissionState === 'denied' 
+                        ? 'Blocked. Please check settings.' 
+                        : 'Real-time Rajya Sabha updates'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleToggleNotifications}
+                  disabled={permissionState === 'denied' && !notificationsEnabled}
+                  className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50"
+                  style={{ backgroundColor: notificationsEnabled ? '#10B981' : '#D1D5DB' }}
+                  aria-label="Toggle notifications"
+                >
+                  <span
+                    className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                    style={{ transform: notificationsEnabled ? 'translateX(16px)' : 'translateX(0px)' }}
+                  />
+                </button>
+              </div>
+
               {/* Mobile language switchers */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Select Language</span>
@@ -460,6 +591,52 @@ export default function Navbar({ siteSettings }: NavbarProps) {
           </Link>
         </div>
       </div>
+
+      {/* Custom sitewide notification prompt popup */}
+      {showNotificationPrompt && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 text-slate-800 w-full max-w-sm pwa-animate-scale relative">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-saffron-50 rounded-full flex items-center justify-center mx-auto mb-4 text-saffron-500 animate-bounce">
+                <Bell className="w-6 h-6 text-saffron-600 fill-saffron-100" />
+              </div>
+              <h3 className="font-extrabold text-navy-900 text-base">Enable Push Notifications?</h3>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                Get real-time updates on press releases, developmental works, and Rajya Sabha updates directly on your device.
+              </p>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={async () => {
+                    sessionStorage.setItem('onesignal-initial-prompt-shown', 'true')
+                    setShowNotificationPrompt(false)
+                    const OneSignal = (window as any).OneSignal
+                    if (OneSignal) {
+                      const permission = await OneSignal.Notifications.requestPermission()
+                      setPermissionState(permission)
+                      if (permission === 'granted') {
+                        await OneSignal.User.PushSubscription.optIn()
+                        setNotificationsEnabled(true)
+                      }
+                    }
+                  }}
+                  className="flex-grow py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer border border-saffron-500/20"
+                >
+                  Allow
+                </button>
+                <button
+                  onClick={() => {
+                    sessionStorage.setItem('onesignal-initial-prompt-shown', 'true')
+                    setShowNotificationPrompt(false)
+                  }}
+                  className="px-5 py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold text-xs rounded-xl border border-slate-200 transition-all cursor-pointer"
+                >
+                  Later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

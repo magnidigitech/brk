@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { X, Share2, PlusSquare, ArrowDown, Smartphone, AlertCircle } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { usePathname } from 'next/navigation'
 
 export default function PWAInstallPrompt() {
   const { t } = useLanguage()
+  const pathname = usePathname()
   const [showPrompt, setShowPrompt] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isAndroid, setIsAndroid] = useState(false)
@@ -100,28 +102,28 @@ export default function PWAInstallPrompt() {
     setShowPrompt(false)
   }
 
-  if (!showPrompt) return null
+  if (pathname.startsWith('/admin') || !showPrompt) return null
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes pwaSlideUp {
+        @keyframes pwaScale {
           from {
-            transform: translateY(100%) scale(0.95);
+            transform: scale(0.95);
             opacity: 0;
           }
           to {
-            transform: translateY(0) scale(1);
+            transform: scale(1);
             opacity: 1;
           }
         }
-        .pwa-animate-slideup {
-          animation: pwaSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .pwa-animate-scale {
+          animation: pwaScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}} />
 
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[9999] pwa-animate-slideup">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border-2 border-saffron-400 shadow-2xl overflow-hidden p-5 text-slate-800">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="bg-white rounded-3xl border-2 border-saffron-400 shadow-2xl overflow-hidden p-6 text-slate-800 w-full max-w-sm pwa-animate-scale relative">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">

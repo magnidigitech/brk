@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export default function FloatingSocials() {
+  const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
@@ -14,6 +16,10 @@ export default function FloatingSocials() {
 
     return () => clearTimeout(timer)
   }, [])
+
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
 
   return (
     <AnimatePresence>
