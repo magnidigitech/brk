@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import {
   Calendar,
   ChevronRight,
@@ -11,7 +11,10 @@ import {
   Video,
   ExternalLink,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  Share2,
+  Copy,
+  Check
 } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 
@@ -29,6 +32,7 @@ interface ParliamentaryUpdatesClientProps {
 }
 
 interface ActiveContent {
+  _id: string
   type: 'update' | 'news'
   title: string
   date: string
@@ -42,6 +46,9 @@ interface ActiveContent {
 export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpdatesClientProps) {
   const { t, tContent } = useLanguage()
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const dragControls = useDragControls()
+  const [showShareMenu, setShowShareMenu] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const historyPushedRef = useRef<{ content: boolean }>({ content: false })
 
@@ -50,12 +57,47 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
     const hasContent = !!activeContent
 
     if (hasContent && !historyPushedRef.current.content) {
-      window.history.pushState({ type: 'activeContent' }, '')
+      const params = new URLSearchParams(window.location.search)
+      params.set('id', activeContent._id)
+      window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
       historyPushedRef.current.content = false
       if (window.history.state?.type === 'activeContent') {
         window.history.back()
+      }
+    }
+  }, [activeContent])
+
+  // Check query parameter on mount and updates load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get('id')
+    if (id && updates.length > 0) {
+      const item = updates.find((u) => u._id === id)
+      if (item) {
+        setActiveContent({
+          _id: item._id,
+          type: 'update',
+          title: tContent(item.title),
+          date: item.date,
+          excerpt: tContent(item.summary),
+          speechUrl: item.speechUrl,
+          documentUrl: item.documentUrl,
+        })
+      }
+    }
+  }, [updates])
+
+  // Sync activeContent changes with URL query parameter
+  useEffect(() => {
+    if (!activeContent) {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('id')) {
+        params.delete('id')
+        const searchStr = params.toString()
+        const newUrl = `${window.location.pathname}${searchStr ? '?' + searchStr : ''}`
+        window.history.replaceState({ ...window.history.state }, '', newUrl)
       }
     }
   }, [activeContent])
@@ -170,6 +212,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                                   key={item._id}
                                   className="group flex flex-col cursor-pointer bg-white hover:bg-saffron-50/10 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md justify-between"
                                   onClick={() => setActiveContent({
+                                    _id: item._id,
                                     type: 'update',
                                     title: utitle,
                                     date: item.date,
@@ -243,6 +286,16 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/70 backdrop-blur-sm"
           >
             <motion.div
+              drag="y"
+              dragControls={dragControls}
+              dragListener={false}
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.85 }}
+              onDragEnd={(event, info) => {
+                if (info.offset.y > 120 || info.velocity.y > 600) {
+                  setActiveContent(null)
+                }
+              }}
               initial={{ y: 60, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 60, opacity: 0 }}
@@ -250,8 +303,19 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
               onClick={(e) => e.stopPropagation()}
               className="bg-white w-full sm:max-w-2xl sm:rounded-3xl rounded-t-3xl shadow-2xl border border-saffron-200 flex flex-col max-h-[92vh] overflow-hidden"
             >
-              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 shrink-0">
-                <div className="flex items-center space-x-2.5">
+              {/* Swipe/Drag Handle bar at the top */}
+              <div
+                className="w-full pt-3 pb-1 cursor-grab active:cursor-grabbing flex justify-center shrink-0 select-none touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <div className="w-12 h-1.5 bg-slate-300 rounded-full hover:bg-slate-400 transition-colors" />
+              </div>
+
+              <div 
+                className="flex items-center justify-between px-6 pb-4 border-b border-slate-100 shrink-0 cursor-grab active:cursor-grabbing select-none touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <div className="flex items-center space-x-2.5 pointer-events-none">
                   <TrendingUp className="w-5 h-5 text-saffron-600" />
                   <span className="text-xs font-bold text-saffron-600 uppercase tracking-widest">
                     Parliamentary Update
@@ -259,6 +323,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                 </div>
                 <button
                   onClick={() => setActiveContent(null)}
+                  onPointerDown={(e) => e.stopPropagation()}
                   className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close"
                 >
@@ -285,14 +350,15 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                 )}
               </div>
 
-              {(activeContent.speechUrl || activeContent.documentUrl) && (
-                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap gap-3">
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap justify-between items-center gap-3">
+                <div className="flex flex-wrap gap-3">
                   {activeContent.speechUrl && (
                     <a
                       href={activeContent.speechUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center px-5 py-2.5 rounded-xl bg-saffron-400 text-navy-950 text-sm font-bold hover:bg-saffron-500 transition-colors shadow-sm"
+                      onPointerDown={(e) => e.stopPropagation()}
                     >
                       <Video className="w-4 h-4 mr-2 text-navy-950" />
                       Watch Speech
@@ -305,13 +371,116 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-200 text-navy-900 text-sm font-bold hover:bg-slate-300 transition-colors"
+                      onPointerDown={(e) => e.stopPropagation()}
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download Document
                     </a>
                   )}
                 </div>
-              )}
+
+                <div className="relative">
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id}`
+                      const summary = activeContent.excerpt || ''
+                      const shareData = {
+                        title: activeContent.title,
+                        text: summary || activeContent.title,
+                        url: shareUrl
+                      }
+
+                      if (navigator.share) {
+                        try {
+                          await navigator.share(shareData)
+                          return
+                        } catch (err) {
+                          console.warn('Native share failed or dismissed:', err)
+                        }
+                      }
+                      setShowShareMenu(!showShareMenu)
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-sm font-bold transition-colors cursor-pointer border border-slate-200/50 shadow-sm"
+                  >
+                    <Share2 className="w-4 h-4 mr-2 text-slate-600" />
+                    Share
+                  </button>
+
+                  <AnimatePresence>
+                    {showShareMenu && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowShareMenu(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                          className="absolute bottom-full mb-2 right-0 z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1.5"
+                        >
+                          <a
+                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                              activeContent.title + '\n\n' + 
+                              (activeContent.excerpt || '').slice(0, 180) + (activeContent.excerpt ? '...' : '') + '\n\nRead here: ' + 
+                              window.location.origin + '/parliamentary-updates?id=' + activeContent._id
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShowShareMenu(false)}
+                            className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                          >
+                            <svg className="w-4 h-4 mr-3 text-[#25D366]" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.216 3.076.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            WhatsApp
+                          </a>
+                          <a
+                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                              activeContent.title + ' - ' + (activeContent.excerpt || '').slice(0, 100) + '...'
+                            )}&url=${encodeURIComponent(window.location.origin + '/parliamentary-updates?id=' + activeContent._id)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShowShareMenu(false)}
+                            className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                          >
+                            <svg className="w-4 h-4 mr-3 text-black" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            X (Twitter)
+                          </a>
+                          <button
+                            onClick={async () => {
+                              const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id}`
+                              try {
+                                await navigator.clipboard.writeText(shareUrl)
+                                setCopied(true)
+                                setTimeout(() => setCopied(false), 2000)
+                              } catch (err) {
+                                console.error('Failed to copy text: ', err)
+                              }
+                              setShowShareMenu(false)
+                            }}
+                            className="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold text-left"
+                          >
+                            {copied ? (
+                              <>
+                                <Check className="w-4 h-4 mr-3 text-emerald-600" />
+                                <span className="text-emerald-600">Link Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4 mr-3 text-slate-500" />
+                                Copy Link
+                              </>
+                            )}
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
