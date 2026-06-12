@@ -43,6 +43,12 @@ interface Ticket {
   adminNotes?: string
   createdAt: string
   updatedAt: string
+  logs?: Array<{
+    id: string
+    status: TicketStatus
+    notes: string
+    createdAt: string
+  }>
 }
 
 export default function AdminDashboard() {
@@ -109,7 +115,7 @@ export default function AdminDashboard() {
   const handleSelectTicket = (ticket: Ticket) => {
     setSelectedTicket(ticket)
     setEditingStatus(ticket.status)
-    setEditingNotes(ticket.adminNotes || '')
+    setEditingNotes('')
   }
 
   const handleUpdateTicket = async (e: React.FormEvent) => {
@@ -124,7 +130,7 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           id: selectedTicket.id,
           status: editingStatus,
-          adminNotes: editingNotes
+          notes: editingNotes
         })
       })
 
@@ -132,7 +138,7 @@ export default function AdminDashboard() {
         const updated = await response.json()
         setTickets(prev => prev.map(t => t.id === updated.id ? updated : t))
         setSelectedTicket(updated)
-        // Trigger success notification or confetti
+        setEditingNotes('')
       }
     } catch (err) {
       console.error('Failed to update ticket', err)
@@ -230,33 +236,33 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-navy-900 text-white border-b border-navy-950 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-40 bg-[#FFD200] text-slate-950 border-b border-[#e0b900] shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-navy-850 rounded-lg flex items-center justify-center border border-navy-800">
-              <LifeBuoy className="w-5 h-5 text-saffron-500 animate-spin" />
+            <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-yellow-600/20 shadow-sm shrink-0">
+              <img src="/images/logo.png" alt="TDP Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <span className="block font-bold text-sm text-white uppercase tracking-wider leading-tight">
+              <span className="block font-black text-sm text-slate-950 uppercase tracking-wider leading-tight">
                 Grievance Administration
               </span>
-              <span className="block text-[10px] font-semibold text-saffron-400 tracking-widest uppercase">
+              <span className="block text-[9px] font-black text-navy-900 tracking-wider uppercase">
                 MP Rajya Sabha Office
               </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <button
               onClick={fetchTickets}
-              className="p-2.5 bg-navy-850 border border-navy-800 hover:bg-navy-800 text-slate-300 rounded-lg transition-all"
+              className="p-2.5 bg-slate-950/5 hover:bg-slate-950/10 text-slate-950 rounded-xl transition-all border border-slate-950/10"
               title="Refresh Tickets"
             >
               <RefreshCw className="w-4.5 h-4.5" />
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+              className="px-4 py-2 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
             >
               Log Out
             </button>
@@ -516,6 +522,59 @@ export default function AdminDashboard() {
                       {selectedTicket.description}
                     </p>
                   </div>
+                </div>
+
+                {/* Logs History / Steps */}
+                <div className="border-t border-slate-100 pt-6">
+                  <h4 className="text-xs font-bold text-navy-900 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-saffron-600" />
+                    Grievance Update Log History
+                  </h4>
+                  {selectedTicket.logs && selectedTicket.logs.length > 0 ? (
+                    <div className="flow-root bg-slate-50 border border-slate-100 rounded-2xl p-5">
+                      <ul className="-mb-8">
+                        {selectedTicket.logs.map((log, logIdx) => (
+                          <li key={log.id}>
+                            <div className="relative pb-8">
+                              {logIdx !== selectedTicket.logs!.length - 1 ? (
+                                <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true" />
+                              ) : null}
+                              <div className="relative flex space-x-3">
+                                <div>
+                                  <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${
+                                    log.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-600' :
+                                    log.status === 'REJECTED' ? 'bg-rose-100 text-rose-600' :
+                                    log.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-600' :
+                                    'bg-slate-100 text-slate-600'
+                                  }`}>
+                                    <Clock className="w-4 h-4" />
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+                                  <div>
+                                    <p className="text-xs font-bold text-navy-950 flex items-center gap-2">
+                                      <span>Status:</span>
+                                      <span className="uppercase text-[9px] font-black tracking-wider bg-white px-2 py-0.5 rounded border border-slate-200">
+                                        {log.status.replace('_', ' ')}
+                                      </span>
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1.5 font-medium leading-relaxed whitespace-pre-wrap">
+                                      {log.notes}
+                                    </p>
+                                  </div>
+                                  <div className="text-right text-[10px] whitespace-nowrap text-slate-400 font-bold">
+                                    <span>{new Date(log.createdAt).toLocaleString('en-IN')}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-400 italic">No progress logs recorded yet.</p>
+                  )}
                 </div>
 
                 {/* Edit Form */}

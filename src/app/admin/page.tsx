@@ -163,33 +163,33 @@ export default function MasterAdminPortal() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header Banner */}
-      <header className="sticky top-0 z-40 bg-navy-900 text-white border-b border-navy-950 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-40 bg-[#FFD200] text-slate-950 border-b border-[#e0b900] shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-navy-850 rounded-lg flex items-center justify-center border border-navy-800">
-              <Globe className="w-5 h-5 text-saffron-500 animate-pulse" />
+            <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-yellow-600/20 shadow-sm shrink-0">
+              <img src="/images/logo.png" alt="TDP Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <span className="block font-bold text-sm text-white uppercase tracking-wider leading-tight">
+              <span className="block font-black text-sm text-slate-950 uppercase tracking-wider leading-tight">
                 Central Office Administration
               </span>
-              <span className="block text-[10px] font-semibold text-saffron-400 tracking-widest uppercase">
+              <span className="block text-[9px] font-black text-navy-900 tracking-wider uppercase">
                 Sitewide Master Dashboard
               </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <button
               onClick={fetchDashboardData}
-              className="p-2.5 bg-navy-850 border border-navy-800 hover:bg-navy-800 text-slate-300 rounded-lg transition-all"
+              className="p-2.5 bg-slate-950/5 hover:bg-slate-950/10 text-slate-950 rounded-xl transition-all border border-slate-950/10"
               title="Refresh Stats"
             >
               <RefreshCw className={`w-4.5 h-4.5 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition-all"
+              className="flex items-center space-x-1.5 px-4 py-2 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Log Out</span>

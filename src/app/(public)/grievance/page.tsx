@@ -61,6 +61,12 @@ interface MockTicket {
   status: TicketStatus
   createdAt: string
   adminNotes?: string
+  logs?: Array<{
+    id: string
+    status: TicketStatus
+    notes: string
+    createdAt: string
+  }>
 }
 
 function GrievancePortal() {
@@ -961,7 +967,7 @@ function GrievancePortal() {
                       </p>
                     </div>
 
-                    {searchResult.adminNotes && (
+                    {searchResult.adminNotes && (!searchResult.logs || searchResult.logs.length === 0) && (
                       <div className="p-4 bg-saffron-100/50 border border-saffron-200/60 text-slate-800 rounded-xl text-left">
                         <span className="block text-xs font-bold text-saffron-700 uppercase tracking-wider mb-1.5 flex items-center">
                           <AlertCircle className="w-3.5 h-3.5 mr-1" />
@@ -970,6 +976,52 @@ function GrievancePortal() {
                         <p className="text-sm font-medium leading-relaxed">
                           {searchResult.adminNotes}
                         </p>
+                      </div>
+                    )}
+
+                    {searchResult.logs && searchResult.logs.length > 0 && (
+                      <div className="border-t border-slate-100 pt-6">
+                        <span className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-4 text-left">
+                          Progress History / Updates Log
+                        </span>
+                        <div className="flow-root">
+                          <ul className="-mb-8 text-left">
+                            {searchResult.logs.map((log, logIdx) => (
+                              <li key={log.id}>
+                                <div className="relative pb-8">
+                                  {logIdx !== searchResult.logs!.length - 1 ? (
+                                    <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true" />
+                                  ) : null}
+                                  <div className="relative flex space-x-3">
+                                    <div>
+                                      <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${
+                                        log.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-600' :
+                                        log.status === 'REJECTED' ? 'bg-rose-100 text-rose-600' :
+                                        log.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-600' :
+                                        'bg-slate-100 text-slate-600'
+                                      }`}>
+                                        <Clock className="w-4 h-4" />
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+                                      <div>
+                                        <p className="text-xs font-semibold text-slate-900">
+                                          Status: <span className="uppercase font-extrabold text-navy-950">{log.status.replace('_', ' ')}</span>
+                                        </p>
+                                        <p className="text-xs text-slate-600 mt-1 font-medium bg-slate-50 border border-slate-100 p-3 rounded-lg leading-relaxed whitespace-pre-wrap">
+                                          {log.notes}
+                                        </p>
+                                      </div>
+                                      <div className="text-right text-[10px] whitespace-nowrap text-slate-400 font-bold">
+                                        <span>{new Date(log.createdAt).toLocaleDateString(language === 'te' ? 'te-IN' : 'en-IN')}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     )}
                   </div>

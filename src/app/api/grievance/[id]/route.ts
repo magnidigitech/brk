@@ -17,6 +17,11 @@ export async function GET(
 
     const ticket = await prisma.grievanceTicket.findUnique({
       where: { id },
+      include: {
+        logs: {
+          orderBy: { createdAt: 'asc' }
+        }
+      }
     })
 
     if (!ticket) {
@@ -48,6 +53,7 @@ export async function GET(
       status: ticket.status,
       createdAt: ticket.createdAt,
       adminNotes: ticket.adminNotes,
+      logs: ticket.logs,
     })
   } catch (error: any) {
     console.error('Error fetching grievance ticket:', error)
