@@ -16,6 +16,7 @@ import PWARegistration from "@/components/PWARegistration";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import FloatingSocials from "@/components/FloatingSocials";
 import { LanguageProvider } from "@/components/LanguageContext";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Bhashyam Ramakrishna | Official Rajya Sabha Portal",
@@ -46,6 +47,26 @@ export default function RootLayout({
           <FloatingSocials />
           {children}
         </LanguageProvider>
+
+        {/* OneSignal Push Notifications */}
+        <Script
+          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+          strategy="afterInteractive"
+        />
+        <Script id="onesignal-init" strategy="afterInteractive">
+          {`
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+              await OneSignal.init({
+                appId: "5dc88ca6-55a7-4377-9f2b-7dfd0c2a6a48",
+                safari_web_id: "web.onesignal.auto.34cabfa2-ddd9-46d0-b8b2-6fad793020e0",
+                notifyButton: {
+                  enable: true,
+                },
+              });
+            });
+          `}
+        </Script>
       </body>
     </html>
   );
