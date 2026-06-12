@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { MapPin, Mail, Phone } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { getRoleTitle } from '@/lib/roleHelper'
 
 interface FooterProps {
   siteSettings?: {
@@ -32,7 +33,7 @@ export default function Footer({ siteSettings }: FooterProps) {
 
   // All values resolved from server-passed siteSettings
   const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Ramakrishna')
-  const roleBadge = tContent(siteSettings?.roleBadge, 'Member of Parliament (Rajya Sabha)')
+  const roleBadge = getRoleTitle(useLanguage().language)
   const instagram = siteSettings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/'
   const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamramakrishnaofficial'
   const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
@@ -54,6 +55,8 @@ export default function Footer({ siteSettings }: FooterProps) {
                   src="/images/telugudesamlogo.png"
                   alt="TDP Logo"
                   className="w-15 h-15 object-contain"
+                  width={60}
+                  height={60}
                 />
               </div>
               <div className="text-left">
@@ -198,11 +201,82 @@ export default function Footer({ siteSettings }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-[#7A0D15] mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-red-200/50">
-          <p>© {currentYear} {t('footer.office')} {candidateName}, MP. {t('footer.rights')}</p>
-          <p className="mt-2 md:mt-0 text-left">
-            {t('footer.official')}
+        <div className="border-t border-[#7A0D15] mt-12 pt-6 flex flex-col items-center text-center space-y-4 text-xs text-red-200/50">
+          {/* Copyrights in a single line */}
+          <p className="whitespace-nowrap md:whitespace-normal">
+            © {currentYear} {t('footer.office')} {candidateName}, MP. {t('footer.rights')}
           </p>
+          
+          {/* Privacy Links */}
+          <div className="flex space-x-4 font-medium justify-center">
+            <Link href="/privacy" className="hover:text-yellow-300 transition-colors">
+              {useLanguage().language === 'te' ? 'గోప్యతా విధానం' : 'Privacy Policy'}
+            </Link>
+            <span className="text-red-200/20">|</span>
+            <Link href="/terms" className="hover:text-yellow-300 transition-colors">
+              {useLanguage().language === 'te' ? 'నిబంధనలు' : 'Terms of Use'}
+            </Link>
+            <span className="text-red-200/20">|</span>
+            <Link href="/accessibility" className="hover:text-yellow-300 transition-colors">
+              {useLanguage().language === 'te' ? 'యాక్సెసిబిలిటీ' : 'Accessibility'}
+            </Link>
+          </div>
+
+          {/* Below text in exactly two lines (on desktop) and centered */}
+          <p className="max-w-md md:max-w-lg mx-auto leading-relaxed text-[11px] text-red-200/40">
+            {useLanguage().language === 'te' ? (
+              t('footer.official')
+            ) : (
+              <>
+                This is the official public portal for citizen grievance redressal,<br />
+                policy initiatives, and updates.
+              </>
+            )}
+          </p>
+        </div>
+
+        {/* Magni Digitech Credit */}
+        <div className="border-t border-[#7A0D15]/40 mt-6 pt-4 flex justify-center items-center relative group/credit">
+          {/* Tooltip containing hitwebcounter */}
+          <div className="absolute bottom-full mb-3 hidden group-hover/credit:flex flex-col items-center z-50 bg-[#450308] border border-saffron-400/30 text-white rounded-lg px-3 py-2 shadow-2xl pointer-events-auto transition-all duration-300 animate-in fade-in slide-in-from-bottom-2">
+            <span className="text-[8px] text-saffron-300 uppercase tracking-widest font-black mb-1.5 block">
+              Portal Traffic
+            </span>
+            <a 
+              href="https://www.hitwebcounter.com/split-pdf" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="https://www.hitwebcounter.com/split-pdf"
+              className="block opacity-90 hover:opacity-100 transition-opacity"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="https://www.hitwebcounter.com/counter/counter.php?page=21503716&amp;style=0024&amp;nbdigits=5&amp;type=ip" 
+                alt="Visitor Counter" 
+                decoding="async" 
+                className="h-5 w-auto object-contain border-0 max-w-full"
+              />
+            </a>
+            {/* Tooltip Arrow */}
+            <div className="w-2 h-2 bg-[#450308] border-r border-b border-saffron-400/30 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+          </div>
+
+          <a 
+            href="https://www.magnidigitech.com/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex flex-col items-center space-y-1.5 text-red-200/40 hover:text-white transition-colors group"
+          >
+            <span className="text-[10px] tracking-wider opacity-80 group-hover:opacity-100 transition-opacity">
+              Designed and maintained by
+            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/images/logo-header.webp" 
+              alt="Magni Digitech" 
+              className="h-4.5 w-auto object-contain brightness-0 invert opacity-40 group-hover:opacity-100 transition-opacity duration-200"
+            />
+          </a>
         </div>
       </div>
     </footer>

@@ -12,21 +12,31 @@ interface LanguageContextProps {
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined)
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en')
+export function LanguageProvider({ children, initialLanguage = 'en' }: { children: React.ReactNode; initialLanguage?: Language }) {
+  const [language, setLanguageState] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const htmlLang = document.documentElement.getAttribute('lang') as Language
+      if (htmlLang === 'en' || htmlLang === 'te') {
+        return htmlLang
+      }
+    }
+    return initialLanguage
+  })
 
   // Load language preference from localStorage and set cookie
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('user-language') as Language
       if (stored === 'en' || stored === 'te') {
-        setLanguageState(stored)
+        if (stored !== language) {
+          setLanguageState(stored)
+        }
         document.cookie = `user-language=${stored}; path=/; max-age=31536000; SameSite=Lax`
       } else {
-        document.cookie = 'user-language=en; path=/; max-age=31536000; SameSite=Lax'
+        document.cookie = `user-language=${language}; path=/; max-age=31536000; SameSite=Lax`
       }
     }
-  }, [])
+  }, [language])
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)

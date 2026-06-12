@@ -1,8 +1,33 @@
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import ContactClient from '@/components/ContactClient'
+import { cookies } from 'next/headers'
+import { Metadata } from 'next'
+import JsonLd from '@/components/JsonLd'
+import { uiTranslations } from '@/lib/translations'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const title = uiTranslations['meta.contact.title'][lang] || uiTranslations['meta.contact.title']['en']
+  const description = uiTranslations['meta.contact.desc'][lang] || uiTranslations['meta.contact.desc']['en']
+  
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: 'https://bramakrishna.mp.in/contact',
+    },
+    openGraph: {
+      title,
+      description,
+      url: 'https://bramakrishna.mp.in/contact',
+      locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    }
+  }
+}
 
 export default async function ContactPage() {
   let settings = {
@@ -43,7 +68,53 @@ export default async function ContactPage() {
     console.error('Failed to fetch contact office details from Sanity:', error)
   }
 
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+
+  const contactSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    'name': uiTranslations['meta.contact.title'][lang] || uiTranslations['meta.contact.title']['en'],
+    'description': uiTranslations['meta.contact.desc'][lang] || uiTranslations['meta.contact.desc']['en'],
+    'url': 'https://bramakrishna.mp.in/contact'
+  }
+
+  const stateOfficeSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    'name': 'Shri Bhashyam Ramakrishna State Camp Office',
+    'image': 'https://bramakrishna.mp.in/images/logo.png',
+    'telephone': settings.stateOffice.phone,
+    'email': settings.stateOffice.email,
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': 'Door No. 40-5-1, MG Road, Labbipet',
+      'addressLocality': 'Vijayawada',
+      'addressRegion': 'Andhra Pradesh',
+      'postalCode': '520010',
+      'addressCountry': 'IN'
+    }
+  }
+
+  const delhiOfficeSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'GovernmentOffice',
+    'name': 'Shri Bhashyam Ramakrishna Parliamentary Office',
+    'telephone': settings.delhiOffice.phone,
+    'email': settings.delhiOffice.email,
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': '12, Rajya Sabha Members Residences',
+      'addressLocality': 'New Delhi',
+      'postalCode': '110001',
+      'addressCountry': 'IN'
+    }
+  }
+
   return (
-    <ContactClient settings={settings} />
+    <>
+      <JsonLd schema={[contactSchema, stateOfficeSchema, delhiOfficeSchema]} />
+      <ContactClient settings={settings} />
+    </>
   )
 }

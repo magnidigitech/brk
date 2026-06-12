@@ -18,6 +18,7 @@ import FloatingSocials from "@/components/FloatingSocials";
 import PullToRefresh from "@/components/PullToRefresh";
 import { LanguageProvider } from "@/components/LanguageContext";
 import Script from "next/script";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Bhashyam Ramakrishna | Official Rajya Sabha Portal",
@@ -31,20 +32,30 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies()
+  const initialLang = (cookieStore.get('user-language')?.value as any) || 'en'
   return (
     <html
-      lang="en"
+      lang={initialLang}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preload" href="/images/header_bg.png?v=2" as="image" />
+        <link rel="preload" href="/images/header_logo.png?v=2" as="image" />
+        <link rel="preload" href="/images/header_cbn.png?v=2" as="image" />
+        <link rel="preload" href="/images/header_lokesh.png?v=2" as="image" />
+        <link rel="preload" href="/images/header_brk.png?v=2" as="image" />
+        <link rel="preload" href="/images/brk.png" as="image" />
+      </head>
       <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0">
         <PullToRefresh />
         <PWARegistration />
-        <LanguageProvider>
+        <LanguageProvider initialLanguage={initialLang}>
           <PWAInstallPrompt />
           <FloatingSocials />
           {children}

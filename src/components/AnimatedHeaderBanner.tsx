@@ -56,6 +56,7 @@ export default function AnimatedHeaderBanner({
           src={staticFallbackPath}
           alt="Telugu Desam Party Banner"
           className="w-full h-full object-cover"
+          fetchPriority="high"
         />
       </div>
     )
@@ -70,6 +71,7 @@ export default function AnimatedHeaderBanner({
           src={bgPath}
           alt="Banner Background"
           className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          fetchPriority="high"
         />
       )}
 
@@ -92,6 +94,7 @@ export default function AnimatedHeaderBanner({
               src={logoPath}
               alt="Alliance Logo"
               className="w-full h-full object-cover"
+              fetchPriority="high"
             />
           </motion.div>
 
@@ -112,6 +115,7 @@ export default function AnimatedHeaderBanner({
               src={cbnPath}
               alt="N. Chandrababu Naidu"
               className="w-full h-full object-cover"
+              fetchPriority="high"
             />
           </motion.div>
 
@@ -132,6 +136,7 @@ export default function AnimatedHeaderBanner({
               src={lokeshPath}
               alt="Nara Lokesh"
               className="w-full h-full object-cover"
+              fetchPriority="high"
             />
           </motion.div>
 
@@ -152,6 +157,7 @@ export default function AnimatedHeaderBanner({
               src={brkPath}
               alt="Bhashyam Ramakrishna"
               className="w-full h-full object-cover"
+              fetchPriority="high"
             />
           </motion.div>
         </div>
@@ -165,6 +171,7 @@ export default function AnimatedHeaderBanner({
             src={staticFallbackPath}
             alt="Telugu Desam Party Banner Placeholder"
             className="w-full h-full object-cover opacity-85"
+            fetchPriority="high"
           />
         </div>
       )}

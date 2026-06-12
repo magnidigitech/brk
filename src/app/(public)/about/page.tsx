@@ -1,8 +1,34 @@
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import AboutClient from '@/components/AboutClient'
+import { cookies } from 'next/headers'
+import { Metadata } from 'next'
+import JsonLd from '@/components/JsonLd'
+import { uiTranslations } from '@/lib/translations'
+import { getRoleTitle } from '@/lib/roleHelper'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const title = uiTranslations['meta.about.title'][lang] || uiTranslations['meta.about.title']['en']
+  const description = uiTranslations['meta.about.desc'][lang] || uiTranslations['meta.about.desc']['en']
+  
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: 'https://bramakrishna.mp.in/about',
+    },
+    openGraph: {
+      title,
+      description,
+      url: 'https://bramakrishna.mp.in/about',
+      locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    }
+  }
+}
 
 export default async function AboutPage() {
   let aboutData: any = {}
@@ -44,7 +70,86 @@ export default async function AboutPage() {
     console.error('Failed to fetch from Sanity, using default local data:', error)
   }
 
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+
+  const aboutSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    'name': uiTranslations['meta.about.title'][lang] || uiTranslations['meta.about.title']['en'],
+    'description': uiTranslations['meta.about.desc'][lang] || uiTranslations['meta.about.desc']['en'],
+    'url': 'https://bramakrishna.mp.in/about',
+    'mainEntity': {
+      '@type': 'Person',
+      'name': 'Shri Bhashyam Ramakrishna',
+      'jobTitle': getRoleTitle(lang),
+      'affiliation': {
+        '@type': 'PoliticalParty',
+        'name': 'Telugu Desam Party',
+        'alternateName': 'TDP'
+      }
+    }
+  }
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q1'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a1'][lang]
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q2'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a2'][lang]
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q3'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a3'][lang]
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q4'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a4'][lang]
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q5'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a5'][lang]
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q6'][lang],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a6'][lang]
+        }
+      }
+    ]
+  }
+
   return (
-    <AboutClient data={aboutData} siteSettings={siteSettings} />
+    <>
+      <JsonLd schema={[aboutSchema, faqSchema]} />
+      <AboutClient data={aboutData} siteSettings={siteSettings} />
+    </>
   )
 }

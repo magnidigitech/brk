@@ -6,6 +6,7 @@ import { Menu, X, LifeBuoy, Globe, Bell } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
+import { getRoleTitle } from '@/lib/roleHelper'
 
 interface NavbarProps {
   siteSettings?: {
@@ -57,8 +58,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     if (typeof window === 'undefined') return
 
     const OneSignalDeferred = (window as any).OneSignalDeferred || []
-    
-    OneSignalDeferred.push(async function(OneSignal: any) {
+
+    OneSignalDeferred.push(async function (OneSignal: any) {
       if (OneSignal && OneSignal.Notifications) {
         const permission = OneSignal.Notifications.permission
         setPermissionState(permission)
@@ -66,8 +67,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         // Only prompt on public pages, not on admin pages, and only if permission is default (neither granted nor denied)
         if (!pathname.startsWith('/admin') && permission !== 'granted' && permission !== 'denied') {
           const lastShown = getSafeLocalStorage('onesignal-prompt-last-shown')
-          const hasBeen24Hours = lastShown 
-            ? Date.now() - parseInt(lastShown, 10) > 24 * 60 * 60 * 1000 
+          const hasBeen24Hours = lastShown
+            ? Date.now() - parseInt(lastShown, 10) > 24 * 60 * 60 * 1000
             : true
 
           if (hasBeen24Hours) {
@@ -171,7 +172,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   let dispName = tContent(rawName, 'B. Ramakrishna')
   if (dispName.startsWith('Bhashyam')) dispName = 'B. Ramakrishna'
 
-  const dispBadge = tContent(siteSettings?.roleBadge, 'Rajya Sabha MP')
+  const dispBadge = getRoleTitle(language)
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -204,16 +205,18 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       <nav ref={navRef} className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-saffron-400 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
-            
+
             {/* Logo Brand */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 border-2 border-white shadow-md">
+                <div className="w-12 h-12 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 p-1">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src="/images/telugudesamlogo.png" 
-                    alt="TDP Logo" 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src="/images/telugudesamlogo.png"
+                    alt="TDP Logo"
+                    className="w-full h-full object-contain"
+                    width={48}
+                    height={48}
                   />
                 </div>
                 <div>
@@ -238,9 +241,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
             <div className="hidden lg:flex items-center space-x-5 lg:space-x-6">
               <Link
                 href="/"
-                className={`text-sm font-bold transition-colors py-2 ${
-                  isActive('/') ? 'text-saffron-600' : 'text-slate-600 hover:text-saffron-600'
-                }`}
+                className={`text-sm font-bold transition-colors py-2 ${isActive('/') ? 'text-saffron-600' : 'text-slate-600 hover:text-saffron-600'
+                  }`}
               >
                 {t('nav.home')}
               </Link>
@@ -301,9 +303,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
               <Link
                 href="/contact"
-                className={`text-sm font-bold transition-colors py-2 ${
-                  isActive('/contact') ? 'text-saffron-600' : 'text-slate-600 hover:text-saffron-600'
-                }`}
+                className={`text-sm font-bold transition-colors py-2 ${isActive('/contact') ? 'text-saffron-600' : 'text-slate-600 hover:text-saffron-600'
+                  }`}
               >
                 {t('nav.contact')}
               </Link>
@@ -324,9 +325,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                       <button
                         key={lang}
                         onClick={() => handleLanguageChange(lang)}
-                        className={`block w-full text-left px-4 py-2 text-xs font-bold transition-colors cursor-pointer hover:bg-slate-50 ${
-                          language === lang ? 'text-saffron-600 bg-saffron-50/50' : 'text-slate-700'
-                        }`}
+                        className={`block w-full text-left px-4 py-2 text-xs font-bold transition-colors cursor-pointer hover:bg-slate-50 ${language === lang ? 'text-saffron-600 bg-saffron-50/50' : 'text-slate-700'
+                          }`}
                       >
                         {languageLabels[lang]}
                       </button>
@@ -444,11 +444,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                         handleLanguageChange(lang)
                         setIsOpen(false)
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                        language === lang 
-                          ? 'bg-saffron-500 border-saffron-500 text-navy-900 shadow-sm' 
-                          : 'bg-slate-50 border-slate-200 text-slate-600'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${language === lang
+                        ? 'bg-saffron-500 border-saffron-500 text-navy-900 shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-600'
+                        }`}
                     >
                       {languageLabels[lang]}
                     </button>
@@ -465,9 +464,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         <div className="flex justify-around items-center h-16 px-2">
           <Link
             href="/"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${
-              isActive('/') ? 'text-saffron-600' : 'text-slate-500'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
           >
             <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -477,9 +475,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
           <Link
             href="/press-releases"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${
-              isActive('/press-releases') ? 'text-saffron-600' : 'text-slate-500'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/press-releases') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
           >
             <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -489,9 +486,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
           <Link
             href="/grievance"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${
-              isActive('/grievance') ? 'text-saffron-600' : 'text-slate-500'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/grievance') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
           >
             <LifeBuoy className="w-5.5 h-5.5 mb-1 animate-pulse" />
             <span>{getBottomNavLabel('grievance')}</span>
@@ -499,9 +495,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
           <Link
             href="/parliamentary-updates"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${
-              isActive('/parliamentary-updates') ? 'text-saffron-600' : 'text-slate-500'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/parliamentary-updates') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
           >
             <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -511,9 +506,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
           <Link
             href="/contact"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${
-              isActive('/contact') ? 'text-saffron-600' : 'text-slate-500'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/contact') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
           >
             <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />

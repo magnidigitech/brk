@@ -1,8 +1,10 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Landmark, GraduationCap, Award, Compass, ShieldCheck, CheckCircle2, Quote, Lightbulb } from 'lucide-react'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Landmark, GraduationCap, Award, Compass, ShieldCheck, CheckCircle2, Quote, Lightbulb, HelpCircle, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { getRoleTitle } from '@/lib/roleHelper'
 
 interface AboutClientProps {
   data: {
@@ -30,12 +32,13 @@ interface AboutClientProps {
 }
 
 export default function AboutClient({ data, siteSettings }: AboutClientProps) {
-  const { tContent, t } = useLanguage()
+  const { tContent, t, language } = useLanguage()
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   // Localize page settings
   const title = tContent(data.title, 'Bhashyam Ramakrishna')
   const subtitle = tContent(data.subtitle, 'A Visionary Educationist | A Committed Public Leader | A Voice for AP')
-  const badgeText = tContent(data.badgeText, tContent(siteSettings?.roleBadge, 'Rajya Sabha Nominee'))
+  const badgeText = getRoleTitle(language)
   const profileShortName = tContent(data.profileShortName, 'B. Ramakrishna')
   const bioParagraph1 = tContent(data.bioParagraph1, 'Bhashyam Ramakrishna is a respected educationist, institution builder, and public service leader from Andhra Pradesh. With decades of dedicated work in the field of education, he has played a significant role in shaping the academic journey of thousands of students through Bhashyam Educational Institutions.')
   const bioParagraph2 = tContent(data.bioParagraph2, 'Known for his disciplined approach, service-oriented mindset, and strong commitment to youth development, Bhashyam Ramakrishna has built a reputation as a leader who believes that education is the foundation for social progress. His work has always focused on empowering students, supporting families, and contributing to the growth of society through quality education and value-based learning.')
@@ -210,6 +213,59 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
             &ldquo;{quoteText}&rdquo;
           </p>
           <span className="block text-xs font-bold text-navy-950 uppercase tracking-widest">— {quoteAuthor}</span>
+        </div>
+
+        {/* FAQ Accordion Section */}
+        <div className="mb-16">
+          <h3 className="text-2xl font-black text-navy-900 mb-8 text-center flex items-center justify-center">
+            <HelpCircle className="w-6 h-6 mr-2 text-saffron-600 animate-pulse" />
+            {t('faq.sectionTitle')}
+          </h3>
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {[
+              { q: t('faq.q1'), a: t('faq.a1') },
+              { q: t('faq.q2'), a: t('faq.a2') },
+              { q: t('faq.q3'), a: t('faq.a3') },
+              { q: t('faq.q4'), a: t('faq.a4') },
+              { q: t('faq.q5'), a: t('faq.a5') },
+              { q: t('faq.q6'), a: t('faq.a6') }
+            ].map((faq, idx) => {
+              const isOpen = openFaq === idx
+              return (
+                <div
+                  key={idx}
+                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:border-saffron-300"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    <span className="font-bold text-navy-900 text-sm leading-snug">{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-3 ${
+                        isOpen ? 'rotate-180 text-saffron-600' : ''
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="px-6 pb-5 pt-2 text-slate-600 text-xs leading-relaxed border-t border-slate-100/60 justify-clean text-left whitespace-pre-line">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* Profile Summary Card with TDP yellow border framing */}

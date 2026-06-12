@@ -25,6 +25,7 @@ import {
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
 import AnimatedHeaderBanner from '@/components/AnimatedHeaderBanner'
+import { getRoleTitle } from '@/lib/roleHelper'
 
 interface UpdateItem {
   _id: string
@@ -247,7 +248,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
 
   // Localized values
   const candidateName = tContent(settings.candidateName, 'Bhashyam Ramakrishna')
-  const roleBadge = tContent(settings.roleBadge, 'Rajya Sabha Nominee')
+  const roleBadge = getRoleTitle(useLanguage().language)
   const tagline = tContent(settings.tagline, 'A Visionary Educationist | A Committed Public Leader | A Voice for AP')
   const stateRepresented = tContent(settings.stateRepresented, 'Andhra Pradesh')
 
@@ -322,6 +323,9 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                   src="/images/brk.png"
                   alt={candidateName}
                   className="absolute inset-0 w-full h-full object-cover object-top"
+                  fetchPriority="high"
+                  width={360}
+                  height={420}
                 />
               </div>
             </div>

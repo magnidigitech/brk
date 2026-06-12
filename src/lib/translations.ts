@@ -763,6 +763,161 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     en: '2. Select "Add to Home screen" or "Install app"',
     te: '2. "యాడ్ టు హోమ్ స్క్రీన్" లేదా "యాప్ ఇన్‌స్టాల్" ఎంచుకోండి',
     ten: '2. Select "Add to Home screen" or "Install"'
+  },
+  // FAQ translations
+  'faq.sectionTitle': {
+    en: 'Frequently Asked Questions',
+    te: 'తరచుగా అడిగే ప్రశ్నలు',
+    ten: 'Frequently Asked Questions'
+  },
+  'faq.q1': {
+    en: 'Who is Shri Bhashyam Ramakrishna?',
+    te: 'శ్రీ భాష్యం రామకృష్ణ ఎవరు?',
+    ten: 'Who is Shri Bhashyam Ramakrishna?'
+  },
+  'faq.a1': {
+    en: 'Shri Bhashyam Ramakrishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.',
+    te: 'శ్రీ భాష్యం రామకృష్ణ ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన రాజ్యసభ సభ్యులు, ప్రముఖ విద్యావేత్త మరియు భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్.',
+    ten: 'Shri Bhashyam Ramakrishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.'
+  },
+  'faq.q2': {
+    en: 'Which political party does Shri Bhashyam Ramakrishna belong to?',
+    te: 'శ్రీ భాష్యం రామకృష్ణ ఏ రాజకీయ పార్టీకి చెందినవారు?',
+    ten: 'Which political party does Shri Bhashyam Ramakrishna belong to?'
+  },
+  'faq.a2': {
+    en: 'He belongs to the Telugu Desam Party (TDP), representing Andhra Pradesh in the Rajya Sabha.',
+    te: 'ఆయన తెలుగుదేశం పార్టీ (TDP) కి చెందిన నాయకులు, ఆంధ్రప్రదేశ్ తరఫున రాజ్యసభలో ప్రాతినిధ్యం వహిస్తున్నారు.',
+    ten: 'He belongs to the Telugu Desam Party (TDP), representing Andhra Pradesh in the Rajya Sabha.'
+  },
+  'faq.q3': {
+    en: 'How was Shri Bhashyam Ramakrishna elected to the Rajya Sabha?',
+    te: 'శ్రీ భాష్యం రామకృష్ణ రాజ్యసభకు ఎలా ఎన్నికయ్యారు?',
+    ten: 'How was Shri Bhashyam Ramakrishna elected to the Rajya Sabha?'
+  },
+  'faq.a3': {
+    en: 'He was elected unopposed to the Rajya Sabha from Andhra Pradesh, representing the aspirations of the people.',
+    te: 'ఆయన ఆంధ్రప్రదేశ్ నుండి రాజ్యసభకు ఏకగ్రీవంగా ఎన్నికయ్యారు.',
+    ten: 'He was elected unopposed to the Rajya Sabha from Andhra Pradesh, representing the aspirations of the people.'
+  },
+  'faq.q4': {
+    en: 'What is his official designation?',
+    te: 'ఆయన అధికారిక హోదా ఏమిటి?',
+    ten: 'What is his official designation?'
+  },
+  'faq.a4': {
+    en: 'Prior to June 18, 2026, he serves as Rajya Sabha Member-Elect. From June 18, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.',
+    te: 'జూన్ 18, 2026కి ముందు ఆయన \'రాజ్యసభ ఎన్నికైన సభ్యులు\'గా వ్యవహరిస్తారు. జూన్ 18, 2026 నుండి ఆయన \'రాజ్యసభ సభ్యులు\'గా పూర్తి బాధ్యతలు స్వీకరిస్తారు.',
+    ten: 'Prior to June 18, 2026, he serves as Rajya Sabha Member-Elect. From June 18, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.'
+  },
+  'faq.q5': {
+    en: 'What are his primary public focus areas?',
+    te: 'ఆయన ప్రజా సేవలో ఏ రంగాలపై దృష్టి సారిస్తారు?',
+    ten: 'What are his primary public focus areas?'
+  },
+  'faq.a5': {
+    en: 'His primary focus areas include promoting quality education, youth development, skill empowerment, rural infrastructure, and addressing public grievances.',
+    te: 'ఆయన ప్రధానంగా నాణ్యమైన విద్య, యువత సాధికారత, ఉపాధి నైపుణ్యాల అభివృద్ధి, గ్రామీణ మౌలిక सదుపాయాలు మరియు ప్రజా సమస్యల పరిష్కారంపై దృష్టి సారిస్తారు.',
+    ten: 'His primary focus areas include promoting quality education, youth development, skill empowerment, rural infrastructure, and addressing public grievances.'
+  },
+  'faq.q6': {
+    en: 'How can citizens submit grievances or contact his office?',
+    te: 'పౌరులు తమ సమస్యలను ఎలా సమర్పించవచ్చు లేదా ఆయన కార్యాలయాన్ని ఎలా సంప్రదించవచ్చు?',
+    ten: 'How can citizens submit grievances or contact his office?'
+  },
+  'faq.a6': {
+    en: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Vijayawada and New Delhi office.',
+    te: 'ప్రజలు ఈ వెబ్‌సైట్‌లోని ఫిర్యాదుల పోర్టల్ ద్వారా నేరుగా తమ సమస్యలను పంపవచ్చు లేదా విజయవాడ, న్యూఢిల్లీ కార్యాలయాలను సంప్రదించవచ్చు.',
+    ten: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Vijayawada and New Delhi office.'
+  },
+  // SEO Meta values
+  'meta.home.title': {
+    en: 'Shri Bhashyam Ramakrishna | Official Rajya Sabha Portal',
+    te: 'శ్రీ భాష్యం రామకృష్ణ | అధికారిక రాజ్యసభ పోర్టల్',
+  },
+  'meta.home.desc': {
+    en: 'Official public portal of Shri Bhashyam Ramakrishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Rajya Sabha representative from Andhra Pradesh.',
+    te: 'శ్రీ భాష్యం రామకృష్ణ అధికారిక ప్రజా సేవా పోర్టల్. విద్యా రంగ అభివృద్ధి, యువత సాధికారత మరియు ప్రజా సమస్యల పరిష్కార వేదిక.',
+  },
+  'meta.about.title': {
+    en: 'Biography & Vision | Shri Bhashyam Ramakrishna',
+    te: 'జీవిత చరిత్ర & దూరదృష్టి | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.about.desc': {
+    en: 'Learn about Bhashyam Ramakrishna\'s journey from Founder Chairman of Bhashyam Educational Institutions to Rajya Sabha representative from Andhra Pradesh.',
+    te: 'భాష్యం విద్యా సంస్థల చైర్మన్ నుండి రాజ్యసభ ప్రతినిధి వరకు శ్రీ భాష్యం రామకృష్ణ ప్రజా సేవ ప్రస్థానాన్ని తెలుసుకోండి.',
+  },
+  'meta.contact.title': {
+    en: 'Contact Offices | Rajya Sabha MP Bhashyam Ramakrishna',
+    te: 'కార్యాలయాల సంప్రదింపు వివరాలు | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.contact.desc': {
+    en: 'Contact offices of Shri Bhashyam Ramakrishna in New Delhi and Camp Office in Vijayawada, Andhra Pradesh. Submit inquiries and policy feedback.',
+    te: 'న్యూఢిల్లీ మరియు విజయవాడ క్యాంప్ కార్యాలయాల చిరునామా, ఫోన్ మరియు ఈమెయిల్ వివరాలు. మీ సలహాలు, సూచనలను ఇక్కడ పంపండి.',
+  },
+  'meta.grievance.title': {
+    en: 'Public Grievance Portal | Bhashyam Ramakrishna MP',
+    te: 'ప్రజా ఫిర్యాదుల పోర్టల్ | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.grievance.desc': {
+    en: 'Submit local challenges, community requests, or suggestions directly to Bhashyam Ramakrishna Rajya Sabha office. Track grievance status.',
+    te: 'మీ స్థానిక సమస్యలు, సలహాలు మరియు పౌర ఇబ్బందులను నేరుగా సమర్పించండి మరియు మీ టికెట్ స్థితిని ఇక్కడ లైవ్‌లో ట్రాక్ చేయండి.',
+  },
+  'meta.parliament.title': {
+    en: 'Parliamentary Speeches & Updates | Bhashyam Ramakrishna MP',
+    te: 'పార్లమెంటరీ ప్రసంగాలు & అప్‌డేట్స్ | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.parliament.desc': {
+    en: 'Track questions raised, speeches delivered, debates joined, and legislative activity by Bhashyam Ramakrishna in the Rajya Sabha, Parliament of India.',
+    te: 'భారత పార్లమెంటు రాజ్యసభలో భాష్యం రామకృష్ణ గారు అడిగిన ప్రశ్నలు, ప్రసంగాలు మరియు శాసనసభ కార్యకలాపాల తాజా వివరాలు.',
+  },
+  'meta.press.title': {
+    en: 'Official Press Releases & Media | Bhashyam Ramakrishna',
+    te: 'అధికారిక పత్రికా ప్రకటనలు | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.press.desc': {
+    en: 'Read latest statements, news coverage, press notes, and media releases issued by the office of Rajya Sabha member Bhashyam Ramakrishna.',
+    te: 'భాష్యం రామకృష్ణ గారి కార్యాలయం నుండి విడుదలైన తాజా అధికారిక పత్రికా ప్రకటనలు, పత్రికా నోట్స్ మరియు వార్తల వివరాలు.',
+  },
+  'meta.state.title': {
+    en: 'Andhra Pradesh Development Sectors | Bhashyam Ramakrishna',
+    te: 'ఆంధ్రప్రదేశ్ ప్రాధాన్యత రంగాలు | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.state.desc': {
+    en: 'Explore key sectors, concerns, and progress vision of Rajya Sabha MP Bhashyam Ramakrishna for the development of Andhra Pradesh.',
+    te: 'ఆంధ్రప్రదేశ్ ప్రగతి మరియు అభివృద్ధి కోసం శ్రీ భాష్యం రామకృష్ణ గారి రంగాలు, ఆలోచనలు మరియు ప్రణాళికలు.',
+  },
+  'meta.development.title': {
+    en: 'Public Initiatives & Works | Bhashyam Ramakrishna',
+    te: 'ప్రజా అభివృద్ధి పనులు & కార్యక్రమాలు | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.development.desc': {
+    en: 'Track dynamic progress, ordering, and execution of public welfare initiatives and educational works pushed by Bhashyam Ramakrishna in AP.',
+    te: 'శ్రీ భాష్యం రామకృష్ణ ఆధ్వర్యంలో జరుగుతున్న ప్రజా సంక్షేమ మరియు విద్యా అభివృద్ధి పనుల తాజా పురోగతి నివేదిక.',
+  },
+  'meta.privacy.title': {
+    en: 'Privacy Policy | Bhashyam Ramakrishna Portal',
+    te: 'గోప్యతా విధానం | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
+  },
+  'meta.privacy.desc': {
+    en: 'Privacy policy for citizen data and grievance submission protection on the official Bhashyam Ramakrishna portal.',
+    te: 'పౌరుల సమాచారం మరియు సమర్పించిన సమస్యల భద్రతకు సంబంధించిన అధికారిక గోప్యతా విధానం.',
+  },
+  'meta.terms.title': {
+    en: 'Terms of Use | Bhashyam Ramakrishna Portal',
+    te: 'నిబంధనలు & షరతులు | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
+  },
+  'meta.terms.desc': {
+    en: 'Terms and conditions for utilizing the official Rajya Sabha Member public portal and submitting grievances.',
+    te: 'అధికారిక ప్రజా సేవా పోర్టల్ మరియు ఫిర్యాదుల పోర్టల్ వినియోగానికి సంబంధించిన నిబంధనలు మరియు షరతులు.',
+  },
+  'meta.accessibility.title': {
+    en: 'Accessibility Statement | Bhashyam Ramakrishna Portal',
+    te: 'యాక్సెసిబిలిటీ ప్రకటన | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
+  },
+  'meta.accessibility.desc': {
+    en: 'Accessibility commitment and WCAG standards compliance description for the official Bhashyam Ramakrishna portal.',
+    te: 'వెబ్‌సైట్ అందరికీ సులభంగా అందుబాటులో ఉండేలా మేము అనుసరిస్తున్న యాక్సెసిబిలిటీ విధానాలు మరియు ప్రమాణాలు.',
   }
 }
 
