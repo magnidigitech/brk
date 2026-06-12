@@ -21,6 +21,28 @@ export default function PWARegistration() {
     }).catch((err) => console.warn('Failed to log page visit', err))
   }, [pathname])
 
+  // Helper for safe localStorage access
+  const getSafeLocalStorage = (key: string): string | null => {
+    try {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem(key)
+      }
+    } catch (e) {
+      console.warn('Failed to read from localStorage', e)
+    }
+    return null
+  }
+
+  const setSafeLocalStorage = (key: string, value: string) => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value)
+      }
+    } catch (e) {
+      console.warn('Failed to write to localStorage', e)
+    }
+  }
+
   // 2. Track PWA installs and manage Service Worker Registration
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -37,18 +59,18 @@ export default function PWARegistration() {
 
     // Register Service Worker
     if ('serviceWorker' in navigator) {
+      // Set initial installed version if not set
+      const installed = getSafeLocalStorage('pwa-installed-version')
+      if (!installed) {
+        setSafeLocalStorage('pwa-installed-version', SW_VERSION)
+      }
+
       const handleLoad = () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then((reg) => {
             console.log('Service Worker registered successfully with scope:', reg.scope)
             
-            // Do not prompt for initial waiting worker on every refresh; only prompt when a new update is detected and installed
-            // if (reg.waiting) {
-            //   setWaitingWorker(reg.waiting)
-            //   setShowUpdate(true)
-            // }
-
             // Listen for subsequent updates
             reg.onupdatefound = () => {
               const installingWorker = reg.installing
@@ -57,9 +79,9 @@ export default function PWARegistration() {
                   if (installingWorker.state === 'installed') {
                     if (navigator.serviceWorker.controller) {
                       setWaitingWorker(installingWorker)
-                      const isDismissed = localStorage.getItem('pwa-update-dismissed') === SW_VERSION
-                      const isUpdated = localStorage.getItem('pwa-updated-version') === SW_VERSION
-                      if (!isDismissed && !isUpdated) {
+                      const isDismissed = getSafeLocalStorage('pwa-update-dismissed') === SW_VERSION
+                      const isInstalled = getSafeLocalStorage('pwa-installed-version') === SW_VERSION
+                      if (!isDismissed && !isInstalled) {
                         setShowUpdate(true)
                       }
                     }
@@ -95,7 +117,7 @@ export default function PWARegistration() {
   }, [pathname])
 
   const handleUpdateReload = () => {
-    localStorage.setItem('pwa-updated-version', SW_VERSION)
+    setSafeLocalStorage('pwa-installed-version', SW_VERSION)
     if (waitingWorker) {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' })
     }
@@ -145,7 +167,7 @@ export default function PWARegistration() {
             </div>
             <button 
               onClick={() => {
-                localStorage.setItem('pwa-update-dismissed', SW_VERSION)
+                setSafeLocalStorage('pwa-update-dismissed', SW_VERSION)
                 setShowUpdate(false)
               }}
               className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -165,7 +187,7 @@ export default function PWARegistration() {
             </button>
             <button
               onClick={() => {
-                localStorage.setItem('pwa-update-dismissed', SW_VERSION)
+                setSafeLocalStorage('pwa-update-dismissed', SW_VERSION)
                 setShowUpdate(false)
               }}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer border border-slate-200"
