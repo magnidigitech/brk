@@ -202,8 +202,8 @@ export default function Footer({ siteSettings }: FooterProps) {
         </div>
 
         <div className="border-t border-[#7A0D15] mt-12 pt-6 flex flex-col items-center text-center space-y-4 text-xs text-red-200/50">
-          {/* Copyrights in a single line */}
-          <p className="whitespace-nowrap md:whitespace-normal">
+          {/* Copyrights in a single line (on desktop/tablet only) */}
+          <p className="whitespace-normal sm:whitespace-nowrap">
             © {currentYear} {t('footer.office')} {candidateName}, MP. {t('footer.rights')}
           </p>
           

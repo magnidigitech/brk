@@ -219,21 +219,21 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                     height={48}
                   />
                 </div>
-                <div>
-                  <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-tight uppercase">
-                    {dispName}
-                  </span>
-                  <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase leading-tight md:leading-normal">
-                    {dispBadge.includes('(') ? (
-                      <>
-                        <span className="block md:inline">{dispBadge.split('(')[0].trim()}</span>
-                        <span className="block md:inline md:ml-1">({dispBadge.split('(')[1]}</span>
-                      </>
-                    ) : (
-                      dispBadge
-                    )}
-                  </span>
-                </div>
+                  <div className="flex flex-col justify-center py-1">
+                    <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-normal uppercase">
+                      {dispName}
+                    </span>
+                    <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase leading-normal mt-0.5 md:mt-1">
+                      {dispBadge.includes('(') ? (
+                        <>
+                          <span className="block md:inline">{dispBadge.split('(')[0].trim()}</span>
+                          <span className="block md:inline md:ml-1">({dispBadge.split('(')[1]}</span>
+                        </>
+                      ) : (
+                        dispBadge
+                      )}
+                    </span>
+                  </div>
               </Link>
             </div>
 
