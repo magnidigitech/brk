@@ -112,7 +112,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
 
     if (hasContent && !historyPushedRef.current.content) {
       const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id)
+      params.set('id', activeContent._id.slice(0, 8))
       window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
@@ -128,7 +128,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
     const params = new URLSearchParams(window.location.search)
     const id = params.get('id')
     if (id && releases.length > 0) {
-      const item = releases.find((r) => r._id === id)
+      const item = releases.find((r) => r._id === id || r._id.startsWith(id))
       if (item) {
         const ntitle = tContent(item.title)
         const nexcerpt = tContent(item.excerpt)
@@ -594,7 +594,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                     onClick={async (e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      const shareUrl = `${window.location.origin}/press-releases?id=${activeContent._id}`
+                      const shareUrl = `${window.location.origin}/press-releases?id=${activeContent._id.slice(0, 8)}`
                       const bodyText = activeContent.body ? renderBody(activeContent.body).join('\n\n') : ''
                       const summary = activeContent.excerpt || (bodyText.length > 200 ? bodyText.slice(0, 200) + '...' : bodyText) || ''
                       
@@ -652,7 +652,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                             href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                               activeContent.title + '\n\n' + 
                               (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 180) + (activeContent.excerpt || activeContent.body ? '...' : '') + '\n\nRead here: ' + 
-                              window.location.origin + '/press-releases?id=' + activeContent._id
+                              window.location.origin + '/press-releases?id=' + activeContent._id.slice(0, 8)
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -668,7 +668,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                               activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
                             )}&url=${encodeURIComponent(
-                              window.location.origin + '/press-releases?id=' + activeContent._id
+                              window.location.origin + '/press-releases?id=' + activeContent._id.slice(0, 8)
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -682,7 +682,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                           </a>
                           <button
                             onClick={async () => {
-                              const shareUrl = `${window.location.origin}/press-releases?id=${activeContent._id}`
+                              const shareUrl = `${window.location.origin}/press-releases?id=${activeContent._id.slice(0, 8)}`
                               try {
                                 await navigator.clipboard.writeText(shareUrl)
                                 setCopied(true)

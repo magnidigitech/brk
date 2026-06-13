@@ -13,21 +13,33 @@ export default function PullToRefresh() {
   const threshold = 70 // Pull threshold in px
   const maxPull = 110   // Maximum pull distance in px
 
+  // Hook 1: Passive touchstart listener to avoid blocking default scroll performance
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const handleTouchStart = (e: TouchEvent) => {
-      // Only allow pull-to-refresh when scrolled to the absolute top of the page
-      if (window.scrollY === 0 && !isRefreshing) {
+      if (isRefreshing) return
+      
+      // Check scroll position robustly across browsers
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
+      if (scrollTop === 0) {
         startY.current = e.touches[0].clientY
         currentY.current = startY.current
         setIsPulling(true)
       }
     }
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isPulling || isRefreshing) return
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart)
+    }
+  }, [isRefreshing])
 
+  // Hook 2: Active touchmove/touchend listeners registered ONLY when dragging, minimizing scroll overhead
+  useEffect(() => {
+    if (!isPulling || isRefreshing) return
+
+    const handleTouchMove = (e: TouchEvent) => {
       currentY.current = e.touches[0].clientY
       const diff = currentY.current - startY.current
 
@@ -40,11 +52,14 @@ export default function PullToRefresh() {
         if (e.cancelable) {
           e.preventDefault()
         }
+      } else {
+        // If swiping up (scrolling down), cancel pull-to-refresh to let native scroll take over instantly
+        setIsPulling(false)
+        setPullDistance(0)
       }
     }
 
     const handleTouchEnd = () => {
-      if (!isPulling || isRefreshing) return
       setIsPulling(false)
 
       if (pullDistance >= threshold) {
@@ -54,19 +69,17 @@ export default function PullToRefresh() {
         // Trigger page refresh with a clean delay for the loading animation to shine
         setTimeout(() => {
           window.location.reload()
-        }, 800)
+        }, 850)
       } else {
         // Smoothly animate back to 0
         setPullDistance(0)
       }
     }
 
-    window.addEventListener('touchstart', handleTouchStart, { passive: false })
     window.addEventListener('touchmove', handleTouchMove, { passive: false })
     window.addEventListener('touchend', handleTouchEnd)
 
     return () => {
-      window.removeEventListener('touchstart', handleTouchStart)
       window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('touchend', handleTouchEnd)
     }
@@ -78,8 +91,8 @@ export default function PullToRefresh() {
   const progressPercent = Math.min(100, (pullDistance / threshold) * 100)
 
   // Calculate vertical translation of the wave in mask coordinate space (5000x5000).
-  // 5200 is below the viewport (hidden), -200 is above (fully filled).
-  const waveY = isRefreshing ? -200 : 5200 - (progressPercent / 100) * 5400
+  // 5200 is below the viewport (hidden), 1000 is near the top (filled but wave details are visible).
+  const waveY = isRefreshing ? 1000 : 5200 - (progressPercent / 100) * 5400
 
   return (
     <div 
@@ -97,7 +110,12 @@ export default function PullToRefresh() {
         }
       `}</style>
 
-      <div className="bg-white rounded-full p-2 shadow-2xl border border-slate-200/80 flex items-center justify-center -translate-y-14 transition-transform">
+      <div className="bg-white rounded-full p-2 shadow-2xl border border-slate-200/80 flex items-center justify-center -translate-y-14 transition-transform relative">
+        {/* Loading Spinner Ring around the inner container */}
+        {isRefreshing && (
+          <div className="absolute inset-[3px] rounded-full border-[2.5px] border-slate-100 border-t-saffron-500 animate-spin z-10" />
+        )}
+        
         <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center relative overflow-hidden shrink-0 shadow-inner border border-slate-100">
           
           {/* 1. Background Logo (Grey Outline/Fill) */}

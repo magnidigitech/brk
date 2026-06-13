@@ -77,7 +77,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
 
     if (hasContent && !historyPushedRef.current.content) {
       const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id)
+      params.set('id', activeContent._id.slice(0, 8))
       window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
@@ -93,7 +93,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
     const params = new URLSearchParams(window.location.search)
     const id = params.get('id')
     if (id && updates.length > 0) {
-      const item = updates.find((u) => u._id === id)
+      const item = updates.find((u) => u._id === id || u._id.startsWith(id))
       if (item) {
         setActiveContent({
           _id: item._id,
@@ -437,7 +437,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                     onClick={async (e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id}`
+                      const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id.slice(0, 8)}`
                       const summary = activeContent.excerpt || ''
                       const shareData = {
                         title: activeContent.title,
@@ -476,7 +476,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                             href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                               activeContent.title + '\n\n' + 
                               (activeContent.excerpt || '').slice(0, 180) + (activeContent.excerpt ? '...' : '') + '\n\nRead here: ' + 
-                              window.location.origin + '/parliamentary-updates?id=' + activeContent._id
+                              window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8)
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -491,7 +491,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                           <a
                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                               activeContent.title + ' - ' + (activeContent.excerpt || '').slice(0, 100) + '...'
-                            )}&url=${encodeURIComponent(window.location.origin + '/parliamentary-updates?id=' + activeContent._id)}`}
+                            )}&url=${encodeURIComponent(window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8))}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => setShowShareMenu(false)}
@@ -504,7 +504,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                           </a>
                           <button
                             onClick={async () => {
-                              const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id}`
+                              const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id.slice(0, 8)}`
                               try {
                                 await navigator.clipboard.writeText(shareUrl)
                                 setCopied(true)

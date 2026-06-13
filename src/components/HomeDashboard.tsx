@@ -20,12 +20,15 @@ import {
   BookOpen,
   Share2,
   Copy,
-  Check
+  Check,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
 import AnimatedHeaderBanner from '@/components/AnimatedHeaderBanner'
 import { getRoleTitle } from '@/lib/roleHelper'
+import { useTextToSpeech } from '@/hooks/useTextToSpeech'
 
 interface UpdateItem {
   _id: string
@@ -140,10 +143,26 @@ async function downloadImage(src: string, filename: string) {
 export default function HomeDashboard({ updates, news, gallery, settings }: HomeDashboardProps) {
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
-  const { t, tContent } = useLanguage()
+  const { t, tContent, language } = useLanguage()
   const dragControls = useDragControls()
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const readableText = activeContent
+    ? `${activeContent.title}. ${activeContent.excerpt ? activeContent.excerpt + '. ' : ''}${activeContent.body ? renderBody(activeContent.body).join(' ') : ''}`
+    : ''
+  const { speak, pause, stop, state: ttsState, supported: ttsSupported } = useTextToSpeech(readableText, language)
+
+  useEffect(() => {
+    if (!activeContent) {
+      stop()
+    }
+  }, [activeContent, stop])
 
   const historyPushedRef = useRef<{ media: boolean; content: boolean }>({ media: false, content: false })
 
@@ -164,7 +183,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
 
     if (hasContent && !historyPushedRef.current.content) {
       const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id)
+      params.set('id', activeContent._id.slice(0, 8))
       window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
@@ -181,7 +200,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
     const id = params.get('id')
     if (id) {
       // Look in updates first
-      const updateItem = updates?.find((u) => u._id === id)
+      const updateItem = updates?.find((u) => u._id === id || u._id.startsWith(id))
       if (updateItem) {
         setActiveContent({
           _id: updateItem._id,
@@ -196,7 +215,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
       }
 
       // Look in news/releases next
-      const newsItem = news?.find((n) => n._id === id)
+      const newsItem = news?.find((n) => n._id === id || n._id.startsWith(id))
       if (newsItem) {
         const ntitle = tContent(newsItem.title)
         const nexcerpt = tContent(newsItem.excerpt)
@@ -766,6 +785,40 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
 
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap justify-between items-center gap-3">
                 <div className="flex flex-wrap gap-3">
+                  {isClient && ttsSupported && (
+                    <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={ttsState === 'playing' ? pause : speak}
+                        className="flex items-center justify-center px-3 py-1.5 rounded-lg bg-saffron-100 hover:bg-saffron-200 text-navy-900 transition-colors cursor-pointer"
+                        title={ttsState === 'playing' ? 'Pause' : 'Listen to content'}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        {ttsState === 'playing' ? (
+                          <VolumeX className="w-4 h-4 mr-1.5 animate-pulse text-rose-600" />
+                        ) : (
+                          <Volume2 className="w-4 h-4 mr-1.5 text-saffron-600" />
+                        )}
+                        <span className="text-xs font-bold">
+                          {ttsState === 'playing'
+                            ? (language === 'te' ? 'ఆపండి' : 'Pause')
+                            : (language === 'te' ? 'వినండి' : 'Listen')}
+                        </span>
+                      </button>
+                      {ttsState !== 'idle' && (
+                        <button
+                          type="button"
+                          onClick={stop}
+                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-xs font-bold"
+                          title="Stop narration"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          {language === 'te' ? 'ముగించు' : 'Stop'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {activeContent.speechUrl && (
                     <a
                       href={activeContent.speechUrl}
@@ -799,7 +852,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                       e.preventDefault()
                       e.stopPropagation()
                       const path = activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases'
-                      const shareUrl = `${window.location.origin}${path}?id=${activeContent._id}`
+                      const shareUrl = `${window.location.origin}${path}?id=${activeContent._id.slice(0, 8)}`
                       const bodyText = activeContent.body ? renderBody(activeContent.body).join('\n\n') : ''
                       const summary = activeContent.excerpt || (bodyText.length > 200 ? bodyText.slice(0, 200) + '...' : bodyText) || ''
                       
@@ -857,7 +910,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                             href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
                               activeContent.title + '\n\n' + 
                               (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 180) + (activeContent.excerpt || activeContent.body ? '...' : '') + '\n\nRead here: ' + 
-                              window.location.origin + (activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases') + '?id=' + activeContent._id
+                              window.location.origin + (activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases') + '?id=' + activeContent._id.slice(0, 8)
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -873,7 +926,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                               activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
                             )}&url=${encodeURIComponent(
-                              window.location.origin + (activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases') + '?id=' + activeContent._id
+                              window.location.origin + (activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases') + '?id=' + activeContent._id.slice(0, 8)
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -888,7 +941,7 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                           <button
                             onClick={async () => {
                               const path = activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases'
-                              const shareUrl = `${window.location.origin}${path}?id=${activeContent._id}`
+                              const shareUrl = `${window.location.origin}${path}?id=${activeContent._id.slice(0, 8)}`
                               try {
                                 await navigator.clipboard.writeText(shareUrl)
                                 setCopied(true)

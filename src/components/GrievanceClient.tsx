@@ -189,9 +189,28 @@ function GrievancePortal() {
       .join(' ')
   }
 
+  // Clear pincode and associated location selection states
+  const handlePincodeClear = () => {
+    setPincode('')
+    setVillageWard('')
+    setDistrict('')
+    setStateName('')
+    setMandal('')
+    setPincodeRecords([])
+    setValidationErrors((prev) => {
+      const copy = { ...prev }
+      delete copy.pincode
+      return copy
+    })
+  }
+
   // Fetch details when a 6-digit pincode is entered
   useEffect(() => {
     if (/^\d{6}$/.test(pincode)) {
+      // Dismiss keyboard on 6-digit input
+      if (typeof document !== 'undefined' && document.activeElement instanceof HTMLInputElement) {
+        document.activeElement.blur()
+      }
       const fetchPincodeDetails = async () => {
         setIsLoadingPincode(true)
         try {
@@ -633,8 +652,17 @@ function GrievancePortal() {
                           <div className="relative">
                             <input
                               type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               value={pincode}
-                              onChange={(e) => setPincode(e.target.value)}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                                setPincode(val)
+                                if (val.length === 6) {
+                                  e.target.blur()
+                                }
+                              }}
+                              onFocus={handlePincodeClear}
                               className={`w-full px-4 py-3 rounded-xl border ${
                                 validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
                               } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
