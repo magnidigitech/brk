@@ -44,14 +44,56 @@ export function useTextToSpeech(text: string, lang: 'en' | 'te') {
     utteranceRef.current = utterance
 
     // Configure language parameters
-    const targetLang = lang === 'te' ? 'te-IN' : 'en-US'
+    const targetLang = lang === 'te' ? 'te-IN' : 'en-IN'
     utterance.lang = targetLang
 
-    // Set voice asynchronously if voices load late
+    // Set voice asynchronously with preference for Indian English and Telugu Female voices
     const voices = synth.getVoices()
-    const voice = voices.find((v) => v.lang === targetLang || v.lang.startsWith(lang))
-    if (voice) {
-      utterance.voice = voice
+    let chosenVoice: SpeechSynthesisVoice | null = null
+
+    if (lang === 'te') {
+      const teVoices = voices.filter((v) => v.lang === 'te-IN' || v.lang.toLowerCase().startsWith('te'))
+      // Known Telugu female voice keywords (like macOS Vani, Google, Hema, Swara, Shravya)
+      const femaleKeywords = ['vani', 'google', 'female', 'swara', 'hema', 'shravya']
+      chosenVoice = teVoices.find((v) => {
+        const nameLower = v.name.toLowerCase()
+        return femaleKeywords.some((kw) => nameLower.includes(kw))
+      }) || null
+
+      if (!chosenVoice) {
+        chosenVoice = teVoices.find((v) => v.lang === 'te-IN') || null
+      }
+      if (!chosenVoice) {
+        chosenVoice = teVoices[0] || null
+      }
+    } else {
+      const enInVoices = voices.filter((v) => v.lang === 'en-IN')
+      // Known Indian English female voice keywords (like macOS Veena, Windows Heera, Google India)
+      const enInFemaleKeywords = ['veena', 'heera', 'ishita', 'priti', 'google', 'female']
+      chosenVoice = enInVoices.find((v) => {
+        const nameLower = v.name.toLowerCase()
+        return enInFemaleKeywords.some((kw) => nameLower.includes(kw))
+      }) || null
+
+      if (!chosenVoice) {
+        chosenVoice = enInVoices[0] || null
+      }
+      if (!chosenVoice) {
+        const anyEnVoices = voices.filter((v) => v.lang.toLowerCase().startsWith('en'))
+        const generalFemaleKeywords = ['samantha', 'victoria', 'google', 'female', 'zira', 'hazel']
+        chosenVoice = anyEnVoices.find((v) => {
+          const nameLower = v.name.toLowerCase()
+          return generalFemaleKeywords.some((kw) => nameLower.includes(kw))
+        }) || null
+      }
+      if (!chosenVoice) {
+        chosenVoice = voices.find((v) => v.lang.toLowerCase().startsWith('en')) || null
+      }
+    }
+
+    if (chosenVoice) {
+      utterance.voice = chosenVoice
+      utterance.lang = chosenVoice.lang
     }
 
     // Handle end, error, and boundary events
