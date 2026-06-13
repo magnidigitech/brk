@@ -84,7 +84,8 @@ function GrievancePortal() {
     isListening,
     recogLang,
     supported: sttSupported,
-    error: sttError
+    error: sttError,
+    interimTranscript
   } = useSpeechToText(language, (transcript) => {
     setDescription((prev) => prev + transcript)
   })
@@ -1288,6 +1289,25 @@ function GrievancePortal() {
                     ? 'దయచేసి మాట్లాడండి. మీ మాటలు స్వయంచాలకంగా టెక్స్ట్‌గా మార్చబడతాయి.' 
                     : 'Speak clearly into your microphone. Your voice is being transcribed.'}
                 </p>
+
+                {/* Live Preview Box */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-6 max-h-36 overflow-y-auto text-left shadow-inner">
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                    {language === 'te' ? 'లైవ్ ప్రివ్యూ' : 'Live Preview'}
+                  </span>
+                  <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap min-h-[3.5rem] font-semibold">
+                    {description || (
+                      <span className="text-slate-400 font-normal italic">
+                        {language === 'te' ? 'మాట్లాడటం ప్రారంభించండి...' : 'Start speaking to see transcription...'}
+                      </span>
+                    )}
+                    {interimTranscript && (
+                      <span className="text-saffron-600 animate-pulse font-extrabold">
+                        {' '}{interimTranscript}
+                      </span>
+                    )}
+                  </p>
+                </div>
 
                 {/* Language Switcher */}
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6">

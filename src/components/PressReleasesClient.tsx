@@ -73,6 +73,11 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
   const { t, tContent, language } = useLanguage()
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const readableReleaseText = activeContent
     ? `${activeContent.title}. ${activeContent.excerpt ? activeContent.excerpt + '. ' : ''}${activeContent.body ? renderBody(activeContent.body).join(' ') : ''}`
@@ -523,7 +528,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
 
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap justify-between items-center gap-3">
                 <div className="flex flex-wrap gap-3">
-                  {ttsSupported && (
+                  {isClient && ttsSupported && (
                     <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
                       <button
                         type="button"

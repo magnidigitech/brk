@@ -7,6 +7,7 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
   const [recogLang, setRecogLang] = useState<'te-IN' | 'en-US'>(defaultLang === 'te' ? 'te-IN' : 'en-US')
   const [supported, setSupported] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [interimTranscript, setInterimTranscript] = useState('')
   const recognitionRef = useRef<any>(null)
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
 
     const rec = recognitionRef.current
     setError(null)
+    setInterimTranscript('')
 
     rec.onstart = () => {
       setIsListening(true)
@@ -49,11 +51,15 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
 
     rec.onresult = (event: any) => {
       let finalTranscript = ''
+      let currentInterim = ''
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript + ' '
+        } else {
+          currentInterim += event.results[i][0].transcript
         }
       }
+      setInterimTranscript(currentInterim)
       if (finalTranscript) {
         onTranscriptChange(finalTranscript)
       }
@@ -106,6 +112,7 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
     isListening,
     recogLang,
     supported,
-    error
+    error,
+    interimTranscript
   }
 }

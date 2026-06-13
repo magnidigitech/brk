@@ -14,9 +14,12 @@ import {
   Sparkles,
   Share2,
   Copy,
-  Check
+  Check,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { useTextToSpeech } from '@/hooks/useTextToSpeech'
 
 interface UpdateItem {
   _id: string
@@ -44,9 +47,25 @@ interface ActiveContent {
 }
 
 export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpdatesClientProps) {
-  const { t, tContent } = useLanguage()
+  const { t, tContent, language } = useLanguage()
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
   const dragControls = useDragControls()
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const readableUpdateText = activeContent
+    ? `${activeContent.title}. ${activeContent.excerpt || ''}`
+    : ''
+  const { speak, pause, stop, state: ttsState, supported: ttsSupported } = useTextToSpeech(readableUpdateText, language)
+
+  useEffect(() => {
+    if (!activeContent) {
+      stop()
+    }
+  }, [activeContent])
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -352,6 +371,40 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
 
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap justify-between items-center gap-3">
                 <div className="flex flex-wrap gap-3">
+                  {isClient && ttsSupported && (
+                    <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={ttsState === 'playing' ? pause : speak}
+                        className="flex items-center justify-center px-3 py-1.5 rounded-lg bg-saffron-100 hover:bg-saffron-200 text-navy-900 transition-colors cursor-pointer"
+                        title={ttsState === 'playing' ? 'Pause' : 'Listen to update'}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        {ttsState === 'playing' ? (
+                          <VolumeX className="w-4 h-4 mr-1.5 animate-pulse text-rose-600" />
+                        ) : (
+                          <Volume2 className="w-4 h-4 mr-1.5 text-saffron-600" />
+                        )}
+                        <span className="text-xs font-bold">
+                          {ttsState === 'playing'
+                            ? (language === 'te' ? 'ఆపండి' : 'Pause')
+                            : (language === 'te' ? 'వినండి' : 'Listen')}
+                        </span>
+                      </button>
+                      {ttsState !== 'idle' && (
+                        <button
+                          type="button"
+                          onClick={stop}
+                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-xs font-bold"
+                          title="Stop narration"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          {language === 'te' ? 'ముగించు' : 'Stop'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {activeContent.speechUrl && (
                     <a
                       href={activeContent.speechUrl}
