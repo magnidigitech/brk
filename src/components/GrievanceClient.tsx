@@ -77,18 +77,6 @@ function GrievancePortal() {
   const router = useRouter()
   const { t, tContent, language } = useLanguage()
 
-  const {
-    startListening,
-    stopListening,
-    toggleLanguage,
-    isListening,
-    recogLang,
-    supported: sttSupported,
-    error: sttError,
-    interimTranscript
-  } = useSpeechToText(language, (transcript) => {
-    setDescription((prev) => prev + transcript)
-  })
 
   // Localized Categories
   const categoriesList = Object.entries(grievanceCategories).map(([key, cat]) => ({
@@ -114,6 +102,27 @@ function GrievancePortal() {
   const [category, setCategory] = useState('')
   const [subject, setSubject] = useState('')
   const [description, setDescription] = useState('')
+
+  const {
+    startListening,
+    stopListening,
+    toggleLanguage,
+    isListening,
+    recogLang,
+    supported: sttSupported,
+    error: sttError,
+    interimTranscript
+  } = useSpeechToText(language, (transcript) => {
+    setDescription((prev) => prev + transcript)
+  })
+
+  const previewScrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isListening && previewScrollRef.current) {
+      previewScrollRef.current.scrollTop = previewScrollRef.current.scrollHeight
+    }
+  }, [description, interimTranscript, isListening])
   
   // Mock File Upload state for visual premium feel
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
@@ -1291,11 +1300,15 @@ function GrievancePortal() {
                 </p>
 
                 {/* Live Preview Box */}
-                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-6 max-h-36 overflow-y-auto text-left shadow-inner">
+                <div 
+                  ref={previewScrollRef}
+                  className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-6 text-left shadow-inner scrollbar-thin"
+                  style={{ maxHeight: '110px', overflowY: 'auto' }}
+                >
                   <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">
                     {language === 'te' ? 'లైవ్ ప్రివ్యూ' : 'Live Preview'}
                   </span>
-                  <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap min-h-[3.5rem] font-semibold">
+                  <p className="text-slate-800 text-sm leading-relaxed whitespace-pre-wrap font-semibold">
                     {description || (
                       <span className="text-slate-400 font-normal italic">
                         {language === 'te' ? 'మాట్లాడటం ప్రారంభించండి...' : 'Start speaking to see transcription...'}
