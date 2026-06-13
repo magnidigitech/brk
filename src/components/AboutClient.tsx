@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Landmark, GraduationCap, Award, Compass, ShieldCheck, CheckCircle2, Quote, Lightbulb, HelpCircle, ChevronDown } from 'lucide-react'
+import { Landmark, GraduationCap, Award, Compass, ShieldCheck, CheckCircle2, Quote, Lightbulb, HelpCircle, ChevronDown, Volume2, VolumeX } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { getRoleTitle } from '@/lib/roleHelper'
+import { useTextToSpeech } from '@/hooks/useTextToSpeech'
 
 interface AboutClientProps {
   data: {
@@ -84,10 +85,14 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         { name: 'Social Progress', desc: 'Driving inclusive and long-term socio-economic growth.' }
       ]
 
+  // Combine readable texts for biography
+  const readableBioText = `${profileShortName}. ${bioParagraph1} ${bioParagraph2} ${eduTitle}. ${eduContent} ${publicTitle}. ${publicContent}`
+  const { speak, pause, stop, state: ttsState, supported: ttsSupported } = useTextToSpeech(readableBioText, language)
+
   return (
     <div className="py-16 bg-slate-50 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-
+ 
         {/* Page Header */}
         <div className="text-center mb-16 relative pb-4">
           <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-wider border border-saffron-200 shadow-sm">
@@ -100,6 +105,39 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
             {subtitle}
           </p>
           <div className="w-24 h-1 bg-saffron-500 mx-auto mt-4 rounded-full"></div>
+
+          {/* TTS Player Bar */}
+          {ttsSupported && (
+            <div className="flex items-center justify-center mt-6 space-x-3 bg-white border border-slate-200/80 rounded-2xl px-4 py-2 max-w-xs mx-auto shadow-sm">
+              <button
+                type="button"
+                onClick={ttsState === 'playing' ? pause : speak}
+                className="flex items-center justify-center p-2 rounded-xl bg-saffron-100 hover:bg-saffron-200 text-navy-900 transition-colors cursor-pointer"
+                title={ttsState === 'playing' ? 'Pause narration' : 'Play biography narration'}
+              >
+                {ttsState === 'playing' ? (
+                  <VolumeX className="w-4 h-4 mr-2 animate-pulse text-rose-600" />
+                ) : (
+                  <Volume2 className="w-4 h-4 mr-2 text-saffron-600" />
+                )}
+                <span className="text-xs font-bold">
+                  {ttsState === 'playing' 
+                    ? (language === 'te' ? 'ఆపండి' : 'Pause') 
+                    : (language === 'te' ? 'వినండి' : 'Listen')}
+                </span>
+              </button>
+              {ttsState !== 'idle' && (
+                <button
+                  type="button"
+                  onClick={stop}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-xs font-bold"
+                  title="Stop narration"
+                >
+                  {language === 'te' ? 'ముగించు' : 'Stop'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Profile Card & Bio with TDP Yellow Frame Accents */}

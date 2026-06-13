@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/components/LanguageContext'
 import { grievanceCategories } from '@/lib/translations'
+import { useSpeechToText } from '@/hooks/useSpeechToText'
 import { 
   LifeBuoy, 
   Search, 
@@ -21,7 +22,9 @@ import {
   Building,
   Upload,
   ChevronRight,
-  X
+  X,
+  Mic,
+  MicOff
 } from 'lucide-react'
 
 // Simple client-side canvas-confetti import
@@ -73,6 +76,18 @@ function GrievancePortal() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { t, tContent, language } = useLanguage()
+
+  const {
+    startListening,
+    stopListening,
+    toggleLanguage,
+    isListening,
+    recogLang,
+    supported: sttSupported,
+    error: sttError
+  } = useSpeechToText(language, (transcript) => {
+    setDescription((prev) => prev + transcript)
+  })
 
   // Localized Categories
   const categoriesList = Object.entries(grievanceCategories).map(([key, cat]) => ({
@@ -691,9 +706,40 @@ function GrievancePortal() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.descriptionLabel')}
-                        </label>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider">
+                            {t('grievance.descriptionLabel')}
+                          </label>
+                          {sttSupported && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isListening) {
+                                  stopListening()
+                                } else {
+                                  startListening()
+                                }
+                              }}
+                              className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border ${
+                                isListening 
+                                  ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse border-rose-600' 
+                                  : 'bg-slate-100 hover:bg-slate-200 text-navy-900 border-slate-200'
+                              }`}
+                            >
+                              {isListening ? (
+                                <>
+                                  <MicOff className="w-3.5 h-3.5" />
+                                  <span>{language === 'te' ? 'ఆపండి' : 'Stop Voice'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Mic className="w-3.5 h-3.5 text-saffron-600" />
+                                  <span>{language === 'te' ? 'వాయిస్ ద్వారా రాయండి' : 'Write with Voice'}</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
                         <textarea
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
@@ -1197,6 +1243,100 @@ function GrievancePortal() {
                 </div>
               </motion.div>
             </div>
+          )}
+        </AnimatePresence>
+
+        {/* STT Active Recording Overlay */}
+        <AnimatePresence>
+          {isListening && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                className="bg-white border border-slate-200 rounded-3xl p-8 shadow-2xl text-center max-w-sm w-full relative"
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={stopListening}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer text-slate-500"
+                  aria-label="Close speech recognition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                {/* Animated Voice Indicator */}
+                <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-rose-50/20 animate-ping"></div>
+                  <div className="absolute inset-2 rounded-full bg-rose-50/10 animate-pulse"></div>
+                  <div className="w-16 h-16 bg-rose-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-500/30 text-white relative">
+                    <Mic className="w-7 h-7 animate-bounce" />
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-extrabold text-navy-900 mb-2">
+                  {language === 'te' ? 'వాయిస్ రికార్డింగ్ సక్రియంగా ఉంది' : 'Listening... Speak Now'}
+                </h3>
+                <p className="text-slate-500 text-xs leading-relaxed mb-6">
+                  {language === 'te' 
+                    ? 'దయచేసి మాట్లాడండి. మీ మాటలు స్వయంచాలకంగా టెక్స్ట్‌గా మార్చబడతాయి.' 
+                    : 'Speak clearly into your microphone. Your voice is being transcribed.'}
+                </p>
+
+                {/* Language Switcher */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6">
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                    {language === 'te' ? 'భాషను మార్చండి' : 'Speech Language'}
+                  </span>
+                  
+                  <div className="flex space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => recogLang !== 'en-US' && toggleLanguage()}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        recogLang === 'en-US'
+                          ? 'bg-navy-900 text-white border-navy-950 shadow-sm'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 cursor-pointer'
+                      }`}
+                    >
+                      English (US)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => recogLang !== 'te-IN' && toggleLanguage()}
+                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        recogLang === 'te-IN'
+                          ? 'bg-navy-900 text-white border-navy-950 shadow-sm'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 cursor-pointer'
+                      }`}
+                    >
+                      తెలుగు (Telugu)
+                    </button>
+                  </div>
+                </div>
+
+                {sttError && (
+                  <div className="p-3 bg-rose-50 border border-rose-100 text-rose-700 text-xs rounded-xl mb-6 flex items-start text-left">
+                    <AlertCircle className="w-4 h-4 mr-2 shrink-0 mt-0.5" />
+                    <span>{sttError}</span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={stopListening}
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-colors cursor-pointer"
+                >
+                  {language === 'te' ? 'పూర్తయింది' : 'Done / Stop Listening'}
+                </button>
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
