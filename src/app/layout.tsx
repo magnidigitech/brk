@@ -16,6 +16,7 @@ import PWARegistration from "@/components/PWARegistration";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import FloatingSocials from "@/components/FloatingSocials";
 import PullToRefresh from "@/components/PullToRefresh";
+import AccessibilityPanel from "@/components/AccessibilityPanel";
 import { LanguageProvider } from "@/components/LanguageContext";
 import Script from "next/script";
 import { cookies } from "next/headers";
@@ -52,12 +53,13 @@ export default async function RootLayout({
         <link rel="preload" href="/images/header_brk.png?v=2" as="image" />
         <link rel="preload" href="/images/brk.png" as="image" />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0">
+      <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0 font-sans">
         <PullToRefresh />
         <PWARegistration />
         <LanguageProvider initialLanguage={initialLang}>
           <PWAInstallPrompt />
           <FloatingSocials />
+          <AccessibilityPanel />
           {children}
         </LanguageProvider>
 
@@ -76,6 +78,7 @@ export default async function RootLayout({
                 notifyButton: {
                   enable: false,
                 },
+                serviceWorkerPath: "OneSignalSDKWorker.js"
               });
             });
           `}

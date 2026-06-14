@@ -142,6 +142,22 @@ export default async function AboutPage() {
           '@type': 'Answer',
           'text': uiTranslations['faq.a6'][lang]
         }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q7'][lang] || uiTranslations['faq.q7']['en'],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a7'][lang] || uiTranslations['faq.a7']['en']
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': uiTranslations['faq.q8'][lang] || uiTranslations['faq.q8']['en'],
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': uiTranslations['faq.a8'][lang] || uiTranslations['faq.a8']['en']
+        }
       }
     ]
   }

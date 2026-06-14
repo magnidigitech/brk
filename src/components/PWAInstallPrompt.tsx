@@ -122,7 +122,7 @@ export default function PWAInstallPrompt() {
         }
       `}} />
 
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div id="pwa-install-prompt" className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <div className="bg-white rounded-3xl border-2 border-saffron-400 shadow-2xl overflow-hidden p-6 text-slate-800 w-full max-w-sm pwa-animate-scale relative">
           {/* Header */}
           <div className="flex items-start justify-between">

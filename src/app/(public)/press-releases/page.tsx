@@ -40,7 +40,9 @@ export default async function PressReleasesPage() {
         publishedAt,
         excerpt,
         body,
-        "image": mainImage
+        "image": mainImage,
+        images,
+        speechUrl
       }`
     })
   } catch (error) {

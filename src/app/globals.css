@@ -77,3 +77,25 @@ body {
   hyphens: auto;
 }
 
+/* Accessibility classes */
+.a11y-grayscale {
+  filter: grayscale(100%) !important;
+}
+.a11y-grayscale svg {
+  transform: translateZ(0) !important;
+}
+
+.a11y-high-contrast {
+  filter: contrast(1.6) brightness(0.9) !important;
+}
+.a11y-high-contrast svg {
+  transform: translateZ(0) !important;
+}
+
+.a11y-dyslexic, .a11y-dyslexic * {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.25em !important;
+  line-height: 1.8 !important;
+}
+

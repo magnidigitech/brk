@@ -46,5 +46,16 @@ export const pressRelease = defineType({
       type: 'array',
       of: [{ type: 'block' }, { type: 'image' }],
     }),
+    defineField({
+      name: 'speechUrl',
+      title: 'Speech / Media Link (YouTube or Instagram)',
+      type: 'url',
+    }),
+    defineField({
+      name: 'images',
+      title: 'Slideshow Images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+    }),
   ],
 })

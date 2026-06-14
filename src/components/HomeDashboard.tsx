@@ -29,6 +29,8 @@ import { useLanguage } from '@/components/LanguageContext'
 import AnimatedHeaderBanner from '@/components/AnimatedHeaderBanner'
 import { getRoleTitle } from '@/lib/roleHelper'
 import { useTextToSpeech } from '@/hooks/useTextToSpeech'
+import MediaCarousel from '@/components/MediaCarousel'
+import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 
 interface UpdateItem {
   _id: string
@@ -37,6 +39,8 @@ interface UpdateItem {
   summary: any
   speechUrl?: string
   documentUrl?: string
+  image?: any
+  images?: any[]
 }
 
 interface NewsItem {
@@ -46,6 +50,8 @@ interface NewsItem {
   excerpt?: any
   body?: any[]
   image?: any
+  images?: any[]
+  speechUrl?: string
 }
 
 interface GalleryItem {
@@ -73,6 +79,7 @@ interface ActiveContent {
   imageSrc?: string
   speechUrl?: string
   documentUrl?: string
+  images?: any[]
 }
 
 interface HomeDashboardProps {
@@ -210,6 +217,8 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
           excerpt: tContent(updateItem.summary),
           speechUrl: updateItem.speechUrl,
           documentUrl: updateItem.documentUrl,
+          images: updateItem.images,
+          imageSrc: updateItem.image ? (typeof updateItem.image === 'string' ? updateItem.image : urlFor(updateItem.image).width(800).url()) : undefined,
         })
         return
       }
@@ -231,6 +240,8 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
           excerpt: nexcerpt,
           body: newsItem.body,
           imageSrc: imgSrc,
+          speechUrl: newsItem.speechUrl,
+          images: newsItem.images,
         })
       }
     }
@@ -414,15 +425,22 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                     return (
                       <div
                         key={update._id}
-                        onClick={() => setActiveContent({
-                          _id: update._id,
-                          type: 'update',
-                          title: utitle,
-                          date: update.date,
-                          excerpt: usummary,
-                          speechUrl: update.speechUrl,
-                          documentUrl: update.documentUrl,
-                        })}
+                        onClick={() => {
+                          const imgSrc = update.image
+                            ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
+                            : undefined
+                          setActiveContent({
+                            _id: update._id,
+                            type: 'update',
+                            title: utitle,
+                            date: update.date,
+                            excerpt: usummary,
+                            speechUrl: update.speechUrl,
+                            documentUrl: update.documentUrl,
+                            images: update.images,
+                            imageSrc: imgSrc,
+                          })
+                        }}
                         className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between"
                       >
                         <div>
@@ -520,6 +538,8 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                           excerpt: nexcerpt,
                           body: item.body,
                           imageSrc: imgSrc,
+                          speechUrl: item.speechUrl,
+                          images: item.images,
                         })}
                       >
                         {item.image && (
@@ -734,30 +754,36 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                 </h2>
 
                 {/* Image (if press release with image) — click to expand, download button */}
-                {activeContent.imageSrc && (
-                  <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
-                    onClick={() => {
-                      setActiveContent(null)
-                      setTimeout(() => setActiveMedia({
-                        src: activeContent.imageSrc!,
-                        title: activeContent.title,
-                        date: activeContent.date,
-                      }), 150)
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={activeContent.imageSrc}
-                      alt={activeContent.title}
-                      className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
-                      <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
-                        Click to view full image
-                      </span>
-                    </div>
+                {activeContent.images && activeContent.images.length > 0 ? (
+                  <div className="mb-6">
+                    <MediaCarousel images={activeContent.images} title={activeContent.title} />
                   </div>
+                ) : (
+                  activeContent.imageSrc && (
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                      onClick={() => {
+                        setActiveContent(null)
+                        setTimeout(() => setActiveMedia({
+                          src: activeContent.imageSrc!,
+                          title: activeContent.title,
+                          date: activeContent.date,
+                        }), 150)
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={activeContent.imageSrc}
+                        alt={activeContent.title}
+                        className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                        <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                          Click to view full image
+                        </span>
+                      </div>
+                    </div>
+                  )
                 )}
 
                 {/* Excerpt */}
@@ -780,6 +806,13 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
                   !activeContent.excerpt && (
                     <p className="text-slate-400 text-sm italic">No additional content available.</p>
                   )
+                )}
+
+                {/* Native Media Player Embed */}
+                {activeContent.speechUrl && (
+                  <div className="mt-6 border-t border-slate-100 pt-4">
+                    <NativeMediaPlayer url={activeContent.speechUrl} title={activeContent.title} />
+                  </div>
                 )}
               </div>
 

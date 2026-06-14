@@ -20,6 +20,9 @@ import {
 } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { useTextToSpeech } from '@/hooks/useTextToSpeech'
+import { urlFor } from '@/sanity/lib/image'
+import MediaCarousel from '@/components/MediaCarousel'
+import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 
 interface UpdateItem {
   _id: string
@@ -28,6 +31,8 @@ interface UpdateItem {
   summary: any
   speechUrl?: string
   documentUrl?: string
+  image?: any
+  images?: any[]
 }
 
 interface ParliamentaryUpdatesClientProps {
@@ -44,11 +49,13 @@ interface ActiveContent {
   imageSrc?: string
   speechUrl?: string
   documentUrl?: string
+  images?: any[]
 }
 
 export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpdatesClientProps) {
   const { t, tContent, language } = useLanguage()
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const [activeMedia, setActiveMedia] = useState<{ src: string; title: string; date?: string; caption?: string } | null>(null)
   const dragControls = useDragControls()
   const [isClient, setIsClient] = useState(false)
 
@@ -69,11 +76,22 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  const historyPushedRef = useRef<{ content: boolean }>({ content: false })
+  const historyPushedRef = useRef<{ media: boolean; content: boolean }>({ media: false, content: false })
 
   // Modal History Stack Interception
   useEffect(() => {
+    const hasMedia = !!activeMedia
     const hasContent = !!activeContent
+
+    if (hasMedia && !historyPushedRef.current.media) {
+      window.history.pushState({ type: 'activeMedia' }, '')
+      historyPushedRef.current.media = true
+    } else if (!hasMedia && historyPushedRef.current.media) {
+      historyPushedRef.current.media = false
+      if (window.history.state?.type === 'activeMedia') {
+        window.history.back()
+      }
+    }
 
     if (hasContent && !historyPushedRef.current.content) {
       const params = new URLSearchParams(window.location.search)
@@ -86,7 +104,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
         window.history.back()
       }
     }
-  }, [activeContent])
+  }, [activeMedia, activeContent])
 
   // Check query parameter on mount and updates load
   useEffect(() => {
@@ -95,14 +113,19 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
     if (id && updates.length > 0) {
       const item = updates.find((u) => u._id === id || u._id.startsWith(id))
       if (item) {
+        const imgSrc = item.image
+          ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+          : undefined
         setActiveContent({
           _id: item._id,
           type: 'update',
           title: tContent(item.title),
           date: item.date,
           excerpt: tContent(item.summary),
+          imageSrc: imgSrc,
           speechUrl: item.speechUrl,
           documentUrl: item.documentUrl,
+          images: item.images,
         })
       }
     }
@@ -123,7 +146,10 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      if (historyPushedRef.current.content) {
+      if (historyPushedRef.current.media) {
+        historyPushedRef.current.media = false
+        setActiveMedia(null)
+      } else if (historyPushedRef.current.content) {
         historyPushedRef.current.content = false
         setActiveContent(null)
       }
@@ -230,15 +256,22 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                                 <div
                                   key={item._id}
                                   className="group flex flex-col cursor-pointer bg-white hover:bg-saffron-50/10 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md justify-between"
-                                  onClick={() => setActiveContent({
-                                    _id: item._id,
-                                    type: 'update',
-                                    title: utitle,
-                                    date: item.date,
-                                    excerpt: usummary,
-                                    speechUrl: item.speechUrl,
-                                    documentUrl: item.documentUrl,
-                                  })}
+                                  onClick={() => {
+                                    const imgSrc = item.image
+                                      ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                                      : undefined
+                                    setActiveContent({
+                                      _id: item._id,
+                                      type: 'update',
+                                      title: utitle,
+                                      date: item.date,
+                                      excerpt: usummary,
+                                      imageSrc: imgSrc,
+                                      speechUrl: item.speechUrl,
+                                      documentUrl: item.documentUrl,
+                                      images: item.images,
+                                    })
+                                  }}
                                 >
                                   <div>
                                     <div className="flex items-center justify-between mb-2.5">
@@ -362,10 +395,49 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                   {activeContent.title}
                 </h2>
 
+                {activeContent.images && activeContent.images.length > 0 ? (
+                  <div className="mb-6">
+                    <MediaCarousel images={activeContent.images} title={activeContent.title} />
+                  </div>
+                ) : (
+                  activeContent.imageSrc && (
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                      onClick={() => {
+                        setActiveContent(null)
+                        setTimeout(() => setActiveMedia({
+                          src: activeContent.imageSrc!,
+                          title: activeContent.title,
+                          date: activeContent.date,
+                        }), 150)
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={activeContent.imageSrc}
+                        alt={activeContent.title}
+                        className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                        <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                          Click to view full image
+                        </span>
+                      </div>
+                    </div>
+                  )
+                )}
+
                 {activeContent.excerpt && (
                   <p className="text-base text-slate-700 leading-relaxed font-medium mb-5 pb-5">
                     {activeContent.excerpt}
                   </p>
+                )}
+
+                {/* Native Media Player Embed */}
+                {activeContent.speechUrl && (
+                  <div className="mt-6 border-t border-slate-100 pt-4">
+                    <NativeMediaPlayer url={activeContent.speechUrl} title={activeContent.title} />
+                  </div>
                 )}
               </div>
 
@@ -535,6 +607,84 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Image Lightbox Modal ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {activeMedia && (
+          <motion.div
+            data-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveMedia(null)}
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+          >
+            <div
+              className="w-full max-w-5xl flex items-center justify-between mb-3 px-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="text-white/70 text-xs font-semibold truncate max-w-xs">{activeMedia.title}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.open(activeMedia.src, '_blank')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-navy-900 text-xs font-bold transition-colors shadow-lg cursor-pointer"
+                  aria-label="Download image"
+                >
+                  <Download className="w-4 h-4" />
+                  View Original
+                </button>
+                <button
+                  onClick={() => setActiveMedia(null)}
+                  className="w-9 h-9 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <motion.div
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.8}
+              onDragEnd={(event, info) => {
+                if (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600) {
+                  setActiveMedia(null)
+                }
+              }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 cursor-grab active:cursor-grabbing select-none touch-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeMedia.src}
+                alt={activeMedia.title}
+                className="max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
+              />
+            </motion.div>
+
+            {(activeMedia.caption || activeMedia.date) && (
+              <div
+                className="mt-4 text-center max-w-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {activeMedia.date && (
+                  <span className="block text-saffron-400 text-[11px] font-bold uppercase tracking-wider mb-1">
+                    {new Date(activeMedia.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                  </span>
+                )}
+                {activeMedia.caption && (
+                  <p className="text-white/75 text-sm leading-relaxed">{activeMedia.caption}</p>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

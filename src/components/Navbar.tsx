@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, X, LifeBuoy, Globe, Bell } from 'lucide-react'
+import { Menu, X, LifeBuoy, Globe, Bell, Search, Accessibility } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
@@ -20,6 +20,55 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   const { language, setLanguage, t, tContent } = useLanguage()
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
   const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false)
+
+  // Search states
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchFaqs, setSearchFaqs] = useState<any[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
+
+  useEffect(() => {
+    if (!searchOpen) {
+      setSearchQuery('')
+      setSearchResults([])
+      setSearchFaqs([])
+      setHasSearched(false)
+      return
+    }
+  }, [searchOpen])
+
+  useEffect(() => {
+    const delayDebounceId = setTimeout(() => {
+      if (searchQuery.trim().length >= 2) {
+        performSearch(searchQuery)
+      } else {
+        setSearchResults([])
+        setSearchFaqs([])
+        setHasSearched(false)
+      }
+    }, 300)
+
+    return () => clearTimeout(delayDebounceId)
+  }, [searchQuery])
+
+  const performSearch = async (q: string) => {
+    setSearchLoading(true)
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      if (data.success) {
+        setSearchResults(data.items || [])
+        setSearchFaqs(data.faqs || [])
+        setHasSearched(true)
+      }
+    } catch (err) {
+      console.error('Search failed', err)
+    } finally {
+      setSearchLoading(false)
+    }
+  }
 
   const navRef = useRef<HTMLElement>(null)
   const langRef = useRef<HTMLDivElement>(null)
@@ -132,6 +181,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     }
   }, [pathname])
 
+  useEffect(() => {
+    if (searchOpen) {
+      window.history.pushState({ type: 'searchOpen' }, '')
+    }
+  }, [searchOpen])
+
   // Subpage popstate handling (redirect to / if no overlay is open)
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -140,6 +195,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       }
 
       const hasOpenModal = !!document.querySelector('[data-modal="true"]')
+
+      if (searchOpen) {
+        setSearchOpen(false)
+        window.history.pushState({ subpageEntry: window.location.pathname }, '')
+        return
+      }
 
       if (isOpen) {
         setIsOpen(false)
@@ -165,7 +226,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [isOpen, langDropdownOpen, router])
+  }, [isOpen, langDropdownOpen, searchOpen, router])
 
   // Resolve localized name from server-provided settings
   const rawName = siteSettings?.candidateName
@@ -335,7 +396,14 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 )}
               </div>
 
-
+              {/* Search Button */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer flex items-center hover:scale-105 shadow-sm text-navy-950"
+                aria-label="Search site"
+              >
+                <Search className="w-4 h-4" />
+              </button>
 
               {/* Grievance Portal CTA */}
               <Link
@@ -349,16 +417,13 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
             {/* Mobile Menu Button */}
             <div className="flex items-center lg:hidden space-x-2">
-              {/* Quick Language switch on mobile header */}
+              {/* Quick Search Button on mobile header */}
               <button
-                onClick={() => {
-                  const nextLang: Record<Language, Language> = { en: 'te', te: 'en' }
-                  setLanguage(nextLang[language])
-                }}
-                className="p-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 bg-slate-50 flex items-center space-x-1"
+                onClick={() => setSearchOpen(true)}
+                className="p-2 border border-slate-200 rounded-lg text-slate-700 bg-slate-50 flex items-center"
+                aria-label="Search site"
               >
-                <Globe className="w-3.5 h-3.5" />
-                <span className="uppercase">{language}</span>
+                <Search className="w-3.5 h-3.5 text-navy-900" />
               </button>
 
               <button
@@ -432,6 +497,26 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               >
                 {t('nav.grievancePortal')}
               </Link>
+
+              {/* Mobile Accessibility Controls Trigger */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  {language === 'te' ? 'యాక్సెసిబిలిటీ' : 'Accessibility'}
+                </span>
+                <button
+                  onClick={() => {
+                    setIsOpen(false)
+                    // Let the drawer close transition finish smoothly before opening panel
+                    setTimeout(() => {
+                      window.dispatchEvent(new Event('toggle-a11y-panel'))
+                    }, 200)
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-slate-200 text-slate-700 bg-slate-50 flex items-center space-x-1 cursor-pointer hover:bg-slate-100"
+                >
+                  <Accessibility className="w-3.5 h-3.5 text-navy-900" />
+                  <span>{language === 'te' ? 'సెట్టింగ్స్' : 'Configure'}</span>
+                </button>
+              </div>
 
               {/* Mobile language switchers */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-3">
@@ -519,7 +604,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
       {/* Custom sitewide notification prompt popup */}
       {showNotificationPrompt && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div id="notification-permission-prompt" className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 text-slate-800 w-full max-w-sm pwa-animate-scale relative">
             <div className="text-center">
               <div className="w-12 h-12 bg-saffron-50 rounded-full flex items-center justify-center mx-auto mb-4 text-saffron-500 animate-bounce">
@@ -561,6 +646,158 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                   Later
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Overlay Modal */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md flex justify-center items-start pt-16 md:pt-24 px-4 overflow-y-auto" data-modal="true">
+          <div className="bg-white w-full max-w-2xl rounded-2xl border-2 border-saffron-400 shadow-2xl overflow-hidden mb-12 pwa-animate-slideup text-left">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 p-4">
+              <div className="flex items-center space-x-2 text-navy-900">
+                <Search className="w-5 h-5 text-saffron-600" />
+                <span className="font-extrabold text-xs md:text-sm uppercase tracking-wider">
+                  {language === 'te' ? 'ద్విభాషా శోధన' : 'Bilingual Search'}
+                </span>
+              </div>
+              <button
+                onClick={() => setSearchOpen(false)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-label="Close search"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Input field */}
+            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('search.placeholder') || 'Search...'}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-saffron-500 bg-white text-slate-800 shadow-inner"
+                autoFocus
+              />
+            </div>
+
+            {/* Search Results */}
+            <div className="p-5 max-h-[60vh] overflow-y-auto space-y-6">
+              {searchLoading && (
+                <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                  <div className="w-8 h-8 border-4 border-saffron-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs font-bold text-slate-400">
+                    {language === 'te' ? 'వెతుకుతున్నాము...' : 'Searching...'}
+                  </span>
+                </div>
+              )}
+
+              {!searchLoading && searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
+                <p className="text-center text-xs text-slate-400 font-bold py-6">
+                  {language === 'te' ? 'కనీసం 2 అక్షరాలను నమోదు చేయండి' : 'Enter at least 2 characters to search'}
+                </p>
+              )}
+
+              {!searchLoading && hasSearched && searchResults.length === 0 && searchFaqs.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-sm font-bold text-slate-500">
+                    {t('search.noResults') || 'No results found.'}
+                  </p>
+                </div>
+              )}
+
+              {!searchLoading && hasSearched && (searchResults.length > 0 || searchFaqs.length > 0) && (
+                <div className="space-y-6">
+                  {/* Results Count */}
+                  <div className="text-xs font-black text-slate-400 uppercase tracking-wider">
+                    {(t('search.resultsCount') || 'Found {count} results').replace('{count}', String(searchResults.length + searchFaqs.length))}
+                  </div>
+
+                  {/* Press Releases / Parliamentary Speeches Group */}
+                  {searchResults.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-extrabold text-navy-900 border-b pb-1">
+                        {language === 'te' ? 'వార్తలు & పార్లమెంటరీ అప్‌డేట్స్' : 'News & Parliamentary Updates'}
+                      </h4>
+                      <div className="divide-y divide-slate-100">
+                        {searchResults.map((item) => {
+                          const isPress = item._type === 'pressRelease'
+                          const path = isPress ? '/press-releases' : '/parliamentary-updates'
+                          const linkHref = `${path}?id=${item._id.slice(0, 8)}`
+                          const displayDate = isPress ? item.publishedAt : item.date
+
+                          return (
+                            <Link
+                              key={item._id}
+                              href={linkHref}
+                              onClick={() => setSearchOpen(false)}
+                              className="block py-3 hover:bg-slate-50 transition-colors group rounded-lg px-2"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div className="space-y-1">
+                                  <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                    isPress ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-saffron-50 text-saffron-700 border border-saffron-100'
+                                  }`}>
+                                    {isPress ? (t('search.pressType') || 'Press Release') : (t('search.speechType') || 'Parliament Speech')}
+                                  </span>
+                                  <h5 className="font-bold text-sm text-navy-950 group-hover:text-saffron-600 transition-colors">
+                                    {item.title}
+                                  </h5>
+                                  <p className="text-xs text-slate-500 line-clamp-2">
+                                    {item.excerpt || item.summary || ''}
+                                  </p>
+                                </div>
+                                {displayDate && (
+                                  <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap ml-4">
+                                    {new Date(displayDate).toLocaleDateString(language === 'te' ? 'te-IN' : 'en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Constituency FAQs Group */}
+                  {searchFaqs.length > 0 && (
+                    <div className="space-y-3 pt-2">
+                      <h4 className="text-xs font-extrabold text-navy-900 border-b pb-1">
+                        {language === 'te' ? 'జీవిత చరిత్ర & ప్రశ్నలు (FAQs)' : 'Biography & FAQs'}
+                      </h4>
+                      <div className="space-y-3">
+                        {searchFaqs.map((faq) => (
+                          <Link
+                            key={faq.id}
+                            href="/about#faq"
+                            onClick={() => setSearchOpen(false)}
+                            className="block p-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl transition-all group"
+                          >
+                            <span className="inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-navy-50 text-navy-700 border border-navy-100 mb-1.5">
+                              {t('search.faqType') || 'FAQ'}
+                            </span>
+                            <h5 className="font-extrabold text-xs text-navy-950 group-hover:text-saffron-600 transition-colors">
+                              {faq.question[language]}
+                            </h5>
+                            <p className="text-xs text-slate-600 mt-1 line-clamp-3">
+                              {faq.answer[language]}
+                            </p>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

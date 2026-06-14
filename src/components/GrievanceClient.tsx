@@ -128,6 +128,7 @@ function GrievancePortal() {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
   
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [consentChecked, setConsentChecked] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [submitSuccess, setSubmitSuccess] = useState<null | { id: string }>(null)
   const [copied, setCopied] = useState(false)
@@ -370,6 +371,7 @@ function GrievancePortal() {
         setSubject('')
         setDescription('')
         setUploadedFileName(null)
+        setConsentChecked(false)
       } else {
         const errorData = await response.json()
         setValidationErrors({ form: errorData.error || 'Submission failed. Please try again.' })
@@ -818,17 +820,37 @@ function GrievancePortal() {
                       </div>
                     </div>
 
-                    {/* Notice */}
-                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500 flex items-start leading-relaxed">
-                      <ShieldCheck className="w-4.5 h-4.5 mr-2 text-saffron-600 shrink-0 mt-0.5" />
-                      <span>{t('grievance.privacyNotice')}</span>
+                    {/* DPDP Compliance Checkbox */}
+                    <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                      <input
+                        id="dpdp-consent-check"
+                        type="checkbox"
+                        checked={consentChecked}
+                        onChange={(e) => setConsentChecked(e.target.checked)}
+                        className="w-4 h-4 mt-0.5 border-slate-300 rounded text-saffron-600 focus:ring-saffron-500 cursor-pointer"
+                        disabled={isSubmitting}
+                      />
+                      <label htmlFor="dpdp-consent-check" className="text-xs text-slate-600 font-bold select-none cursor-pointer leading-normal text-left">
+                        {t('dpdp.consent')}
+                      </label>
+                    </div>
+
+                    {/* Privacy Indicator Badge */}
+                    <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs text-slate-600 flex items-start leading-normal text-left">
+                      <ShieldCheck className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-emerald-800 block mb-0.5">
+                          {language === 'te' ? 'భద్రతా హామీ' : 'DPDP Compliant & Encrypted'}
+                        </span>
+                        <span>{t('dpdp.privacyBadge')}</span>
+                      </div>
                     </div>
 
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-4 bg-saffron-400 text-navy-950 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2"
+                      disabled={isSubmitting || !consentChecked}
+                      className="w-full py-4 bg-saffron-400 text-navy-950 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <>

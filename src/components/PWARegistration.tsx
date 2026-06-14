@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { X, RefreshCw } from 'lucide-react'
 
-const SW_VERSION = 'v4'
+const SW_VERSION = 'v6'
 
 export default function PWARegistration() {
   const pathname = usePathname()
@@ -67,7 +67,7 @@ export default function PWARegistration() {
 
       const handleLoad = () => {
         navigator.serviceWorker
-          .register('/sw.js')
+          .register('/OneSignalSDKWorker.js')
           .then((reg) => {
             console.log('Service Worker registered successfully with scope:', reg.scope)
             

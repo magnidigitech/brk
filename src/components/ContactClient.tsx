@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 
 interface ContactClientProps {
@@ -20,7 +20,7 @@ interface ContactClientProps {
 }
 
 export default function ContactClient({ settings }: ContactClientProps) {
-  const { t, tContent } = useLanguage()
+  const { t, tContent, language } = useLanguage()
   
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -28,6 +28,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
   const [message, setMessage] = useState('')
   
   const [isSending, setIsSending] = useState(false)
+  const [consentChecked, setConsentChecked] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
@@ -55,6 +56,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
       setEmail('')
       setSubject('')
       setMessage('')
+      setConsentChecked(false)
       setTimeout(() => setSuccess(false), 5000)
     } catch (err: any) {
       console.error('Contact submission error:', err)
@@ -248,10 +250,36 @@ export default function ContactClient({ settings }: ContactClientProps) {
                   />
                 </div>
 
+                {/* DPDP Compliance Checkbox */}
+                 <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl my-4">
+                   <input
+                     id="dpdp-consent-check"
+                     type="checkbox"
+                     checked={consentChecked}
+                     onChange={(e) => setConsentChecked(e.target.checked)}
+                     className="w-4 h-4 mt-0.5 border-slate-300 rounded text-saffron-600 focus:ring-saffron-500 cursor-pointer"
+                     disabled={isSending}
+                   />
+                   <label htmlFor="dpdp-consent-check" className="text-xs text-slate-600 font-bold select-none cursor-pointer leading-normal text-left">
+                     {t('dpdp.consent')}
+                   </label>
+                 </div>
+
+                 {/* Privacy Indicator Badge */}
+                 <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs text-slate-600 flex items-start leading-normal text-left my-4">
+                   <ShieldCheck className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
+                   <div>
+                     <span className="font-bold text-emerald-800 block mb-0.5">
+                       {language === 'te' ? 'భద్రతా హామీ' : 'DPDP Compliant & Encrypted'}
+                     </span>
+                     <span>{t('dpdp.privacyBadge')}</span>
+                   </div>
+                 </div>
+
                 <button
                   type="submit"
-                  disabled={isSending || !name || !email || !message}
-                  className="w-full py-3.5 bg-saffron-400 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-navy-950 rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2"
+                  disabled={isSending || !name || !email || !message || !consentChecked}
+                  className="w-full py-3.5 bg-saffron-400 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-navy-950 rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   {isSending ? (
                     <>

@@ -830,6 +830,97 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     te: 'ప్రజలు ఈ వెబ్‌సైట్‌లోని ఫిర్యాదుల పోర్టల్ ద్వారా నేరుగా తమ సమస్యలను పంపవచ్చు లేదా విజయవాడ, న్యూఢిల్లీ కార్యాలయాలను సంప్రదించవచ్చు.',
     ten: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Vijayawada and New Delhi office.'
   },
+  'faq.q7': {
+    en: 'Where is the MP\'s camp office located in Vijayawada?',
+    te: 'విజయవాడలో ఎంపీ గారి క్యాంప్ కార్యాలయం ఎక్కడ ఉంది?',
+    ten: 'Camp office location in Vijayawada'
+  },
+  'faq.a7': {
+    en: 'The State Camp Office is located at Bhashyam Main Campus, Vijayawada, Andhra Pradesh, dedicated to receiving constituent grievances and coordinating state development pushes.',
+    te: 'రాష్ట్ర క్యాంప్ కార్యాలయం విజయవాడలోని భాష్యం ప్రధాన క్యాంపస్ నందు కలదు. ఇది పౌరుల ఫిర్యాదులను స్వీకరించడానికి మరియు రాష్ట్ర అభివృద్ధి పనుల సమన్వయానికి కేటాయించబడింది.',
+    ten: 'Camp office Vijayawada Bhashyam Main Campus లో ఉంది.'
+  },
+  'faq.q8': {
+    en: 'What is the residency address of Rajya Sabha member Bhashyam Ramakrishna in New Delhi?',
+    te: 'న్యూఢిల్లీలో రాజ్యసభ సభ్యులు భాష్యం రామకృష్ణ గారి అధికారిక నివాస చిరునామా ఏమిటి?',
+    ten: 'New Delhi residency address'
+  },
+  'faq.a8': {
+    en: 'The official New Delhi residence is situated at Rajya Sabha Member Flats, New Delhi, serving as the legislative office for national coordination and parliamentary operations.',
+    te: 'న్యూఢిల్లీలోని రాజ్యసభ సభ్యుల నివాస సముదాయం నందు ఆయన అధికారిక నివాసం ఉంది. ఇది జాతీయ సమన్వయం మరియు పార్లమెంటరీ కార్యకలాపాల కోసం శాసన కార్యాలయంగా పనిచేస్తుంది.',
+    ten: 'New Delhi residence address Rajya Sabha Member Flats లో ఉంది.'
+  },
+  // DPDP keys
+  'dpdp.consent': {
+    en: 'I explicitly consent to the collection and safe processing of my name, phone number, and address details under the Digital Personal Data Protection (DPDP) Act 2023 for grievance resolution and communication.',
+    te: 'ఫిర్యాదు పరిష్కారం మరియు సంప్రదింపుల కోసం డిజిటల్ వ్యక్తిగత సమాచార రక్షణ చట్టం (DPDP) 2023 ప్రకారం నా పేరు, ఫోన్ నంబర్ మరియు చిరునామా వివరాలను సేకరించి సురక్షితంగా ప్రాసెస్ చేయడానికి నేను స్పష్టమైన సమ్మతిని ఇస్తున్నాను.',
+  },
+  'dpdp.privacyBadge': {
+    en: 'Data Protected: Your submission is encrypted and safeguarded against leaks under Digital Personal Data Protection (DPDP) standards.',
+    te: 'సమాచార భద్రత: మీ వివరాలు డిజిటల్ వ్యక్తిగత డేటా రక్షణ (DPDP) ప్రమాణాల ప్రకారం సురక్షితంగా మరియు ఎన్క్రిప్ట్ చేయబడతాయి.',
+  },
+  // Search keys
+  'search.placeholder': {
+    en: 'Search press releases, speeches, and FAQs in Telugu or English...',
+    te: 'పత్రికా ప్రకటనలు, ప్రసంగాలు మరియు ప్రశ్నలను తెలుగు లేదా ఇంగ్లీషులో శోధించండి...',
+  },
+  'search.noResults': {
+    en: 'No relevant matches found. Try using different keywords.',
+    te: 'ఎటువంటి ఫలితాలు లభించలేదు. ఇతర పదాలతో మళ్లీ ప్రయత్నించండి.',
+  },
+  'search.resultsCount': {
+    en: 'Found {count} results',
+    te: '{count} ఫలితాలు కనుగొనబడ్డాయి',
+  },
+  'search.pressType': {
+    en: 'Press Release',
+    te: 'పత్రికా ప్రకటన',
+  },
+  'search.speechType': {
+    en: 'Parliament Speech',
+    te: 'పార్లమెంటరీ ప్రసంగం',
+  },
+  'search.faqType': {
+    en: 'Biography FAQ',
+    te: 'జీవిత చరిత్ర ప్రశ్న',
+  },
+  'search.button': {
+    en: 'Search',
+    te: 'శోధన',
+  },
+  // A11y Panel keys
+  'a11y.title': {
+    en: 'Accessibility Controls',
+    te: 'యాక్సెసిబిలిటీ నియంత్రణలు',
+  },
+  'a11y.textZoom': {
+    en: 'Text Size',
+    te: 'అక్షరాల పరిమాణం',
+  },
+  'a11y.grayscale': {
+    en: 'Grayscale Mode',
+    te: 'గ్రేస్కేల్ మోడ్',
+  },
+  'a11y.contrast': {
+    en: 'High Contrast',
+    te: 'అధిక కాంట్రాస్ట్',
+  },
+  'a11y.dyslexic': {
+    en: 'Dyslexia Friendly',
+    te: 'డిస్లెక్సియా ఫ్రెండ్లీ',
+  },
+  'a11y.reset': {
+    en: 'Reset Defaults',
+    te: 'సాధారణ స్థితికి తెచ్చు',
+  },
+  'a11y.close': {
+    en: 'Close Panel',
+    te: 'ప్యానెల్ మూసివేయి',
+  },
+  'a11y.widgetTooltip': {
+    en: 'Accessibility Settings',
+    te: 'యాక్సెసిబిలిటీ సెట్టింగ్స్',
+  },
   // SEO Meta values
   'meta.home.title': {
     en: 'Shri Bhashyam Ramakrishna | Official Rajya Sabha Portal',

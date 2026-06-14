@@ -1,8 +1,15 @@
-const CACHE_NAME = 'brk-mp-cache-v5';
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
+const CACHE_NAME = 'brk-mp-cache-v6';
 const ASSETS = [
   '/',
   '/manifest.json',
   '/images/telugudesamlogo.png',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/accessibility',
 ];
 
 self.addEventListener('install', (event) => {

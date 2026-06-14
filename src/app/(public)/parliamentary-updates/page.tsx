@@ -29,6 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+function getYouTubeId(url: string): string | null {
+  if (!url) return null
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+  const match = url.match(regExp)
+  return (match && match[2].length === 11) ? match[2] : null
+}
+
 export default async function ParliamentaryUpdatesPage() {
   let updates: any[] = []
 
@@ -40,7 +47,9 @@ export default async function ParliamentaryUpdatesPage() {
         date,
         summary,
         speechUrl,
-        "documentUrl": document.asset->url
+        "documentUrl": document.asset->url,
+        "image": mainImage,
+        images
       }`
     })
   } catch (error) {
@@ -85,9 +94,34 @@ export default async function ParliamentaryUpdatesPage() {
     }
   }))
 
+  const videoSchemas = (updates || [])
+    .filter((up) => up.speechUrl)
+    .map((up) => {
+      const ytId = getYouTubeId(up.speechUrl)
+      if (!ytId) return null
+      return {
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        'name': up.title || 'Parliament Speech Video',
+        'description': up.summary || '',
+        'thumbnailUrl': [
+          `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`,
+          `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+        ],
+        'uploadDate': up.date ? `${up.date}T09:00:00Z` : new Date().toISOString(),
+        'contentUrl': up.speechUrl,
+        'embedUrl': `https://www.youtube.com/embed/${ytId}`,
+        'publisher': {
+          '@type': 'Person',
+          'name': 'Shri Bhashyam Ramakrishna'
+        }
+      }
+    })
+    .filter(Boolean)
+
   return (
     <>
-      <JsonLd schema={[breadcrumbSchema, ...articleSchemas]} />
+      <JsonLd schema={[breadcrumbSchema, ...articleSchemas, ...videoSchemas]} />
       <ParliamentaryUpdatesClient updates={updates || []} />
     </>
   )

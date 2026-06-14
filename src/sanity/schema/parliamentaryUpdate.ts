@@ -35,8 +35,22 @@ export const parliamentaryUpdate = defineType({
     }),
     defineField({
       name: 'speechUrl',
-      title: 'YouTube Speech Link',
+      title: 'Speech / Media Link (YouTube or Instagram)',
       type: 'url',
+    }),
+    defineField({
+      name: 'mainImage',
+      title: 'Main Preview Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    }),
+    defineField({
+      name: 'images',
+      title: 'Slideshow Images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
     }),
     defineField({
       name: 'document',

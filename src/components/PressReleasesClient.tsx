@@ -22,6 +22,8 @@ import {
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
 import { useTextToSpeech } from '@/hooks/useTextToSpeech'
+import MediaCarousel from '@/components/MediaCarousel'
+import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 
 interface NewsItem {
   _id: string
@@ -30,6 +32,8 @@ interface NewsItem {
   excerpt?: any
   body?: any[]
   image?: any
+  images?: any[]
+  speechUrl?: string
 }
 
 interface PressReleasesClientProps {
@@ -53,6 +57,7 @@ interface ActiveContent {
   imageSrc?: string
   speechUrl?: string
   documentUrl?: string
+  images?: any[]
 }
 
 function renderBody(body: any[]): string[] {
@@ -144,6 +149,8 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
           excerpt: nexcerpt,
           body: item.body,
           imageSrc: imgSrc,
+          speechUrl: item.speechUrl,
+          images: item.images,
         })
       }
     }
@@ -285,6 +292,8 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                                     excerpt: nexcerpt,
                                     body: item.body,
                                     imageSrc: imgSrc,
+                                    speechUrl: item.speechUrl,
+                                    images: item.images,
                                   })}
                                 >
                                   {item.image && (
@@ -479,30 +488,36 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                   {activeContent.title}
                 </h2>
 
-                {activeContent.imageSrc && (
-                  <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
-                    onClick={() => {
-                      setActiveContent(null)
-                      setTimeout(() => setActiveMedia({
-                        src: activeContent.imageSrc!,
-                        title: activeContent.title,
-                        date: activeContent.date,
-                      }), 150)
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={activeContent.imageSrc}
-                      alt={activeContent.title}
-                      className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
-                      <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                        Click to view full image
-                      </span>
-                    </div>
+                {activeContent.images && activeContent.images.length > 0 ? (
+                  <div className="mb-6">
+                    <MediaCarousel images={activeContent.images} title={activeContent.title} />
                   </div>
+                ) : (
+                  activeContent.imageSrc && (
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                      onClick={() => {
+                        setActiveContent(null)
+                        setTimeout(() => setActiveMedia({
+                          src: activeContent.imageSrc!,
+                          title: activeContent.title,
+                          date: activeContent.date,
+                        }), 150)
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={activeContent.imageSrc}
+                        alt={activeContent.title}
+                        className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                        <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                          Click to view full image
+                        </span>
+                      </div>
+                    </div>
+                  )
                 )}
 
                 {activeContent.excerpt && (
@@ -523,6 +538,13 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                   !activeContent.excerpt && (
                     <p className="text-slate-400 text-sm italic">No additional content available.</p>
                   )
+                )}
+
+                {/* Native Media Player Embed */}
+                {activeContent.speechUrl && (
+                  <div className="mt-6 border-t border-slate-100 pt-4">
+                    <NativeMediaPlayer url={activeContent.speechUrl} title={activeContent.title} />
+                  </div>
                 )}
               </div>
 

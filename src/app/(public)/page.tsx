@@ -47,7 +47,9 @@ export default async function Page() {
           date,
           summary,
           speechUrl,
-          "documentUrl": document.asset->url
+          "documentUrl": document.asset->url,
+          "image": mainImage,
+          images
         }`
       }),
       sanityFetch<any[]>({
@@ -57,7 +59,9 @@ export default async function Page() {
           publishedAt,
           excerpt,
           body,
-          "image": mainImage
+          "image": mainImage,
+          images,
+          speechUrl
         }`
       }),
       sanityFetch<any[]>({
