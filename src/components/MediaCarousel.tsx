@@ -7,9 +7,10 @@ import { urlFor } from '@/sanity/lib/image'
 interface MediaCarouselProps {
   images: any[]
   title?: string
+  onImageClick?: (src: string) => void
 }
 
-export default function MediaCarousel({ images, title }: MediaCarouselProps) {
+export default function MediaCarousel({ images, title, onImageClick }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -79,14 +80,26 @@ export default function MediaCarousel({ images, title }: MediaCarouselProps) {
         }}
       >
         {resolvedImages.map((resolvedUrl, idx) => (
-          <div key={idx} className="relative h-full w-full flex-shrink-0 select-none">
+          <div
+            key={idx}
+            className={`relative h-full w-full flex-shrink-0 select-none ${onImageClick ? 'cursor-zoom-in group/slide' : ''}`}
+            onClick={() => onImageClick?.(resolvedUrl)}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={resolvedUrl}
               alt={`${title || 'Carousel Slide'} - ${idx + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover/slide:brightness-90 transition-all duration-300"
               draggable={false}
             />
+            {onImageClick && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/slide:opacity-100 transition-opacity bg-black/15 pointer-events-none">
+                <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+                  Click to view full image
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>

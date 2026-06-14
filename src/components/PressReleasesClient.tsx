@@ -153,6 +153,35 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  const sharePath = '/press-releases'
+  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
+  const siteUrl = isClient ? window.location.origin : ''
+  const twitterUrl = 'https://x.com/bhashyambrk'
+  const instagramUrl = 'https://www.instagram.com/ramakrishnabhashyam/'
+  
+  const rawBodyText = activeContent && activeContent.body ? renderBody(activeContent.body).join(' ') : ''
+  const rawExcerptText = activeContent ? (activeContent.excerpt || rawBodyText || '') : ''
+  const truncatedExcerptText = rawExcerptText.length > 250 ? rawExcerptText.slice(0, 250) + '...' : rawExcerptText
+  
+  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMAKRISHNA PORTAL*
+━━━━━━━━━━━━━━━━━━
+📰 *${activeContent.title}*
+
+📅 _${new Date(activeContent.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}_
+
+${truncatedExcerptText}
+
+🔗 *Read Full Article:*
+${shareUrl}
+
+🌐 *Visit Official Site:*
+${siteUrl}
+
+📲 *Connect on Social Media:*
+• *Twitter/X:* ${twitterUrl}
+• *Instagram:* ${instagramUrl}
+━━━━━━━━━━━━━━━━━━` : ''
+
   const historyPushedRef = useRef<{ media: boolean; content: boolean }>({ media: false, content: false })
 
   // Modal History Stack Interception
@@ -563,7 +592,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                       return (
                         <span
                           key={i}
-                          className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                          className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
                         >
                           {t.text}{' '}
                         </span>
@@ -576,7 +605,18 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
 
                 {activeContent.images && activeContent.images.length > 0 ? (
                   <div className="mb-6">
-                    <MediaCarousel images={activeContent.images} title={activeContent.title} />
+                    <MediaCarousel
+                      images={activeContent.images}
+                      title={activeContent.title}
+                      onImageClick={(src) => {
+                        setActiveContent(null)
+                        setTimeout(() => setActiveMedia({
+                          src,
+                          title: activeContent.title,
+                          date: activeContent.date,
+                        }), 150)
+                      }}
+                    />
                   </div>
                 ) : (
                   activeContent.imageSrc && (
@@ -614,7 +654,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                         return (
                           <span
                             key={i}
-                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
                           >
                             {t.text}{' '}
                           </span>
@@ -638,7 +678,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                               return (
                                 <span
                                   key={i}
-                                  className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                                  className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
                                 >
                                   {t.text}{' '}
                                 </span>
@@ -746,11 +786,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
                             className="absolute bottom-full mb-2 right-0 z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1.5"
                           >
                             <a
-                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                                activeContent.title + '\n\n' + 
-                                (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 180) + (activeContent.excerpt || activeContent.body ? '...' : '') + '\n\nRead here: ' + 
-                                window.location.origin + '/press-releases?id=' + activeContent._id.slice(0, 8)
-                              )}`}
+                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={() => setShowShareMenu(false)}

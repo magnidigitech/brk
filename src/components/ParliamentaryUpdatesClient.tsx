@@ -122,6 +122,34 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
 
+  const sharePath = '/parliamentary-updates'
+  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
+  const siteUrl = isClient ? window.location.origin : ''
+  const twitterUrl = 'https://x.com/bhashyambrk'
+  const instagramUrl = 'https://www.instagram.com/ramakrishnabhashyam/'
+  
+  const rawExcerptText = activeContent ? (activeContent.excerpt || '') : ''
+  const truncatedExcerptText = rawExcerptText.length > 250 ? rawExcerptText.slice(0, 250) + '...' : rawExcerptText
+  
+  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMAKRISHNA PORTAL*
+━━━━━━━━━━━━━━━━━━
+📰 *${activeContent.title}*
+
+📅 _${new Date(activeContent.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}_
+
+${truncatedExcerptText}
+
+🔗 *Read Full Article:*
+${shareUrl}
+
+🌐 *Visit Official Site:*
+${siteUrl}
+
+📲 *Connect on Social Media:*
+• *Twitter/X:* ${twitterUrl}
+• *Instagram:* ${instagramUrl}
+━━━━━━━━━━━━━━━━━━` : ''
+
   const historyPushedRef = useRef<{ media: boolean; content: boolean }>({ media: false, content: false })
 
   // Modal History Stack Interception
@@ -460,7 +488,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                       return (
                         <span
                           key={i}
-                          className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                          className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
                         >
                           {t.text}{' '}
                         </span>
@@ -473,7 +501,18 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
 
                 {activeContent.images && activeContent.images.length > 0 ? (
                   <div className="mb-6">
-                    <MediaCarousel images={activeContent.images} title={activeContent.title} />
+                    <MediaCarousel
+                      images={activeContent.images}
+                      title={activeContent.title}
+                      onImageClick={(src) => {
+                        setActiveContent(null)
+                        setTimeout(() => setActiveMedia({
+                          src,
+                          title: activeContent.title,
+                          date: activeContent.date,
+                        }), 150)
+                      }}
+                    />
                   </div>
                 ) : (
                   activeContent.imageSrc && (
@@ -511,7 +550,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                         return (
                           <span
                             key={i}
-                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
                           >
                             {t.text}{' '}
                           </span>
@@ -612,11 +651,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                             className="absolute bottom-full mb-2 right-0 z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1.5"
                           >
                             <a
-                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                                activeContent.title + '\n\n' + 
-                                (activeContent.excerpt || '').slice(0, 180) + (activeContent.excerpt ? '...' : '') + '\n\nRead here: ' + 
-                                window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8)
-                              )}`}
+                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappShareText)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={() => setShowShareMenu(false)}

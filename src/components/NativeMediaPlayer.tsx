@@ -11,27 +11,48 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
   if (!url) return null
 
   // 1. YouTube link detection (supporting watch, embed, share, and shorts links)
-  const getYouTubeId = (link: string) => {
+  const getYouTubeInfo = (link: string) => {
     if (!link) return null
     // Shorts link detection (precisely matching 11 character YouTube video IDs)
     const shortsMatch = link.match(/(?:youtube\.com\/shorts\/|youtu\.be\/shorts\/)([a-zA-Z0-9_-]{11})/)
-    if (shortsMatch) return shortsMatch[1]
+    if (shortsMatch) return { id: shortsMatch[1], isShorts: true }
     // Standard watch/embed detection
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
     const match = link.match(regExp)
-    return (match && match[2].length === 11) ? match[2] : null
+    const id = (match && match[2].length === 11) ? match[2] : null
+    return id ? { id, isShorts: false } : null
   }
 
-  const ytId = getYouTubeId(url)
-  const isYouTube = !!ytId
+  const ytInfo = getYouTubeInfo(url)
+  const isYouTube = !!ytInfo
 
   // 2. Instagram link detection (supporting posts, reels, and TV links)
   const igRegExp = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|reels|tv)\/([a-zA-Z0-9_-]+)/
   const igMatch = url.match(igRegExp)
   const isInstagram = !!igMatch
   const igCode = isInstagram ? igMatch[1] : null
+  const isInstagramReel = isInstagram && (url.includes('/reel/') || url.includes('/reels/'))
 
-  if (isYouTube && ytId) {
+  if (isYouTube && ytInfo) {
+    if (ytInfo.isShorts) {
+      return (
+        <div className="w-full space-y-2.5 mt-3 text-left">
+          <span className="block text-[10px] font-black text-saffron-600 uppercase tracking-widest">
+            YouTube Short
+          </span>
+          <div className="relative w-full max-w-[340px] mx-auto aspect-[9/16] rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-black">
+            <iframe
+              src={`https://www.youtube.com/embed/${ytInfo.id}?controls=0&rel=0&showinfo=0&iv_load_policy=3`}
+              title={title || "YouTube Shorts player"}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="w-full space-y-2.5 mt-3 text-left">
         <span className="block text-[10px] font-black text-saffron-600 uppercase tracking-widest">
@@ -39,7 +60,7 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
         </span>
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-black">
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`}
+            src={`https://www.youtube.com/embed/${ytInfo.id}?controls=0&rel=0&showinfo=0&iv_load_policy=3`}
             title={title || "YouTube video player"}
             className="absolute inset-0 w-full h-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -51,6 +72,26 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
   }
 
   if (isInstagram && igCode) {
+    if (isInstagramReel) {
+      return (
+        <div className="w-full space-y-2.5 mt-3 text-left">
+          <span className="block text-[10px] font-black text-pink-600 uppercase tracking-widest">
+            Instagram Reel
+          </span>
+          <div className="relative w-full max-w-[340px] mx-auto aspect-[9/16] rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-50 flex justify-center z-0">
+            <iframe
+              src={`https://www.instagram.com/p/${igCode}/embed`}
+              title={title || "Instagram reel player"}
+              className="absolute inset-0 w-full h-full border-0"
+              allowTransparency={true}
+              frameBorder="0"
+              scrolling="no"
+            />
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="w-full space-y-2.5 mt-3 text-left">
         <span className="block text-[10px] font-black text-pink-600 uppercase tracking-widest">
