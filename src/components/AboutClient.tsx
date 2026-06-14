@@ -128,7 +128,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* ── Page Header & Narration Player ─────────────────────────── */}
-        <div className="text-center mb-16 relative">
+        <div className="text-center mb-10 sm:mb-16 relative">
           <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-widest border border-saffron-200/50 shadow-sm">
             <Activity className="w-3.5 h-3.5 mr-1 text-saffron-500 animate-pulse" />
             {localT.badge[language]}
@@ -176,7 +176,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* ── Biography Bento Grid Layout ───────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10 sm:mb-16 items-stretch">
           
           {/* Left Block: Identity Sidebar (md:col-span-4) */}
           <div className="md:col-span-4 bg-gradient-to-br from-navy-950 via-navy-900 to-[#121E36] rounded-3xl p-6 text-white shadow-xl flex flex-col justify-between relative overflow-hidden border border-white/5 min-h-[350px]">
@@ -233,7 +233,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* ── Educational vs Public Journey Split Track ──────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 sm:mb-16">
           
           {/* Track 1: Educational Leadership */}
           <div className="bg-white border-2 border-slate-200/80 rounded-3xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/60 transition-all duration-300 flex flex-col text-left relative overflow-hidden group">
@@ -273,7 +273,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* ── Signature Quote Card (Gold Border Accent) ───────────────── */}
-        <div className="bg-gradient-to-r from-saffron-400 to-saffron-500 rounded-3xl p-8 text-center text-navy-900 relative overflow-hidden shadow-lg mb-16 border border-saffron-500 flex flex-col items-center">
+        <div className="bg-gradient-to-r from-saffron-400 to-saffron-500 rounded-3xl p-6 sm:p-8 text-center text-navy-900 relative overflow-hidden shadow-lg mb-10 sm:mb-16 border border-saffron-500 flex flex-col items-center">
           <div className="absolute top-4 left-6 text-navy-950/5 font-serif text-8xl pointer-events-none select-none">“</div>
           <Quote className="w-7 h-7 text-navy-950 mb-4 stroke-[2.5]" />
           <p className="text-sm sm:text-base italic leading-relaxed max-w-3xl mx-auto mb-6 text-navy-900 font-extrabold justify-clean">
@@ -286,7 +286,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* ── Interactive Tabs: Focus Areas & Core Values ─────────────── */}
-        <div className="mb-16">
+        <div className="mb-10 sm:mb-16">
           <div className="flex justify-center mb-8 bg-slate-200/50 p-1 rounded-full max-w-sm mx-auto border border-slate-200">
             <button
               onClick={() => setActiveTab('vision')}
@@ -320,15 +320,15 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 text-left"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 text-left"
               >
                 {displayFocusAreas.map((area, idx) => (
                   <div
                     key={idx}
-                    className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-400 hover:shadow-md hover:scale-[1.01] transition-all duration-300 group"
+                    className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-400 hover:shadow-md hover:scale-[1.01] transition-all duration-300 group"
                   >
                     <CheckCircle2 className="w-5 h-5 text-saffron-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-                    <span className="text-slate-700 text-xs font-bold leading-relaxed">{area}</span>
+                    <span className="text-slate-700 text-sm sm:text-xs font-bold leading-relaxed">{area}</span>
                   </div>
                 ))}
               </motion.div>
@@ -339,17 +339,18 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-left"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-left items-start sm:items-stretch"
               >
                 {displayValues.map((v, idx) => (
-                  <div
+                  <motion.div
                     key={idx}
-                    className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm hover:border-saffron-400/80 hover:shadow-md hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group/val flex flex-col justify-between min-h-[140px]"
+                    whileHover={{ y: -4 }}
+                    className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:border-saffron-400/80 hover:shadow-md hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group/val flex flex-col justify-start sm:justify-between sm:min-h-[135px] text-left sm:text-center"
                   >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover/val:opacity-100 transition-opacity" />
-                    <span className="block font-black text-navy-900 text-sm mb-2">{v.name}</span>
-                    <p className="text-slate-500 text-[10px] leading-relaxed font-bold mt-auto">{v.desc}</p>
-                  </div>
+                    <span className="block font-black text-navy-900 text-base sm:text-sm mb-1.5">{v.name}</span>
+                    <p className="text-slate-600 text-sm sm:text-[11px] leading-relaxed font-semibold sm:mt-auto">{v.desc}</p>
+                  </motion.div>
                 ))}
               </motion.div>
             )}
@@ -357,7 +358,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* ── FAQ Accordion Section ──────────────────────────────────── */}
-        <div className="mb-16">
+        <div className="mb-10 sm:mb-16">
           <h3 className="text-2xl font-black text-navy-900 mb-8 text-center flex items-center justify-center">
             <HelpCircle className="w-5.5 h-5.5 mr-2 text-saffron-600 animate-pulse" />
             {t('faq.sectionTitle')}
