@@ -4,13 +4,58 @@ import { cookies } from 'next/headers'
 import { Metadata } from 'next'
 import JsonLd from '@/components/JsonLd'
 import { uiTranslations } from '@/lib/translations'
+import { urlFor } from '@/sanity/lib/image'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
-export async function generateMetadata(): Promise<Metadata> {
+interface PageProps {
+  searchParams: Promise<{ id?: string }>
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const resolvedSearchParams = await searchParams
+  const id = resolvedSearchParams.id
+
+  if (id) {
+    try {
+      const update = await sanityFetch<any>({
+        query: `*[_type == "parliamentaryUpdate" && (_id == $id || _id match $id + "*")][0] {
+          title,
+          summary,
+          mainImage
+        }`,
+        params: { id }
+      })
+
+      if (update) {
+        // extract title, summary and main image for social share previews
+        const uTitle = update.title?.[lang] || update.title?.en || update.title || uiTranslations['meta.parliament.title'][lang]
+        const uDesc = update.summary?.[lang] || update.summary?.en || update.summary || uiTranslations['meta.parliament.desc'][lang]
+        const imageUrl = update.mainImage ? urlFor(update.mainImage).width(1200).height(630).url() : undefined
+
+        return {
+          title: `${uTitle} | Shri Bhashyam Ramakrishna`,
+          description: uDesc,
+          alternates: {
+            canonical: `https://bramakrishna.mp.in/parliamentary-updates?id=${id}`,
+          },
+          openGraph: {
+            title: uTitle,
+            description: uDesc,
+            url: `https://bramakrishna.mp.in/parliamentary-updates?id=${id}`,
+            locale: lang === 'te' ? 'te_IN' : 'en_IN',
+            images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to generate dynamic metadata for parliamentary update:', error)
+    }
+  }
+
   const title = uiTranslations['meta.parliament.title'][lang] || uiTranslations['meta.parliament.title']['en']
   const description = uiTranslations['meta.parliament.desc'][lang] || uiTranslations['meta.parliament.desc']['en']
   

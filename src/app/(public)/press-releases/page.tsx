@@ -4,13 +4,58 @@ import { cookies } from 'next/headers'
 import { Metadata } from 'next'
 import JsonLd from '@/components/JsonLd'
 import { uiTranslations } from '@/lib/translations'
+import { urlFor } from '@/sanity/lib/image'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
-export async function generateMetadata(): Promise<Metadata> {
+interface PageProps {
+  searchParams: Promise<{ id?: string }>
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const resolvedSearchParams = await searchParams
+  const id = resolvedSearchParams.id
+
+  if (id) {
+    try {
+      const release = await sanityFetch<any>({
+        query: `*[_type == "pressRelease" && (_id == $id || _id match $id + "*")][0] {
+          title,
+          excerpt,
+          mainImage
+        }`,
+        params: { id }
+      })
+
+      if (release) {
+        // extract title, excerpt and main image for social share previews
+        const rTitle = release.title?.[lang] || release.title?.en || release.title || uiTranslations['meta.press.title'][lang]
+        const rDesc = release.excerpt?.[lang] || release.excerpt?.en || release.excerpt || uiTranslations['meta.press.desc'][lang]
+        const imageUrl = release.mainImage ? urlFor(release.mainImage).width(1200).height(630).url() : undefined
+
+        return {
+          title: `${rTitle} | Shri Bhashyam Ramakrishna`,
+          description: rDesc,
+          alternates: {
+            canonical: `https://bramakrishna.mp.in/press-releases?id=${id}`,
+          },
+          openGraph: {
+            title: rTitle,
+            description: rDesc,
+            url: `https://bramakrishna.mp.in/press-releases?id=${id}`,
+            locale: lang === 'te' ? 'te_IN' : 'en_IN',
+            images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to generate dynamic metadata for press release:', error)
+    }
+  }
+
   const title = uiTranslations['meta.press.title'][lang] || uiTranslations['meta.press.title']['en']
   const description = uiTranslations['meta.press.desc'][lang] || uiTranslations['meta.press.desc']['en']
   

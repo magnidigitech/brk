@@ -1,8 +1,9 @@
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'brk-mp-cache-v6';
+const CACHE_NAME = 'brk-mp-cache-v7';
 const ASSETS = [
   '/',
+  '/offline',
   '/manifest.json',
   '/images/telugudesamlogo.png',
   '/about',
@@ -79,9 +80,9 @@ self.addEventListener('fetch', (event) => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            // If it is a navigate request and cache misses, return index fallback
+            // If it is a navigate request and cache misses, return offline fallback page
             if (isNavigate) {
-              return caches.match('/');
+              return caches.match('/offline') || caches.match('/');
             }
           });
         })

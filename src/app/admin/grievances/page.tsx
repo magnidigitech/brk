@@ -19,7 +19,8 @@ import {
   User,
   Phone,
   Mail,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react'
 
 type TicketStatus = 'PENDING' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED'
@@ -169,6 +170,76 @@ export default function AdminDashboard() {
     return matchesSearch && matchesStatus && matchesCategory
   })
 
+  const handleExportCSV = () => {
+    if (filteredTickets.length === 0) return
+
+    // Define CSV columns
+    const headers = [
+      'Ticket ID',
+      'Name',
+      'Email',
+      'Phone',
+      'State',
+      'District',
+      'City/Town',
+      'Mandal',
+      'Village/Ward',
+      'Address',
+      'Pincode',
+      'Category',
+      'Subject',
+      'Description',
+      'Status',
+      'Created At',
+      'Updated At',
+      'Admin Notes'
+    ]
+
+    // Map tickets to rows
+    const rows = filteredTickets.map(t => [
+      t.id,
+      t.name,
+      t.email,
+      t.phone,
+      t.state || '',
+      t.district || '',
+      t.cityTown || '',
+      t.mandal || '',
+      t.villageWard || '',
+      t.address || '',
+      t.pincode || '',
+      t.category,
+      t.subject,
+      t.description,
+      t.status,
+      new Date(t.createdAt).toLocaleString('en-IN'),
+      new Date(t.updatedAt).toLocaleString('en-IN'),
+      t.adminNotes || ''
+    ])
+
+    // Construct CSV file payload with proper wrapping/escaping
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => 
+        row.map(value => {
+          const strValue = String(value).replace(/"/g, '""')
+          return `"${strValue}"`
+        }).join(',')
+      )
+    ].join('\n')
+
+    // Create anchor tag, trigger click, and download local blob
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    link.setAttribute('download', `BRK_Grievances_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   // Render Login Screen
   if (!isAuthenticated) {
     return (
@@ -308,34 +379,45 @@ export default function AdminDashboard() {
             <Search className="w-4.5 h-4.5 text-slate-400 absolute left-4 top-3" />
           </div>
 
-          {/* Filtering Dropdowns */}
-          <div className="flex gap-4 w-full md:w-auto">
-            <div className="flex-1 md:flex-none">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="PENDING">Pending</option>
-                <option value="IN_PROGRESS">Under Review</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
+          {/* Filtering Dropdowns & Export */}
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <div className="flex gap-4 w-full">
+              <div className="flex-1 md:flex-none">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="IN_PROGRESS">Under Review</option>
+                  <option value="RESOLVED">Resolved</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
+
+              <div className="flex-1 md:flex-none">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800"
+                >
+                  <option value="ALL">All Categories</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="flex-1 md:flex-none">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800"
-              >
-                <option value="ALL">All Categories</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
+            <button
+              onClick={handleExportCSV}
+              disabled={filteredTickets.length === 0}
+              className="px-4 py-3 bg-navy-900 hover:bg-navy-950 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              <Download className="w-4 h-4 text-[#FFD200]" />
+              <span>Export CSV</span>
+            </button>
           </div>
         </div>
 
