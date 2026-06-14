@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  BookOpen, 
-  HeartPulse, 
-  Sprout, 
-  Navigation, 
-  Briefcase, 
-  Users, 
-  Cpu, 
+import {
+  BookOpen,
+  HeartPulse,
+  Sprout,
+  Navigation,
+  Briefcase,
+  Users,
+  Cpu,
   Leaf,
   ChevronDown,
   Sparkles,
@@ -83,7 +83,7 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
       te: 'ఈ రంగానికి సంబంధించి మీకు ఏవైనా ఫిర్యాదులు, సూచనలు లేదా సలహాలు ఉన్నాయా? నేరుగా మా కార్యాలయానికి సమర్పించండి.'
     },
     ctaBtn: {
-      en: 'Lodge Grievance Now',
+      en: 'Submit Grievance Now',
       te: 'గ్రీవెన్స్ నమోదు చేయండి'
     },
     activeLabel: {
@@ -113,9 +113,9 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
       {/* Background ambient radial glows */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,210,0,0.07)_0%,transparent_55%)] pointer-events-none" />
       <div className="absolute top-1/3 left-0 w-80 h-80 bg-saffron-500/5 rounded-full blur-[100px] pointer-events-none" />
-      
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Page Header */}
         <div className="text-center mb-16 relative">
           <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-widest border border-saffron-200/50 shadow-sm">
@@ -133,7 +133,7 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
 
         {/* ── DESKTOP DASHBOARD GRID LAYOUT (lg and above) ──────────────── */}
         <div className="hidden lg:grid grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Interactive Sectors Menu (lg:col-span-5) */}
           <div className="col-span-5 space-y-4">
             {sectors.map((sec) => {
@@ -147,23 +147,20 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
                   key={sec._id}
                   onClick={() => setSelectedId(sec._id)}
                   whileHover={{ x: 6 }}
-                  className={`w-full text-left p-5 rounded-2xl border-2 flex items-center justify-between transition-all duration-300 relative overflow-hidden cursor-pointer ${
-                    isActive 
-                      ? 'bg-white border-saffron-500 shadow-md ring-1 ring-saffron-500/20' 
-                      : 'bg-white/80 backdrop-blur-sm border-slate-200/80 hover:border-saffron-400/60 hover:bg-white'
-                  }`}
+                  className={`w-full text-left p-5 rounded-2xl border-2 flex items-center justify-between transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive
+                    ? 'bg-white border-saffron-500 shadow-md ring-1 ring-saffron-500/20'
+                    : 'bg-white/80 backdrop-blur-sm border-slate-200/80 hover:border-saffron-400/60 hover:bg-white'
+                    }`}
                 >
                   {/* Saffron side indicator stripe */}
-                  <div className={`absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-saffron-400 to-saffron-500 transition-opacity duration-300 ${
-                    isActive ? 'opacity-100' : 'opacity-0'
-                  }`} />
+                  <div className={`absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-saffron-400 to-saffron-500 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'
+                    }`} />
 
                   <div className="flex space-x-4 pr-3 min-w-0">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-saffron-50 border-saffron-200 text-saffron-600 scale-[1.05]' 
-                        : 'bg-slate-50 border-slate-100 text-slate-500'
-                    }`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 ${isActive
+                      ? 'bg-saffron-50 border-saffron-200 text-saffron-600 scale-[1.05]'
+                      : 'bg-slate-50 border-slate-100 text-slate-500'
+                      }`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -175,14 +172,12 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center shrink-0">
-                    <div className={`w-2 h-2 rounded-full mr-2.5 transition-all duration-300 ${
-                      isActive ? 'bg-saffron-500 scale-[1.25] shadow-lg shadow-saffron-500/30' : 'bg-slate-300'
-                    }`} />
-                    <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 ${
-                      isActive ? 'translate-x-1 text-saffron-600' : 'text-slate-400'
-                    }`} />
+                    <div className={`w-2 h-2 rounded-full mr-2.5 transition-all duration-300 ${isActive ? 'bg-saffron-500 scale-[1.25] shadow-lg shadow-saffron-500/30' : 'bg-slate-300'
+                      }`} />
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isActive ? 'translate-x-1 text-saffron-600' : 'text-slate-400'
+                      }`} />
                   </div>
                 </motion.button>
               )
@@ -252,8 +247,8 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
                         </span>
                         <div className="grid grid-cols-1 gap-2.5">
                           {activeSector.concerns.map((con, cIdx) => (
-                            <div 
-                              key={cIdx} 
+                            <div
+                              key={cIdx}
                               className="flex items-start space-x-3 p-3 rounded-xl border border-slate-100 hover:border-slate-200/80 hover:bg-slate-50/30 transition-colors"
                             >
                               <ShieldCheck className="w-4.5 h-4.5 text-saffron-600 shrink-0 mt-0.5" />
@@ -296,7 +291,7 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
           {sectors.map((sec) => {
             const IconComponent = sec.iconName && iconMap[sec.iconName] ? iconMap[sec.iconName] : Sparkles
             const isOpen = expandedIdMobile === sec._id
-            
+
             // Localize values
             const title = tContent(sec.title)
             const short = tContent(sec.short)
@@ -306,24 +301,22 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
               : []
 
             return (
-              <div 
+              <div
                 key={sec._id}
-                className={`bg-white border-2 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 relative ${
-                  isOpen ? 'border-saffron-500 shadow-md' : 'border-slate-200 hover:border-saffron-400/60'
-                }`}
+                className={`bg-white border-2 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 relative ${isOpen ? 'border-saffron-500 shadow-md' : 'border-slate-200 hover:border-saffron-400/60'
+                  }`}
               >
                 {/* Accent top stripe when open */}
                 {isOpen && <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-500" />}
-                
+
                 <button
                   type="button"
                   onClick={() => setExpandedIdMobile(isOpen ? null : sec._id)}
                   className="w-full p-5 text-left flex items-center justify-between focus:outline-none cursor-pointer"
                 >
                   <div className="flex space-x-3.5 pr-2 min-w-0">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 transition-all duration-300 ${
-                      isOpen ? 'bg-saffron-100 border-saffron-200 text-saffron-600' : 'bg-slate-50 border-slate-100 text-slate-500'
-                    }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 transition-all duration-300 ${isOpen ? 'bg-saffron-100 border-saffron-200 text-saffron-600' : 'bg-slate-50 border-slate-100 text-slate-500'
+                      }`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -354,7 +347,7 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
                             </p>
                           </div>
                         )}
-                        
+
                         {/* Mobile Focus Concerns */}
                         {concerns && concerns.length > 0 && (
                           <div className="space-y-2">

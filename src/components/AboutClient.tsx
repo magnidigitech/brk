@@ -2,7 +2,25 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Landmark, GraduationCap, Award, Compass, ShieldCheck, CheckCircle2, Quote, Lightbulb, HelpCircle, ChevronDown, Volume2, VolumeX } from 'lucide-react'
+import { 
+  Landmark, 
+  GraduationCap, 
+  Award, 
+  Compass, 
+  CheckCircle2, 
+  Quote, 
+  Lightbulb, 
+  HelpCircle, 
+  ChevronDown, 
+  Volume2, 
+  VolumeX, 
+  MapPin, 
+  FileText,
+  Activity,
+  Users,
+  Building2,
+  ChevronRight
+} from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { getRoleTitle } from '@/lib/roleHelper'
 import { useTextToSpeech } from '@/hooks/useTextToSpeech'
@@ -35,6 +53,7 @@ interface AboutClientProps {
 export default function AboutClient({ data, siteSettings }: AboutClientProps) {
   const { tContent, t, language } = useLanguage()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState<'vision' | 'values'>('vision')
 
   // Localize page settings
   const title = tContent(data.title, 'Bhashyam Ramakrishna')
@@ -85,52 +104,68 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         { name: 'Social Progress', desc: 'Driving inclusive and long-term socio-economic growth.' }
       ]
 
-  // Combine readable texts for biography
+  // Combine readable texts for biography narration
   const readableBioText = `${profileShortName}. ${bioParagraph1} ${bioParagraph2} ${eduTitle}. ${eduContent} ${publicTitle}. ${publicContent}`
   const { speak, pause, stop, state: ttsState, supported: ttsSupported } = useTextToSpeech(readableBioText, language)
 
+  // Local translations for redesigned elements
+  const localT = {
+    badge: { en: 'Official Biography', te: 'అధికారిక జీవిత చరిత్ర' },
+    visionTab: { en: 'Key Focus Areas', te: 'ప్రాధాన్యతా రంగాలు' },
+    valuesTab: { en: 'Core Values', te: 'నాయకత్వ విలువలు' },
+    summaryTitle: { en: 'Profile Summary', te: 'సంక్షిప్త పరిచయం' },
+    detailsTitle: { en: 'Leadership Details', te: 'నాయకత్వ వివరాలు' },
+    milestonesTitle: { en: 'Key Milestones', te: 'ప్రధాన మైలురాళ్లు' }
+  }
+
   return (
-    <div className="py-16 bg-slate-50 min-h-screen">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
- 
-        {/* Page Header */}
-        <div className="text-center mb-16 relative pb-4">
-          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-wider border border-saffron-200 shadow-sm">
-            {badgeText}
+    <div className="py-16 bg-slate-50 min-h-screen relative overflow-hidden">
+      {/* Ambient Radial Background Glows */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,210,0,0.06)_0%,transparent_50%)] pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-saffron-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-navy-900/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* ── Page Header & Narration Player ─────────────────────────── */}
+        <div className="text-center mb-16 relative">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black bg-saffron-100 text-saffron-600 mb-3 uppercase tracking-widest border border-saffron-200/50 shadow-sm">
+            <Activity className="w-3.5 h-3.5 mr-1 text-saffron-500 animate-pulse" />
+            {localT.badge[language]}
           </span>
-          <h1 className="text-4xl font-extrabold text-navy-900 tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl font-black text-navy-900 tracking-tight mb-3">
             {title}
           </h1>
-          <p className="text-slate-600 text-sm font-semibold max-w-xl mx-auto uppercase tracking-wide">
+          <p className="text-slate-600 text-xs sm:text-sm font-bold max-w-2xl mx-auto uppercase tracking-wide leading-relaxed">
             {subtitle}
           </p>
-          <div className="w-24 h-1 bg-saffron-500 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-saffron-400 to-saffron-500 mx-auto mt-4 rounded-full" />
 
           {/* TTS Player Bar */}
           {ttsSupported && (
-            <div className="flex items-center justify-center mt-6 space-x-3 bg-white border border-slate-200/80 rounded-2xl px-4 py-2 max-w-xs mx-auto shadow-sm">
+            <div className="flex items-center justify-center mt-6 space-x-3 bg-white border border-slate-200/80 rounded-full px-5 py-2.5 max-w-xs mx-auto shadow-md hover:shadow-lg transition-shadow">
               <button
                 type="button"
                 onClick={ttsState === 'playing' ? pause : speak}
-                className="flex items-center justify-center p-2 rounded-xl bg-saffron-100 hover:bg-saffron-200 text-navy-900 transition-colors cursor-pointer"
+                className="flex items-center justify-center px-4 py-1.5 rounded-full bg-saffron-500 hover:bg-saffron-400 text-navy-900 transition-colors cursor-pointer text-xs font-black shadow-sm"
                 title={ttsState === 'playing' ? 'Pause narration' : 'Play biography narration'}
               >
                 {ttsState === 'playing' ? (
-                  <VolumeX className="w-4 h-4 mr-2 animate-pulse text-rose-600" />
+                  <VolumeX className="w-4 h-4 mr-1.5 animate-pulse text-rose-700" />
                 ) : (
-                  <Volume2 className="w-4 h-4 mr-2 text-saffron-600" />
+                  <Volume2 className="w-4 h-4 mr-1.5 text-navy-900" />
                 )}
-                <span className="text-xs font-bold">
+                <span>
                   {ttsState === 'playing' 
                     ? (language === 'te' ? 'ఆపండి' : 'Pause') 
-                    : (language === 'te' ? 'వినండి' : 'Listen')}
+                    : (language === 'te' ? 'వినండి' : 'Listen Biography')}
                 </span>
               </button>
               {ttsState !== 'idle' && (
                 <button
                   type="button"
                   onClick={stop}
-                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-xs font-bold"
+                  className="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-[10px] font-black uppercase tracking-wider"
                   title="Stop narration"
                 >
                   {language === 'te' ? 'ముగించు' : 'Stop'}
@@ -140,131 +175,194 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
           )}
         </div>
 
-        {/* Profile Card & Bio with TDP Yellow Frame Accents */}
-        <div className="bg-white border-2 border-slate-200/80 rounded-3xl overflow-hidden shadow-md hover:shadow-lg hover:scale-[1.005] hover:border-saffron-300/60 transition-all duration-300 grid grid-cols-1 md:grid-cols-3 mb-16 relative">
-          <div className="bg-gradient-to-br from-saffron-300 via-saffron-400 to-saffron-500 p-8 flex flex-col justify-between text-navy-900 md:col-span-1 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        {/* ── Biography Bento Grid Layout ───────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16 items-stretch">
+          
+          {/* Left Block: Identity Sidebar (md:col-span-4) */}
+          <div className="md:col-span-4 bg-gradient-to-br from-navy-950 via-navy-900 to-[#121E36] rounded-3xl p-6 text-white shadow-xl flex flex-col justify-between relative overflow-hidden border border-white/5 min-h-[350px]">
+            {/* Ambient subtle glow ring */}
+            <div className="absolute -top-10 -right-10 w-28 h-28 bg-saffron-400/10 rounded-full blur-2xl pointer-events-none" />
+            
             <div>
-              <h2 className="text-2xl font-black tracking-wide mb-6 text-navy-900">{profileShortName}</h2>
-
-              <div className="space-y-5 text-sm text-navy-900/80">
-                <div>
-                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">Nomination</span>
-                  <span className="font-semibold text-navy-900">{badgeText}</span>
+              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner mb-6">
+                <Landmark className="w-6 h-6 text-saffron-400" />
+              </div>
+              <h2 className="text-xl font-black tracking-wide mb-6 text-white">{profileShortName}</h2>
+              
+              <div className="space-y-5">
+                <div className="border-l-2 border-saffron-400/50 pl-3">
+                  <span className="block text-[9px] text-white/50 font-bold uppercase tracking-wider">Candidate Nomination</span>
+                  <span className="text-xs font-extrabold text-white leading-snug block mt-0.5">{badgeText}</span>
                 </div>
-                <div>
-                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">State Represented</span>
-                  <span className="font-semibold text-navy-900">{stateRepresented}</span>
+                <div className="border-l-2 border-saffron-400/50 pl-3">
+                  <span className="block text-[9px] text-white/50 font-bold uppercase tracking-wider">State Represented</span>
+                  <span className="text-xs font-extrabold text-white leading-snug block mt-0.5">{stateRepresented}</span>
                 </div>
-                <div>
-                  <span className="block text-[10px] text-navy-900/60 font-bold uppercase tracking-wider">Party Association</span>
-                  <span className="font-extrabold text-navy-950">{partyName}</span>
+                <div className="border-l-2 border-saffron-400/50 pl-3">
+                  <span className="block text-[9px] text-white/50 font-bold uppercase tracking-wider">Party Association</span>
+                  <span className="text-xs font-black text-saffron-400 leading-snug block mt-0.5">{partyName}</span>
                 </div>
               </div>
             </div>
+
+            <div className="pt-6 border-t border-white/10 flex items-center text-[10px] text-white/60 font-bold uppercase tracking-wider">
+              <MapPin className="w-4 h-4 mr-1.5 text-saffron-400" />
+              Andhra Pradesh, India
+            </div>
           </div>
 
-          <div className="p-8 md:col-span-2 flex flex-col justify-center">
-            <h3 className="text-lg font-bold text-navy-900 mb-4 flex items-center">
-              <Compass className="w-5 h-5 mr-2 text-saffron-600" />
-              Public Service Profile
+          {/* Right Block: Profile Biography (md:col-span-8) */}
+          <div className="md:col-span-8 bg-white border-2 border-slate-200/80 rounded-3xl p-8 shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col justify-center text-left relative overflow-hidden">
+            {/* Visual drop cap effect decoration */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50/50 rounded-bl-full pointer-events-none" />
+            
+            <h3 className="text-base font-black text-navy-900 mb-4 flex items-center uppercase tracking-wide">
+              <Compass className="w-5 h-5 mr-2 text-saffron-600 stroke-[2.5]" />
+              {localT.milestonesTitle[language]}
             </h3>
-            <p className="text-slate-600 leading-relaxed text-sm mb-4 justify-clean">
-              {bioParagraph1}
-            </p>
-            <p className="text-slate-600 leading-relaxed text-sm justify-clean">
-              {bioParagraph2}
-            </p>
-          </div>
-        </div>
-
-        {/* Educational Leadership */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm mb-16 grid grid-cols-1 md:grid-cols-4 gap-8 hover:border-saffron-200/50 transition-all">
-          <div className="md:col-span-1 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-100 pb-6 md:pb-0 md:pr-6">
-            <div className="w-14 h-14 rounded-2xl bg-saffron-50 flex items-center justify-center mb-4 border border-saffron-100">
-              <GraduationCap className="w-7 h-7 text-saffron-600" />
+            
+            <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-semibold">
+              <p className="justify-clean relative pl-4 border-l-4 border-saffron-400/80">
+                {bioParagraph1}
+              </p>
+              <p className="justify-clean">
+                {bioParagraph2}
+              </p>
             </div>
-            <h3 className="text-base font-bold text-navy-900">Educational Leadership</h3>
-          </div>
-
-          <div className="md:col-span-3 text-sm text-slate-600 leading-relaxed space-y-3">
-            <h4 className="font-bold text-navy-900 text-base">{eduTitle}</h4>
-            <p className="justify-clean">{eduContent}</p>
           </div>
         </div>
 
-        {/* Public Service Journey */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm mb-16 grid grid-cols-1 md:grid-cols-4 gap-8 hover:border-saffron-200/50 transition-all">
-          <div className="md:col-span-1 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-slate-100 pb-6 md:pb-0 md:pr-6">
-            <div className="w-14 h-14 rounded-2xl bg-saffron-50 flex items-center justify-center mb-4 border border-saffron-100">
-              <Landmark className="w-7 h-7 text-saffron-600" />
+        {/* ── Educational vs Public Journey Split Track ──────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          
+          {/* Track 1: Educational Leadership */}
+          <div className="bg-white border-2 border-slate-200/80 rounded-3xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/60 transition-all duration-300 flex flex-col text-left relative overflow-hidden group">
+            {/* Top Yellow Bar on Hover */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="flex items-center space-x-4 border-b border-slate-100 pb-4 mb-4">
+              <div className="w-11 h-11 bg-saffron-50 border border-saffron-100 text-saffron-600 rounded-xl flex items-center justify-center shrink-0">
+                <GraduationCap className="w-5.5 h-5.5" />
+              </div>
+              <div>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Institution Builder</span>
+                <h3 className="text-sm font-black text-navy-900">{language === 'te' ? 'విద్యా రంగంలో ప్రస్థానం' : 'Educational Leadership'}</h3>
+              </div>
             </div>
-            <h3 className="text-base font-bold text-navy-900">{publicTitle}</h3>
+            <h4 className="font-extrabold text-navy-950 text-xs sm:text-sm mb-2 leading-snug">{eduTitle}</h4>
+            <p className="text-slate-500 text-xs leading-relaxed justify-clean">{eduContent}</p>
           </div>
 
-          <div className="md:col-span-3 text-sm text-slate-600 leading-relaxed space-y-3">
-            <p className="justify-clean">{publicContent}</p>
-          </div>
-        </div>
-
-        {/* Vision for Public Life */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-black text-navy-900 mb-8 text-center flex items-center justify-center">
-            <Lightbulb className="w-6 h-6 mr-2 text-saffron-600 animate-pulse" />
-            Vision for Public Life
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {displayFocusAreas.map((area, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -3 }}
-                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-400 hover:shadow-md transition-all duration-300"
-              >
-                <CheckCircle2 className="w-5 h-5 text-saffron-600 shrink-0 mt-0.5" />
-                <span className="text-slate-700 text-xs font-semibold leading-relaxed">{area}</span>
-              </motion.div>
-            ))}
+          {/* Track 2: Public Service Journey */}
+          <div className="bg-white border-2 border-slate-200/80 rounded-3xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/60 transition-all duration-300 flex flex-col text-left relative overflow-hidden group">
+            {/* Top Yellow Bar on Hover */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="flex items-center space-x-4 border-b border-slate-100 pb-4 mb-4">
+              <div className="w-11 h-11 bg-saffron-50 border border-saffron-100 text-saffron-600 rounded-xl flex items-center justify-center shrink-0">
+                <Building2 className="w-5.5 h-5.5" />
+              </div>
+              <div>
+                <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider">Political & Social Carrier</span>
+                <h3 className="text-sm font-black text-navy-900">{language === 'te' ? 'రాజకీయ & సామాజిక ప్రయాణం' : 'Public Service Career'}</h3>
+              </div>
+            </div>
+            <h4 className="font-extrabold text-navy-950 text-xs sm:text-sm mb-2 leading-snug">{publicTitle}</h4>
+            <p className="text-slate-500 text-xs leading-relaxed justify-clean">{publicContent}</p>
           </div>
         </div>
 
-        {/* Leadership Values */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-black text-navy-900 mb-8 text-center flex items-center justify-center">
-            <Award className="w-6 h-6 mr-2 text-saffron-600" />
-            Leadership Values
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            {displayValues.map((v, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -4 }}
-                className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm text-center hover:border-saffron-400/80 hover:shadow-md transition-all duration-300 relative overflow-hidden group/val"
-              >
-                {/* Subtle top saffron indicator bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover/val:opacity-100 transition-opacity" />
-                <span className="block font-extrabold text-navy-900 text-sm mb-2">{v.name}</span>
-                <p className="text-slate-500 text-[10px] leading-relaxed font-medium">{v.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Message Quote in Yellow Frame */}
-        <div className="bg-saffron-400 rounded-3xl p-8 text-center text-navy-900 relative overflow-hidden shadow-lg mb-16 border-2 border-saffron-500">
-          <div className="absolute top-4 left-6 text-navy-900/5 font-serif text-8xl pointer-events-none select-none">“</div>
-          <Quote className="w-8 h-8 text-navy-950 mx-auto mb-4" />
-          <p className="text-base italic leading-relaxed max-w-3xl mx-auto mb-6 text-navy-900 font-medium">
+        {/* ── Signature Quote Card (Gold Border Accent) ───────────────── */}
+        <div className="bg-gradient-to-r from-saffron-400 to-saffron-500 rounded-3xl p-8 text-center text-navy-900 relative overflow-hidden shadow-lg mb-16 border border-saffron-500 flex flex-col items-center">
+          <div className="absolute top-4 left-6 text-navy-950/5 font-serif text-8xl pointer-events-none select-none">“</div>
+          <Quote className="w-7 h-7 text-navy-950 mb-4 stroke-[2.5]" />
+          <p className="text-sm sm:text-base italic leading-relaxed max-w-3xl mx-auto mb-6 text-navy-900 font-extrabold justify-clean">
             &ldquo;{quoteText}&rdquo;
           </p>
-          <span className="block text-xs font-bold text-navy-950 uppercase tracking-widest">— {quoteAuthor}</span>
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-0.5 bg-navy-950/20 mb-2 rounded-full" />
+            <span className="block text-xs font-black text-navy-950 uppercase tracking-widest">— {quoteAuthor}</span>
+          </div>
         </div>
 
-        {/* FAQ Accordion Section */}
+        {/* ── Interactive Tabs: Focus Areas & Core Values ─────────────── */}
+        <div className="mb-16">
+          <div className="flex justify-center mb-8 bg-slate-200/50 p-1 rounded-full max-w-sm mx-auto border border-slate-200">
+            <button
+              onClick={() => setActiveTab('vision')}
+              className={`flex-1 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                activeTab === 'vision'
+                  ? 'bg-navy-900 text-saffron-400 shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Lightbulb className="w-4 h-4" />
+              <span>{localT.visionTab[language]}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('values')}
+              className={`flex-1 py-2 rounded-full text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                activeTab === 'values'
+                  ? 'bg-navy-900 text-saffron-400 shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Award className="w-4 h-4" />
+              <span>{localT.valuesTab[language]}</span>
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {activeTab === 'vision' ? (
+              <motion.div
+                key="vision-tab"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 text-left"
+              >
+                {displayFocusAreas.map((area, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-400 hover:shadow-md hover:scale-[1.01] transition-all duration-300 group"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-saffron-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-slate-700 text-xs font-bold leading-relaxed">{area}</span>
+                  </div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="values-tab"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-left"
+              >
+                {displayValues.map((v, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm hover:border-saffron-400/80 hover:shadow-md hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group/val flex flex-col justify-between min-h-[140px]"
+                  >
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                    <span className="block font-black text-navy-900 text-sm mb-2">{v.name}</span>
+                    <p className="text-slate-500 text-[10px] leading-relaxed font-bold mt-auto">{v.desc}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ── FAQ Accordion Section ──────────────────────────────────── */}
         <div className="mb-16">
           <h3 className="text-2xl font-black text-navy-900 mb-8 text-center flex items-center justify-center">
-            <HelpCircle className="w-6 h-6 mr-2 text-saffron-600 animate-pulse" />
+            <HelpCircle className="w-5.5 h-5.5 mr-2 text-saffron-600 animate-pulse" />
             {t('faq.sectionTitle')}
           </h3>
+          
           <div className="space-y-4 max-w-3xl mx-auto">
             {[
               { q: t('faq.q1'), a: t('faq.a1') },
@@ -280,14 +378,16 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
               return (
                 <div
                   key={idx}
-                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:border-saffron-300"
+                  className={`bg-white border-2 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 ${
+                    isOpen ? 'border-saffron-500 shadow-md' : 'border-slate-200 hover:border-saffron-300'
+                  }`}
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="w-full px-6 py-4.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors cursor-pointer"
                   >
-                    <span className="font-bold text-navy-900 text-sm leading-snug">{faq.q}</span>
+                    <span className="font-black text-navy-900 text-xs sm:text-sm leading-snug">{faq.q}</span>
                     <ChevronDown
                       className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-3 ${
                         isOpen ? 'rotate-180 text-saffron-600' : ''
@@ -302,7 +402,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <div className="px-6 pb-5 pt-2 text-slate-600 text-xs leading-relaxed border-t border-slate-100/60 justify-clean text-left whitespace-pre-line">
+                        <div className="px-6 pb-5 pt-2 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100/60 justify-clean text-left whitespace-pre-line font-medium">
                           {faq.a}
                         </div>
                       </motion.div>
@@ -314,10 +414,13 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
           </div>
         </div>
 
-        {/* Profile Summary Card with TDP yellow border framing */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm text-center max-w-3xl mx-auto border-t-4 border-t-saffron-500">
-          <h3 className="text-lg font-bold text-navy-900 mb-3">Profile Summary</h3>
-          <p className="text-slate-600 text-xs leading-relaxed justify-clean">
+        {/* ── Profile Summary Card ───────────────────────────────────── */}
+        <div className="bg-white border-2 border-slate-200/80 rounded-3xl p-8 shadow-sm text-center max-w-3xl mx-auto border-t-4 border-t-saffron-500 relative overflow-hidden group hover:border-saffron-400/60 transition-all duration-300">
+          <h3 className="text-base font-black text-navy-900 mb-3 flex items-center justify-center uppercase tracking-wide">
+            <FileText className="w-5 h-5 mr-2 text-saffron-600" />
+            {localT.summaryTitle[language]}
+          </h3>
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed justify-clean font-semibold">
             {summaryContent}
           </p>
         </div>
