@@ -177,8 +177,8 @@ export default function MasterAdminPortal() {
     <div className="min-h-screen bg-slate-50">
       {/* Header Banner */}
       <header className="sticky top-0 z-40 bg-[#FFD200] text-slate-950 border-b border-[#e0b900] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div className="flex items-center space-x-3 w-full md:w-auto">
             <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-yellow-600/20 shadow-sm shrink-0">
               <img src="/images/logo.png" alt="TDP Logo" className="w-full h-full object-cover" />
             </div>
@@ -192,17 +192,24 @@ export default function MasterAdminPortal() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto md:justify-end shrink-0">
+            <Link
+              href="/admin/manage"
+              className="flex items-center space-x-1.5 px-3.5 py-2 bg-navy-900 hover:bg-navy-850 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer border border-navy-950/10 mr-1 shrink-0"
+            >
+              <FileText className="w-3.5 h-3.5 text-[#FFD200]" />
+              <span>Manage Content</span>
+            </Link>
             <button
               onClick={fetchDashboardData}
-              className="p-2.5 bg-slate-950/5 hover:bg-slate-950/10 text-slate-950 rounded-xl transition-all border border-slate-950/10"
+              className="p-2 bg-slate-950/5 hover:bg-slate-950/10 text-slate-950 rounded-xl transition-all border border-slate-950/10 shrink-0"
               title="Refresh Stats"
             >
-              <RefreshCw className={`w-4.5 h-4.5 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+              className="flex items-center space-x-1.5 px-3.5 py-2 bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer shrink-0"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Log Out</span>
@@ -280,6 +287,25 @@ export default function MasterAdminPortal() {
                 <strong className="text-base font-extrabold text-emerald-600">{grievanceStats?.resolved ?? 0}</strong>
               </div>
             </div>
+          </div>
+
+          {/* 3b. Content Management Card */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[160px] hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-saffron-600" />
+                <h3 className="text-sm font-black text-navy-900 uppercase tracking-wide">Press & Parliament</h3>
+              </div>
+              <Link 
+                href="/admin/manage"
+                className="inline-flex items-center text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors"
+              >
+                Open Panel <ChevronRight className="w-4 h-4 ml-0.5" />
+              </Link>
+            </div>
+            <p className="text-xs text-slate-500 py-2 leading-relaxed">
+              Create, edit, and delete press releases or parliamentary updates dynamically. Changes are pushed instantly to Sanity.
+            </p>
           </div>
 
           {/* 4. Popular Pages Chart Card */}

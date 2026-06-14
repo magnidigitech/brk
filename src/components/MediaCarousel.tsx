@@ -89,7 +89,7 @@ export default function MediaCarousel({ images, title, onImageClick }: MediaCaro
             <img
               src={resolvedUrl}
               alt={`${title || 'Carousel Slide'} - ${idx + 1}`}
-              className="w-full h-full object-cover group-hover/slide:brightness-90 transition-all duration-300"
+              className="w-full h-full object-contain group-hover/slide:brightness-90 transition-all duration-300"
               draggable={false}
             />
             {onImageClick && (

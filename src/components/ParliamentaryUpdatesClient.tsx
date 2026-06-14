@@ -505,12 +505,11 @@ ${siteUrl}
                       images={activeContent.images}
                       title={activeContent.title}
                       onImageClick={(src) => {
-                        setActiveContent(null)
-                        setTimeout(() => setActiveMedia({
+                        setActiveMedia({
                           src,
                           title: activeContent.title,
                           date: activeContent.date,
-                        }), 150)
+                        })
                       }}
                     />
                   </div>
@@ -518,19 +517,18 @@ ${siteUrl}
                   activeContent.imageSrc && (
                     <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
                       onClick={() => {
-                        setActiveContent(null)
-                        setTimeout(() => setActiveMedia({
+                        setActiveMedia({
                           src: activeContent.imageSrc!,
                           title: activeContent.title,
                           date: activeContent.date,
-                        }), 150)
+                        })
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={activeContent.imageSrc}
                         alt={activeContent.title}
-                        className="w-full object-cover max-h-72 group-hover/img:brightness-90 transition-all duration-300"
+                        className="w-full object-contain max-h-72 bg-slate-100 group-hover/img:brightness-90 transition-all duration-300"
                       />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
                         <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
@@ -587,7 +585,7 @@ ${siteUrl}
               </div>
 
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 w-full">
-                <div className={`grid ${activeContent.speechUrl ? 'grid-cols-3' : 'grid-cols-2'} gap-2.5 w-full`}>
+                <div className={`grid ${isClient && ttsSupported ? 'grid-cols-2' : 'grid-cols-1'} gap-2.5 w-full`}>
                   {/* Column 1: Listen / Stop */}
                   {isClient && ttsSupported && (
                     <button
@@ -608,21 +606,6 @@ ${siteUrl}
                         </>
                       )}
                     </button>
-                  )}
-
-                  {/* Column 2: Watch Video (in the middle) */}
-                  {activeContent.speechUrl && (
-                    <a
-                      href={activeContent.speechUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center w-full py-2.5 rounded-xl bg-saffron-400 text-navy-955 text-xs font-bold hover:bg-saffron-500 transition-colors shadow-sm"
-                      onPointerDown={(e) => e.stopPropagation()}
-                    >
-                      <Video className="w-4 h-4 mr-1.5 text-navy-950" />
-                      <span>{language === 'te' ? 'వీడియో చూడండి' : 'Watch Video'}</span>
-                      <ExternalLink className="w-3 h-3 ml-1 opacity-60" />
-                    </a>
                   )}
 
                   {/* Column 3: Share (at the end) */}
