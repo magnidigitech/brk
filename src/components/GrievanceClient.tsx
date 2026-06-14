@@ -99,7 +99,7 @@ function GrievancePortal() {
   const [villageWard, setVillageWard] = useState('')
   const [address, setAddress] = useState('')
   const [pincode, setPincode] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState(searchParams.get('category') || '')
   const [subject, setSubject] = useState('')
   const [description, setDescription] = useState('')
 
@@ -281,6 +281,14 @@ function GrievancePortal() {
     const id = searchParams.get('id')
     if (id) {
       setTrackingId(id)
+    }
+  }, [searchParams])
+
+  // Sync category state when URL query param changes
+  useEffect(() => {
+    const cat = searchParams.get('category')
+    if (cat) {
+      setCategory(cat)
     }
   }, [searchParams])
 
