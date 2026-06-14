@@ -14,31 +14,48 @@ export default function MediaCarousel({ images, title }: MediaCarouselProps) {
   const [isPaused, setIsPaused] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Pre-resolve and filter out invalid/unresolvable image URLs
+  const resolvedImages = (images || [])
+    .map((img) => {
+      if (!img) return ''
+      if (typeof img === 'string') return img.trim()
+      try {
+        // Handle Sanity image object resolution safely
+        return urlFor(img).url() || ''
+      } catch (e) {
+        console.error('Failed to resolve image URL', e)
+        return ''
+      }
+    })
+    .filter((url) => url.length > 0)
+
+  const totalSlides = resolvedImages.length
+
   useEffect(() => {
-    if (!images || images.length <= 1 || isPaused) {
+    if (totalSlides <= 1 || isPaused) {
       if (timerRef.current) clearInterval(timerRef.current)
-      return;
+      return
     }
 
     timerRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % totalSlides)
     }, 3000)
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [images, isPaused])
+  }, [totalSlides, isPaused])
 
-  if (!images || images.length === 0) return null
+  if (totalSlides === 0) return null
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length)
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + totalSlides) % totalSlides)
   }
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % totalSlides)
   }
 
   const handleDotClick = (e: React.MouseEvent, idx: number) => {
@@ -59,35 +76,23 @@ export default function MediaCarousel({ images, title }: MediaCarouselProps) {
         className="flex h-full transition-transform duration-700 ease-out"
         style={{
           transform: `translateX(-${currentIndex * 100}%)`,
-          width: `${images.length * 100}%`
         }}
       >
-        {images.map((img, idx) => {
-          let resolvedUrl = ''
-          try {
-            resolvedUrl = urlFor(img).url()
-          } catch (e) {
-            console.error('Failed to resolve image URL', e)
-          }
-
-          if (!resolvedUrl) return null
-
-          return (
-            <div key={idx} className="relative h-full flex-1 w-full select-none">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={resolvedUrl}
-                alt={`${title || 'Carousel Slide'} - ${idx + 1}`}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-            </div>
-          )
-        })}
+        {resolvedImages.map((resolvedUrl, idx) => (
+          <div key={idx} className="relative h-full w-full flex-shrink-0 select-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolvedUrl}
+              alt={`${title || 'Carousel Slide'} - ${idx + 1}`}
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
+          </div>
+        ))}
       </div>
 
       {/* Manual Control Arrows */}
-      {images.length > 1 && (
+      {totalSlides > 1 && (
         <>
           <button
             onClick={handlePrev}
@@ -107,9 +112,9 @@ export default function MediaCarousel({ images, title }: MediaCarouselProps) {
       )}
 
       {/* Slide Index Indicators / Dots */}
-      {images.length > 1 && (
+      {totalSlides > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-1.5 z-10">
-          {images.map((_, idx) => (
+          {resolvedImages.map((_, idx) => (
             <button
               key={idx}
               onClick={(e) => handleDotClick(e, idx)}

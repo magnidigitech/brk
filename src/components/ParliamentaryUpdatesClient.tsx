@@ -52,6 +52,47 @@ interface ActiveContent {
   images?: any[]
 }
 
+interface WordToken {
+  text: string
+  start: number
+  end: number
+}
+
+function tokenizeText(text: string, globalOffset: number): WordToken[] {
+  const words: WordToken[] = []
+  let currentWord = ''
+  let wordStart = -1
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i]
+    if (/\S/.test(char)) {
+      if (wordStart === -1) {
+        wordStart = i
+      }
+      currentWord += char
+    } else {
+      if (currentWord) {
+        words.push({
+          text: currentWord,
+          start: globalOffset + wordStart,
+          end: globalOffset + i
+        })
+        currentWord = ''
+        wordStart = -1
+      }
+    }
+  }
+  if (currentWord) {
+    words.push({
+      text: currentWord,
+      start: globalOffset + wordStart,
+      end: globalOffset + text.length
+    })
+  }
+
+  return words
+}
+
 export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpdatesClientProps) {
   const { t, tContent, language } = useLanguage()
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
@@ -66,7 +107,12 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
   const readableUpdateText = activeContent
     ? `${activeContent.title}. ${activeContent.excerpt || ''}`
     : ''
-  const { speak, pause, stop, state: ttsState, supported: ttsSupported } = useTextToSpeech(readableUpdateText, language)
+  const { speak, pause, stop, state: ttsState, supported: ttsSupported, currentCharIndex } = useTextToSpeech(readableUpdateText, language)
+
+  // Tokenize elements for interactive word highlighting
+  const titleTokens = activeContent ? tokenizeText(activeContent.title, 0) : []
+  const excerptOffset = activeContent ? activeContent.title.length + 2 : 0
+  const excerptTokens = activeContent && activeContent.excerpt ? tokenizeText(activeContent.excerpt, excerptOffset) : []
 
   useEffect(() => {
     if (!activeContent) {
@@ -116,6 +162,15 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
         const imgSrc = item.image
           ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
           : undefined
+
+        const combinedImages = []
+        if (item.image) {
+          combinedImages.push(item.image)
+        }
+        if (item.images && Array.isArray(item.images)) {
+          combinedImages.push(...item.images)
+        }
+
         setActiveContent({
           _id: item._id,
           type: 'update',
@@ -125,7 +180,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
           imageSrc: imgSrc,
           speechUrl: item.speechUrl,
           documentUrl: item.documentUrl,
-          images: item.images,
+          images: combinedImages,
         })
       }
     }
@@ -260,6 +315,13 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                                     const imgSrc = item.image
                                       ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                                       : undefined
+                                    const combinedImages = []
+                                    if (item.image) {
+                                      combinedImages.push(item.image)
+                                    }
+                                    if (item.images && Array.isArray(item.images)) {
+                                      combinedImages.push(...item.images)
+                                    }
                                     setActiveContent({
                                       _id: item._id,
                                       type: 'update',
@@ -269,7 +331,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                                       imageSrc: imgSrc,
                                       speechUrl: item.speechUrl,
                                       documentUrl: item.documentUrl,
-                                      images: item.images,
+                                      images: combinedImages,
                                     })
                                   }}
                                 >
@@ -392,7 +454,21 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                 </div>
 
                 <h2 className="text-2xl font-black text-navy-900 leading-snug mb-4">
-                  {activeContent.title}
+                  {ttsState !== 'idle' ? (
+                    titleTokens.map((t, i) => {
+                      const isHighlighted = currentCharIndex >= t.start && currentCharIndex < t.end
+                      return (
+                        <span
+                          key={i}
+                          className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                        >
+                          {t.text}{' '}
+                        </span>
+                      )
+                    })
+                  ) : (
+                    activeContent.title
+                  )}
                 </h2>
 
                 {activeContent.images && activeContent.images.length > 0 ? (
@@ -429,8 +505,38 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
 
                 {activeContent.excerpt && (
                   <p className="text-base text-slate-700 leading-relaxed font-medium mb-5 pb-5">
-                    {activeContent.excerpt}
+                    {ttsState !== 'idle' ? (
+                      excerptTokens.map((t, i) => {
+                        const isHighlighted = currentCharIndex >= t.start && currentCharIndex < t.end
+                        return (
+                          <span
+                            key={i}
+                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 font-bold px-0.5 rounded transition-all' : ''}
+                          >
+                            {t.text}{' '}
+                          </span>
+                        )
+                      })
+                    ) : (
+                      activeContent.excerpt
+                    )}
                   </p>
+                )}
+
+                {/* Inline Document Download Button (moved from footer for a cleaner 3-column layout) */}
+                {activeContent.documentUrl && (
+                  <div className="mt-5 pt-4 border-t border-slate-100">
+                    <a
+                      href={activeContent.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200/50 shadow-sm transition-colors"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <Download className="w-3.5 h-3.5 mr-2 text-slate-600" />
+                      Download Attached Document
+                    </a>
+                  </div>
                 )}
 
                 {/* Native Media Player Embed */}
@@ -441,169 +547,131 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex flex-wrap justify-between items-center gap-3">
-                <div className="flex flex-wrap gap-3">
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 w-full">
+                <div className={`grid ${activeContent.speechUrl ? 'grid-cols-3' : 'grid-cols-2'} gap-2.5 w-full`}>
+                  {/* Column 1: Listen / Stop */}
                   {isClient && ttsSupported && (
-                    <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
-                      <button
-                        type="button"
-                        onClick={ttsState === 'playing' ? pause : speak}
-                        className="flex items-center justify-center px-3 py-1.5 rounded-lg bg-saffron-100 hover:bg-saffron-200 text-navy-900 transition-colors cursor-pointer"
-                        title={ttsState === 'playing' ? 'Pause' : 'Listen to update'}
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        {ttsState === 'playing' ? (
-                          <VolumeX className="w-4 h-4 mr-1.5 animate-pulse text-rose-600" />
-                        ) : (
-                          <Volume2 className="w-4 h-4 mr-1.5 text-saffron-600" />
-                        )}
-                        <span className="text-xs font-bold">
-                          {ttsState === 'playing'
-                            ? (language === 'te' ? 'ఆపండి' : 'Pause')
-                            : (language === 'te' ? 'వినండి' : 'Listen')}
-                        </span>
-                      </button>
-                      {ttsState !== 'idle' && (
-                        <button
-                          type="button"
-                          onClick={stop}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-xs font-bold"
-                          title="Stop narration"
-                          onPointerDown={(e) => e.stopPropagation()}
-                        >
-                          {language === 'te' ? 'ముగించు' : 'Stop'}
-                        </button>
+                    <button
+                      type="button"
+                      onClick={ttsState === 'playing' ? stop : speak}
+                      className="flex items-center justify-center w-full py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy-900 text-xs font-bold shadow-sm transition-colors cursor-pointer"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      {ttsState === 'playing' ? (
+                        <>
+                          <VolumeX className="w-4 h-4 mr-2 text-rose-600 animate-pulse" />
+                          <span>{language === 'te' ? 'ఆపండి' : 'Stop'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-4.5 h-4.5 mr-2 text-saffron-600" />
+                          <span>{language === 'te' ? 'వినండి' : 'Listen'}</span>
+                        </>
                       )}
-                    </div>
+                    </button>
                   )}
 
+                  {/* Column 2: Watch Video (in the middle) */}
                   {activeContent.speechUrl && (
                     <a
                       href={activeContent.speechUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-saffron-400 text-navy-950 text-sm font-bold hover:bg-saffron-500 transition-colors shadow-sm"
+                      className="flex items-center justify-center w-full py-2.5 rounded-xl bg-saffron-400 text-navy-955 text-xs font-bold hover:bg-saffron-500 transition-colors shadow-sm"
                       onPointerDown={(e) => e.stopPropagation()}
                     >
-                      <Video className="w-4 h-4 mr-2 text-navy-950" />
-                      Watch Speech
-                      <ExternalLink className="w-3.5 h-3.5 ml-2 opacity-60" />
+                      <Video className="w-4 h-4 mr-1.5 text-navy-950" />
+                      <span>{language === 'te' ? 'వీడియో చూడండి' : 'Watch Video'}</span>
+                      <ExternalLink className="w-3 h-3 ml-1 opacity-60" />
                     </a>
                   )}
-                  {activeContent.documentUrl && (
-                    <a
-                      href={activeContent.documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-200 text-navy-900 text-sm font-bold hover:bg-slate-300 transition-colors"
+
+                  {/* Column 3: Share (at the end) */}
+                  <div className="relative w-full">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowShareMenu(!showShareMenu)
+                      }}
                       onPointerDown={(e) => e.stopPropagation()}
+                      className="flex items-center justify-center w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200/50 shadow-sm transition-colors cursor-pointer"
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Document
-                    </a>
-                  )}
-                </div>
+                      <Share2 className="w-4 h-4 mr-2 text-slate-600" />
+                      <span>{language === 'te' ? 'భాగస్వామ్యం' : 'Share'}</span>
+                    </button>
 
-                <div className="relative">
-                  <button
-                    onClick={async (e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id.slice(0, 8)}`
-                      const summary = activeContent.excerpt || ''
-                      const shareData = {
-                        title: activeContent.title,
-                        text: summary || activeContent.title,
-                        url: shareUrl
-                      }
-
-                      if (navigator.share) {
-                        try {
-                          await navigator.share(shareData)
-                          return
-                        } catch (err) {
-                          console.warn('Native share failed or dismissed:', err)
-                        }
-                      }
-                      setShowShareMenu(!showShareMenu)
-                    }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    className="inline-flex items-center px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-sm font-bold transition-colors cursor-pointer border border-slate-200/50 shadow-sm"
-                  >
-                    <Share2 className="w-4 h-4 mr-2 text-slate-600" />
-                    Share
-                  </button>
-
-                  <AnimatePresence>
-                    {showShareMenu && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowShareMenu(false)} />
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                          className="absolute bottom-full mb-2 right-0 z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1.5"
-                        >
-                          <a
-                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                              activeContent.title + '\n\n' + 
-                              (activeContent.excerpt || '').slice(0, 180) + (activeContent.excerpt ? '...' : '') + '\n\nRead here: ' + 
-                              window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8)
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setShowShareMenu(false)}
-                            className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                    <AnimatePresence>
+                      {showShareMenu && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowShareMenu(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            className="absolute bottom-full mb-2 right-0 z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden py-1.5"
                           >
-                            <svg className="w-4 h-4 mr-3 text-[#25D366]" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.216 3.076.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            WhatsApp
-                          </a>
-                          <a
-                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                              activeContent.title + ' - ' + (activeContent.excerpt || '').slice(0, 100) + '...'
-                            )}&url=${encodeURIComponent(window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8))}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setShowShareMenu(false)}
-                            className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
-                          >
-                            <svg className="w-4 h-4 mr-3 text-black" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                            </svg>
-                            X (Twitter)
-                          </a>
-                          <button
-                            onClick={async () => {
-                              const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id.slice(0, 8)}`
-                              try {
-                                await navigator.clipboard.writeText(shareUrl)
-                                setCopied(true)
-                                setTimeout(() => setCopied(false), 2000)
-                              } catch (err) {
-                                console.error('Failed to copy text: ', err)
-                              }
-                              setShowShareMenu(false)
-                            }}
-                            className="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold text-left"
-                          >
-                            {copied ? (
-                              <>
-                                <Check className="w-4 h-4 mr-3 text-emerald-600" />
-                                <span className="text-emerald-600">Link Copied!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4 mr-3 text-slate-500" />
-                                Copy Link
-                              </>
-                            )}
-                          </button>
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
+                            <a
+                              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                                activeContent.title + '\n\n' + 
+                                (activeContent.excerpt || '').slice(0, 180) + (activeContent.excerpt ? '...' : '') + '\n\nRead here: ' + 
+                                window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8)
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setShowShareMenu(false)}
+                              className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                            >
+                              <svg className="w-4 h-4 mr-3 text-[#25D366]" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.216 3.076.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                              </svg>
+                              WhatsApp
+                            </a>
+                            <a
+                              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                                activeContent.title + ' - ' + (activeContent.excerpt || '').slice(0, 100) + '...'
+                              )}&url=${encodeURIComponent(window.location.origin + '/parliamentary-updates?id=' + activeContent._id.slice(0, 8))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setShowShareMenu(false)}
+                              className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                            >
+                              <svg className="w-4 h-4 mr-3 text-black" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                              </svg>
+                              X (Twitter)
+                            </a>
+                            <button
+                              onClick={async () => {
+                                const shareUrl = `${window.location.origin}/parliamentary-updates?id=${activeContent._id.slice(0, 8)}`
+                                try {
+                                  await navigator.clipboard.writeText(shareUrl)
+                                  setCopied(true)
+                                  setTimeout(() => setCopied(false), 2000)
+                                } catch (err) {
+                                  console.error('Failed to copy text: ', err)
+                                }
+                                setShowShareMenu(false)
+                              }}
+                              className="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold text-left"
+                            >
+                              {copied ? (
+                                <>
+                                  <Check className="w-4 h-4 mr-3 text-emerald-600" />
+                                  <span className="text-emerald-600">Link Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4 mr-3 text-slate-500" />
+                                  Copy Link
+                                </>
+                              )}
+                            </button>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
             </motion.div>

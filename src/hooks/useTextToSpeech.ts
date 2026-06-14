@@ -7,6 +7,7 @@ export type SpeechState = 'idle' | 'playing' | 'paused'
 export function useTextToSpeech(text: string, lang: 'en' | 'te') {
   const [state, setState] = useState<SpeechState>('idle')
   const [supported, setSupported] = useState(false)
+  const [currentCharIndex, setCurrentCharIndex] = useState<number>(-1)
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export function useTextToSpeech(text: string, lang: 'en' | 'te') {
     // Handle end, error, and boundary events
     utterance.onend = () => {
       setState('idle')
+      setCurrentCharIndex(-1)
     }
 
     utterance.onerror = (e) => {
@@ -107,6 +109,13 @@ export function useTextToSpeech(text: string, lang: 'en' | 'te') {
         console.warn('SpeechSynthesis error:', e)
       }
       setState('idle')
+      setCurrentCharIndex(-1)
+    }
+
+    utterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        setCurrentCharIndex(event.charIndex)
+      }
     }
 
     setState('playing')
@@ -123,6 +132,7 @@ export function useTextToSpeech(text: string, lang: 'en' | 'te') {
     if (!supported) return
     window.speechSynthesis.cancel()
     setState('idle')
+    setCurrentCharIndex(-1)
   }
 
   return {
@@ -130,6 +140,7 @@ export function useTextToSpeech(text: string, lang: 'en' | 'te') {
     pause,
     stop,
     state,
-    supported
+    supported,
+    currentCharIndex
   }
 }

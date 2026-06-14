@@ -265,9 +265,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
 
   // General Buttons & Fallbacks
   'button.watchSpeech': {
-    en: 'Watch Speech',
-    te: 'ప్రసంగం చూడండి',
-    ten: 'Speech చూడండి'
+    en: 'Watch Video',
+    te: 'వీడియో చూడండి',
+    ten: 'Video చూడండి'
   },
   'button.send': {
     en: 'Send Message',

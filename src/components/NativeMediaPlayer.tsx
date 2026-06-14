@@ -10,15 +10,23 @@ interface NativeMediaPlayerProps {
 export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps) {
   if (!url) return null
 
-  // 1. YouTube link detection
-  const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
-  const ytMatch = url.match(ytRegExp)
-  const isYouTube = ytMatch && ytMatch[2].length === 11
-  const ytId = isYouTube ? ytMatch[2] : null
+  // 1. YouTube link detection (supporting watch, embed, share, and shorts links)
+  const getYouTubeId = (link: string) => {
+    if (!link) return null
+    // Shorts link detection (precisely matching 11 character YouTube video IDs)
+    const shortsMatch = link.match(/(?:youtube\.com\/shorts\/|youtu\.be\/shorts\/)([a-zA-Z0-9_-]{11})/)
+    if (shortsMatch) return shortsMatch[1]
+    // Standard watch/embed detection
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+    const match = link.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : null
+  }
 
-  // 2. Instagram link detection
-  // Matches urls like: https://www.instagram.com/p/C-xyz123/ or https://www.instagram.com/reel/C-xyz123/
-  const igRegExp = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel)\/([^/?#&]+)/
+  const ytId = getYouTubeId(url)
+  const isYouTube = !!ytId
+
+  // 2. Instagram link detection (supporting posts, reels, and TV links)
+  const igRegExp = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|reel|reels|tv)\/([a-zA-Z0-9_-]+)/
   const igMatch = url.match(igRegExp)
   const isInstagram = !!igMatch
   const igCode = isInstagram ? igMatch[1] : null
@@ -48,7 +56,7 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
         <span className="block text-[10px] font-black text-pink-600 uppercase tracking-widest">
           Social Update
         </span>
-        <div className="relative w-full aspect-square md:aspect-[4/5] max-h-[520px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-50 flex justify-center z-0">
+        <div className="relative w-full max-w-[480px] mx-auto h-[480px] sm:h-[580px] md:h-[660px] rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-50 flex justify-center z-0">
           <iframe
             src={`https://www.instagram.com/p/${igCode}/embed`}
             title={title || "Instagram post player"}
