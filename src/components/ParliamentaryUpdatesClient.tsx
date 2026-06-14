@@ -229,11 +229,18 @@ ${siteUrl}
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      if (historyPushedRef.current.media) {
+      const state = event.state
+      if (state?.type === 'activeMedia') {
+        historyPushedRef.current.media = true
+        historyPushedRef.current.content = true
+      } else if (state?.type === 'activeContent') {
         historyPushedRef.current.media = false
+        historyPushedRef.current.content = true
         setActiveMedia(null)
-      } else if (historyPushedRef.current.content) {
+      } else {
+        historyPushedRef.current.media = false
         historyPushedRef.current.content = false
+        setActiveMedia(null)
         setActiveContent(null)
       }
     }
