@@ -87,7 +87,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
             <h2 className="text-lg font-bold text-navy-900">{t('contact.addresses')}</h2>
             
             {/* Delhi Office */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-saffron-200 transition-colors text-left">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/80 transition-all duration-300 text-left">
               <span className="text-xs font-bold text-saffron-600 tracking-wider uppercase block mb-2">{t('contact.delhiTitle')}</span>
               <h3 className="text-sm font-bold text-navy-900 mb-3">{t('contact.delhiSubtitle')}</h3>
               <ul className="space-y-3 text-xs text-slate-500">
@@ -107,7 +107,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
             </div>
 
             {/* State Headquarters */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-saffron-200 transition-colors text-left">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/80 transition-all duration-300 text-left">
               <span className="text-xs font-bold text-saffron-600 tracking-wider uppercase block mb-2">{t('contact.stateTitle')}</span>
               <h3 className="text-sm font-bold text-navy-900 mb-3">{t('contact.stateSubtitle')}</h3>
               <ul className="space-y-3 text-xs text-slate-500">
@@ -127,7 +127,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
             </div>
 
             {/* Social Media Channels */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-saffron-200 transition-colors text-left">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:scale-[1.01] hover:shadow-md hover:border-saffron-400/80 transition-all duration-300 text-left">
               <span className="text-xs font-bold text-saffron-600 tracking-wider uppercase block mb-2">Social Connect</span>
               <h3 className="text-sm font-bold text-navy-900 mb-4">Official Channels</h3>
               <div className="flex items-center space-x-3.5">

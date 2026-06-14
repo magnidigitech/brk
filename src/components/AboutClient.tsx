@@ -141,8 +141,8 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
         </div>
 
         {/* Profile Card & Bio with TDP Yellow Frame Accents */}
-        <div className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-md grid grid-cols-1 md:grid-cols-3 mb-16 relative">
-          <div className="bg-saffron-400 p-8 flex flex-col justify-between text-navy-900 md:col-span-1 relative">
+        <div className="bg-white border-2 border-slate-200/80 rounded-3xl overflow-hidden shadow-md hover:shadow-lg hover:scale-[1.005] hover:border-saffron-300/60 transition-all duration-300 grid grid-cols-1 md:grid-cols-3 mb-16 relative">
+          <div className="bg-gradient-to-br from-saffron-300 via-saffron-400 to-saffron-500 p-8 flex flex-col justify-between text-navy-900 md:col-span-1 relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
             <div>
               <h2 className="text-2xl font-black tracking-wide mb-6 text-navy-900">{profileShortName}</h2>
@@ -218,7 +218,7 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
               <motion.div
                 key={idx}
                 whileHover={{ y: -3 }}
-                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-300 transition-colors"
+                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-start space-x-3 hover:border-saffron-400 hover:shadow-md transition-all duration-300"
               >
                 <CheckCircle2 className="w-5 h-5 text-saffron-600 shrink-0 mt-0.5" />
                 <span className="text-slate-700 text-xs font-semibold leading-relaxed">{area}</span>
@@ -235,10 +235,16 @@ export default function AboutClient({ data, siteSettings }: AboutClientProps) {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             {displayValues.map((v, idx) => (
-              <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm text-center hover:border-saffron-300 transition-colors">
-                <span className="block font-bold text-navy-900 text-sm mb-2">{v.name}</span>
-                <p className="text-slate-500 text-[10px] leading-relaxed">{v.desc}</p>
-              </div>
+              <motion.div
+                key={idx}
+                whileHover={{ y: -4 }}
+                className="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm text-center hover:border-saffron-400/80 hover:shadow-md transition-all duration-300 relative overflow-hidden group/val"
+              >
+                {/* Subtle top saffron indicator bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-400 opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                <span className="block font-extrabold text-navy-900 text-sm mb-2">{v.name}</span>
+                <p className="text-slate-500 text-[10px] leading-relaxed font-medium">{v.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>

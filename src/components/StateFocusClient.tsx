@@ -85,7 +85,9 @@ export default function StateFocusClient({ sectors }: StateFocusClientProps) {
             return (
               <div 
                 key={sec._id}
-                className="bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-saffron-400 relative"
+                className={`bg-white border-2 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 relative hover:scale-[1.01] hover:shadow-md ${
+                  isExpanded ? 'border-saffron-500' : 'border-slate-200 hover:border-saffron-400/80'
+                }`}
               >
                 {isExpanded && <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-500"></div>}
                 <button
