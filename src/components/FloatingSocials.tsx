@@ -7,17 +7,50 @@ import { usePathname } from 'next/navigation'
 
 export default function FloatingSocials() {
   const pathname = usePathname()
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+
+  // Auto-close if we shift away from home page
+  useEffect(() => {
+    if (pathname !== '/') {
+      setIsVisible(false)
+    }
+  }, [pathname])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false)
-    }, 10000) // 10 seconds auto-dismiss
+    if (typeof window === 'undefined') return
+    if (pathname !== '/') return
 
-    return () => clearTimeout(timer)
-  }, [])
+    // 1. Check if permanently dismissed
+    const isPermanentlyDismissed = localStorage.getItem('socials-prompt-dismissed-permanently') === 'true'
+    if (isPermanentlyDismissed) return
 
-  if (pathname.startsWith('/admin')) {
+    // 2. Check if already shown in this session (fresh load check)
+    const isShownThisSession = sessionStorage.getItem('socials-prompt-session-shown') === 'true'
+    if (isShownThisSession) return
+
+    // Show prompt
+    setIsVisible(true)
+    sessionStorage.setItem('socials-prompt-session-shown', 'true')
+  }, [pathname])
+
+  // 5 seconds auto-dismiss
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        setIsVisible(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [isVisible])
+
+  const handleDismiss = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('socials-prompt-dismissed-permanently', 'true')
+    }
+    setIsVisible(false)
+  }
+
+  if (pathname !== '/' || !isVisible) {
     return null
   }
 
@@ -33,7 +66,7 @@ export default function FloatingSocials() {
         >
           {/* Close button */}
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={handleDismiss}
             className="absolute -top-2 -right-2 w-6 h-6 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center border border-slate-200 transition-colors shadow-sm cursor-pointer"
             aria-label="Dismiss"
           >

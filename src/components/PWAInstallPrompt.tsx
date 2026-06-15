@@ -13,11 +13,41 @@ export default function PWAInstallPrompt() {
   const [isAndroid, setIsAndroid] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
 
+  // Auto-close if we shift away from home page
+  useEffect(() => {
+    if (pathname !== '/') {
+      setShowPrompt(false)
+    }
+  }, [pathname])
+
+  // 5 seconds auto-dismiss
+  useEffect(() => {
+    if (showPrompt) {
+      const timer = setTimeout(() => {
+        setShowPrompt(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showPrompt])
+
   useEffect(() => {
     // Avoid SSR issues
     if (typeof window === 'undefined') return
+    if (pathname !== '/') return
 
-    // 1. Check if already installed / running in standalone mode
+    // 1. Check if permanently dismissed
+    const isPermanentlyDismissed = localStorage.getItem('pwa-prompt-dismissed-permanently') === 'true'
+    if (isPermanentlyDismissed) {
+      return
+    }
+
+    // 2. Check if already shown in this session (fresh load check)
+    const isShownThisSession = sessionStorage.getItem('pwa-prompt-session-shown') === 'true'
+    if (isShownThisSession) {
+      return
+    }
+
+    // 3. Check if already installed / running in standalone mode
     const isStandalone = 
       window.matchMedia('(display-mode: standalone)').matches || 
       (window.navigator as any).standalone === true
@@ -26,63 +56,59 @@ export default function PWAInstallPrompt() {
       return
     }
 
-    // 2. Check if dismissed recently (7 days)
-    const dismissedTime = localStorage.getItem('pwa-install-prompt-dismissed')
-    const isDismissed = dismissedTime 
-      ? Date.now() - parseInt(dismissedTime, 10) < 7 * 24 * 60 * 60 * 1000 
-      : false
-
-    if (isDismissed) {
-      return
-    }
-
-    // 3. Detect Platform
+    // 4. Detect Platform
     const userAgent = window.navigator.userAgent.toLowerCase()
-    const isIPhoneOrIPad = /iphone|ipad|ipod/.test(userAgent)
     const isAndroidUA = /android/.test(userAgent)
-    const isMobileDevice = isIPhoneOrIPad || isAndroidUA || window.innerWidth < 768
+    const isIPhoneOrIPad = /iphone|ipad|ipod/.test(userAgent)
 
-    if (!isMobileDevice) {
-      return
-    }
-
-    if (isIPhoneOrIPad) {
-      setIsIOS(true)
-      // For iOS Safari, show the instruction prompt after a short delay to feel less intrusive
-      const timer = setTimeout(() => {
-        setShowPrompt(true)
-      }, 3000)
-      return () => clearTimeout(timer)
-    } else if (isAndroidUA) {
+    // Force Android priority first so we don't accidentally fall back to iOS Safari info
+    if (isAndroidUA) {
       setIsAndroid(true)
+      setIsIOS(false)
 
-      // Listen for the standard browser PWA install event
+      // Listen for standard browser PWA install event
       const handleBeforeInstallPrompt = (e: Event) => {
         e.preventDefault()
         setDeferredPrompt(e)
         setShowPrompt(true)
+        sessionStorage.setItem('pwa-prompt-session-shown', 'true')
       }
 
       window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
       // Fallback: show Android manual steps if beforeinstallprompt is not fired after 5s
       const timer = setTimeout(() => {
-        // Only show if not already shown and not standalone/dismissed
         setShowPrompt(true)
+        sessionStorage.setItem('pwa-prompt-session-shown', 'true')
       }, 5000)
 
       return () => {
         window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
         clearTimeout(timer)
       }
-    } else {
-      // General mobile fallback
+    } else if (isIPhoneOrIPad) {
+      setIsIOS(true)
+      setIsAndroid(false)
+      // For iOS Safari, show the instruction prompt after a short delay to feel less intrusive
       const timer = setTimeout(() => {
         setShowPrompt(true)
+        sessionStorage.setItem('pwa-prompt-session-shown', 'true')
+      }, 3000)
+      return () => clearTimeout(timer)
+    } else {
+      // General mobile fallback (simulate Android/Chrome instructions)
+      const isMobileDevice = window.innerWidth < 768
+      if (!isMobileDevice) return
+
+      setIsAndroid(false)
+      setIsIOS(false)
+      const timer = setTimeout(() => {
+        setShowPrompt(true)
+        sessionStorage.setItem('pwa-prompt-session-shown', 'true')
       }, 4000)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [pathname])
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return
@@ -97,12 +123,12 @@ export default function PWAInstallPrompt() {
   }
 
   const handleDismiss = () => {
-    // Store dismiss timestamp in localStorage for 7 days silence
-    localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString())
+    // Store permanent dismiss state in localStorage
+    localStorage.setItem('pwa-prompt-dismissed-permanently', 'true')
     setShowPrompt(false)
   }
 
-  if (pathname.startsWith('/admin') || !showPrompt) return null
+  if (pathname !== '/' || !showPrompt) return null
 
   return (
     <>
