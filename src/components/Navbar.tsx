@@ -285,6 +285,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   }
   const activeIndex = getActiveIndex(pathname)
   const [localActiveIndex, setLocalActiveIndex] = useState(activeIndex)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   // Sync local active index with pathname changes
   useEffect(() => {
@@ -313,14 +314,15 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     return () => observer.disconnect()
   }, [])
 
-  // Update target position based on active index
+  // Update target position based on active index / hover index
   useEffect(() => {
     if (!isDragging && containerWidth > 0) {
       const tabWidth = containerWidth / 5
-      const center = (localActiveIndex + 0.5) * tabWidth
+      const activeIdxToUse = hoveredIndex !== null ? hoveredIndex : localActiveIndex
+      const center = (activeIdxToUse + 0.5) * tabWidth
       targetX.set(center)
     }
-  }, [localActiveIndex, containerWidth, isDragging, targetX])
+  }, [localActiveIndex, hoveredIndex, containerWidth, isDragging, targetX])
 
   // Drag Gesture Handlers
   const handleStart = (clientX: number) => {
@@ -676,7 +678,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         onTouchEnd={handleEnd}
         onMouseDown={(e) => handleStart(e.clientX)}
         onMouseMove={(e) => handleMove(e.clientX)}
-           className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-t border-white/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] select-none"
+        onMouseUp={handleEnd}
+        onMouseLeave={() => {
+          handleEnd()
+          setHoveredIndex(null)
+        }}
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-t border-white/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] select-none"
       >
         <div className="relative flex items-stretch h-16 w-full">
           
@@ -759,6 +766,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                   setLocalActiveIndex(idx)
                   router.push(tab.path)
                 }}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                onFocus={() => setHoveredIndex(idx)}
+                onBlur={() => setHoveredIndex(null)}
                 className={`relative flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors z-10 cursor-pointer ${
                   isTabActive ? 'text-navy-900' : 'text-slate-500 hover:text-slate-800'
                 }`}

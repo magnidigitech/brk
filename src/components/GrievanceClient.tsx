@@ -109,6 +109,7 @@ function GrievancePortal() {
   const [address, setAddress] = useState('')
   const [pincode, setPincode] = useState('')
   const [category, setCategory] = useState(searchParams.get('category') || '')
+  const [categoryExpanded, setCategoryExpanded] = useState(!searchParams.get('category'))
   const [subject, setSubject] = useState('')
   const [description, setDescription] = useState('')
 
@@ -321,6 +322,7 @@ function GrievancePortal() {
     const cat = searchParams.get('category')
     if (cat) {
       setCategory(cat)
+      setCategoryExpanded(false)
     }
   }, [searchParams])
 
@@ -446,6 +448,7 @@ function GrievancePortal() {
         setAddress('')
         setPincode('')
         setCategory('')
+        setCategoryExpanded(true)
         setSubject('')
         setDescription('')
         setUploadedFileName(null)
@@ -476,6 +479,7 @@ function GrievancePortal() {
       setAddress('')
       setPincode('')
       setCategory('')
+      setCategoryExpanded(true)
       setSubject('')
       setDescription('')
       setUploadedFileName(null)
@@ -962,40 +966,83 @@ function GrievancePortal() {
                               {t('grievance.categoryLabel')} *
                             </label>
                             
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                              {categoriesList.map((c) => {
-                                const IconComponent = categoryIcons[c.id] || HelpCircle
-                                const isSelected = category === c.id
-                                return (
-                                  <button
-                                    key={c.id}
-                                    type="button"
-                                    onClick={() => {
-                                      setCategory(c.id)
-                                      setValidationErrors((prev) => {
-                                        const copy = { ...prev }
-                                        delete copy.category
-                                        return copy
-                                      })
-                                    }}
-                                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all cursor-pointer group select-none h-24 ${
-                                      isSelected
-                                        ? 'bg-saffron-50/80 border-saffron-500 text-navy-950 shadow-md shadow-saffron-500/10 ring-2 ring-saffron-500/20'
-                                        : 'bg-white border-slate-200 text-slate-600 hover:border-saffron-300 hover:bg-slate-50/50'
-                                    }`}
-                                  >
-                                    <div className={`p-2 rounded-xl mb-1.5 transition-colors ${
-                                      isSelected ? 'bg-saffron-400 text-navy-950' : 'bg-slate-50 text-slate-500 group-hover:text-saffron-600 group-hover:bg-saffron-50'
-                                    }`}>
-                                      <IconComponent className="w-4 h-4" />
+                            <AnimatePresence mode="wait">
+                              {category && !categoryExpanded ? (
+                                <motion.div
+                                  key="collapsed-category"
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="flex items-center justify-between p-4 rounded-2xl border border-saffron-500 bg-saffron-50/50 shadow-sm"
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className="p-2.5 rounded-xl bg-saffron-400 text-navy-950">
+                                      {(() => {
+                                        const SelectedIcon = categoryIcons[category] || HelpCircle
+                                        return <SelectedIcon className="w-5 h-5" />
+                                      })()}
                                     </div>
-                                    <span className="text-[10px] font-bold tracking-tight leading-snug">
-                                      {c.label}
-                                    </span>
+                                    <div>
+                                      <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider text-left">
+                                        {language === 'te' ? 'ఎంచుకున్న వర్గం' : 'Selected Category'}
+                                      </span>
+                                      <span className="text-sm font-bold text-navy-900 block text-left">
+                                        {categoriesList.find((c) => c.id === category)?.label || category}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setCategoryExpanded(true)}
+                                    className="px-4 py-2 bg-white border border-slate-200 hover:border-saffron-500 hover:bg-saffron-50 text-xs font-bold text-navy-900 rounded-xl transition-all shadow-sm cursor-pointer"
+                                  >
+                                    {language === 'te' ? 'వర్గాన్ని మార్చండి' : 'Change Category'}
                                   </button>
-                                )
-                              })}
-                            </div>
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="expanded-categories"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+                                >
+                                  {categoriesList.map((c) => {
+                                    const IconComponent = categoryIcons[c.id] || HelpCircle
+                                    const isSelected = category === c.id
+                                    return (
+                                      <button
+                                        key={c.id}
+                                        type="button"
+                                        onClick={() => {
+                                          setCategory(c.id)
+                                          setCategoryExpanded(false)
+                                          setValidationErrors((prev) => {
+                                            const copy = { ...prev }
+                                            delete copy.category
+                                            return copy
+                                          })
+                                        }}
+                                        className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all cursor-pointer group select-none h-24 ${
+                                          isSelected
+                                            ? 'bg-saffron-50/80 border-saffron-500 text-navy-950 shadow-md shadow-saffron-500/10 ring-2 ring-saffron-500/20'
+                                            : 'bg-white border-slate-200 text-slate-600 hover:border-saffron-300 hover:bg-slate-50/50'
+                                        }`}
+                                      >
+                                        <div className={`p-2 rounded-xl mb-1.5 transition-colors ${
+                                          isSelected ? 'bg-saffron-400 text-navy-950' : 'bg-slate-50 text-slate-500 group-hover:text-saffron-600 group-hover:bg-saffron-50'
+                                        }`}>
+                                          <IconComponent className="w-4 h-4" />
+                                        </div>
+                                        <span className="text-[10px] font-bold tracking-tight leading-snug">
+                                          {c.label}
+                                        </span>
+                                      </button>
+                                    )
+                                  })}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                             {validationErrors.category && (
                               <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.category}</span>
                             )}
