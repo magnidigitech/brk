@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import AIAssistant from '@/components/AIAssistant'
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
 
 // Fetch site settings server-side so Navbar and Footer never need client-side Sanity calls
@@ -30,6 +31,7 @@ export default async function PublicLayout({
       <Navbar siteSettings={siteSettings} />
       <main className="flex-grow">{children}</main>
       <Footer siteSettings={siteSettings} />
+      <AIAssistant siteSettings={siteSettings} />
     </>
   )
 }
