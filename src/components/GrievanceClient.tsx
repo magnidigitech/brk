@@ -24,7 +24,16 @@ import {
   ChevronRight,
   X,
   Mic,
-  MicOff
+  MicOff,
+  Wrench,
+  Droplet,
+  Wheat,
+  HeartPulse,
+  GraduationCap,
+  Wifi,
+  Lightbulb,
+  Users,
+  Briefcase
 } from 'lucide-react'
 
 // Simple client-side canvas-confetti import
@@ -127,11 +136,27 @@ function GrievancePortal() {
   // Mock File Upload state for visual premium feel
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
   
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [consentChecked, setConsentChecked] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const [submitSuccess, setSubmitSuccess] = useState<null | { id: string }>(null)
   const [copied, setCopied] = useState(false)
+
+  // Map category ids to Lucide Icons
+  const categoryIcons: Record<string, any> = {
+    infra: Wrench,
+    water: Droplet,
+    agri: Wheat,
+    health: HeartPulse,
+    edu: GraduationCap,
+    digital: Wifi,
+    power: Lightbulb,
+    welfare: Users,
+    employ: Briefcase,
+    admin: Building,
+    other: HelpCircle
+  }
 
   // Pincode dynamic lookup states
   interface PincodeRec {
@@ -306,32 +331,70 @@ function GrievancePortal() {
     router.push(`/grievance?tab=${tab}`, { scroll: false })
   }
 
+  // Validate specific step
+  const validateStep = (step: number) => {
+    const errors: Record<string, string> = {}
+    
+    if (step >= 1) {
+      if (!name.trim()) errors.name = t('validation.nameRequired')
+      if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) errors.email = t('validation.emailInvalid')
+      if (!phone.trim() || !/^\+?[0-9]{10,14}$/.test(phone.replace(/[\s-]/g, ''))) {
+        errors.phone = t('validation.phoneInvalid')
+      }
+    }
+    
+    if (step >= 2) {
+      if (!pincode.trim() || !/^\d{6}$/.test(pincode)) {
+        errors.pincode = t('validation.pincodeInvalid')
+      } else if (!villageWard.trim() || !stateName.trim() || !district.trim()) {
+        errors.pincode = 'Please select a village/area matching this pincode'
+      }
+    }
+    
+    if (step >= 3) {
+      if (!category) errors.category = t('validation.categoryRequired')
+      if (!subject.trim()) errors.subject = t('validation.subjectRequired')
+      if (!description.trim() || description.length < 20) {
+        errors.description = t('validation.descriptionRequired')
+      }
+    }
+    
+    const stepErrors: Record<string, string> = {}
+    if (step === 1) {
+      if (errors.name) stepErrors.name = errors.name
+      if (errors.email) stepErrors.email = errors.email
+      if (errors.phone) stepErrors.phone = errors.phone
+    } else if (step === 2) {
+      if (errors.pincode) stepErrors.pincode = errors.pincode
+    } else if (step === 3) {
+      if (errors.category) stepErrors.category = errors.category
+      if (errors.subject) stepErrors.subject = errors.subject
+      if (errors.description) stepErrors.description = errors.description
+    }
+    
+    setValidationErrors(stepErrors)
+    return Object.keys(stepErrors).length === 0
+  }
+
   // Validate form
   const validateForm = () => {
-    const errors: Record<string, string> = {}
-    if (!name.trim()) errors.name = t('validation.nameRequired')
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) errors.email = t('validation.emailInvalid')
-    if (!phone.trim() || !/^\+?[0-9]{10,14}$/.test(phone.replace(/[\s-]/g, ''))) {
-      errors.phone = t('validation.phoneInvalid')
-    }
-    if (!pincode.trim() || !/^\d{6}$/.test(pincode)) {
-      errors.pincode = t('validation.pincodeInvalid')
-    } else if (!villageWard.trim() || !stateName.trim() || !district.trim()) {
-      errors.pincode = 'Please select a village/area matching this pincode'
-    }
-    if (!category) errors.category = t('validation.categoryRequired')
-    if (!subject.trim()) errors.subject = t('validation.subjectRequired')
-    if (!description.trim() || description.length < 20) {
-      errors.description = t('validation.descriptionRequired')
-    }
-    setValidationErrors(errors)
-    return Object.keys(errors).length === 0
+    return validateStep(1) && validateStep(2) && validateStep(3)
   }
 
   // Submit Grievance Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm()) return
+    if (!validateStep(1)) {
+      setCurrentStep(1)
+      return
+    }
+    if (!validateStep(2)) {
+      setCurrentStep(2)
+      return
+    }
+    if (!validateStep(3)) {
+      return
+    }
 
     setIsSubmitting(true)
 
@@ -380,6 +443,7 @@ function GrievancePortal() {
         setDescription('')
         setUploadedFileName(null)
         setConsentChecked(false)
+        setCurrentStep(1)
       } else {
         const errorData = await response.json()
         setValidationErrors({ form: errorData.error || 'Submission failed. Please try again.' })
@@ -393,6 +457,23 @@ function GrievancePortal() {
         spread: 70,
         origin: { y: 0.6 }
       })
+      // Clear fields
+      setName('')
+      setEmail('')
+      setPhone('')
+      setStateName('')
+      setDistrict('')
+      setCityTown('')
+      setMandal('')
+      setVillageWard('')
+      setAddress('')
+      setPincode('')
+      setCategory('')
+      setSubject('')
+      setDescription('')
+      setUploadedFileName(null)
+      setConsentChecked(false)
+      setCurrentStep(1)
     } finally {
       setIsSubmitting(false)
     }
@@ -536,7 +617,10 @@ function GrievancePortal() {
                       {t('grievance.trackThisButton')}
                     </button>
                     <button
-                      onClick={() => setSubmitSuccess(null)}
+                      onClick={() => {
+                        setSubmitSuccess(null)
+                        setCurrentStep(1)
+                      }}
                       className="px-6 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-navy-900 rounded-xl text-sm font-bold shadow-sm transition-all"
                     >
                       {t('grievance.submitAnotherButton')}
@@ -546,9 +630,75 @@ function GrievancePortal() {
               ) : (
                 /* Submit Form Card */
                 <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-md">
-                  <div className="flex items-center space-x-2.5 pb-6 border-b border-slate-100 mb-6">
-                    <ShieldCheck className="w-5 h-5 text-saffron-600" />
-                    <h2 className="text-lg font-bold text-navy-900">{t('grievance.formHeader')}</h2>
+                  {/* Sleek Header Progress Tracker */}
+                  <div className="mb-8 border-b border-slate-100 pb-6">
+                    <div className="relative flex items-center justify-between w-full max-w-md mx-auto mb-4">
+                      {/* Connector Line */}
+                      <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-slate-100 -translate-y-1/2 z-0">
+                        <motion.div 
+                          className="h-full bg-saffron-500" 
+                          animate={{ width: `${((currentStep - 1) / 2) * 100}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                      
+                      {[
+                        { number: 1, label: language === 'te' ? 'పౌర గుర్తింపు' : 'Citizen Identity', desc: language === 'te' ? 'పేరు, ఫోన్' : 'Name, Phone' },
+                        { number: 2, label: language === 'te' ? 'భౌగోళిక ప్రాంతం' : 'Geography', desc: language === 'te' ? 'పిన్‌కోడ్, చిరునామా' : 'Pincode, Address' },
+                        { number: 3, label: language === 'te' ? 'సమస్య వివరాలు' : 'Issue Details', desc: language === 'te' ? 'వర్గం, శీర్షిక' : 'Category, Title' }
+                      ].map((s) => {
+                        const isActive = currentStep === s.number
+                        const isCompleted = currentStep > s.number
+                        return (
+                          <div key={s.number} className="flex flex-col items-center relative z-10">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isCompleted || s.number < currentStep) {
+                                  setCurrentStep(s.number as 1 | 2 | 3)
+                                } else if (s.number > currentStep) {
+                                  if (validateStep(currentStep)) {
+                                    setCurrentStep(s.number as 1 | 2 | 3)
+                                  }
+                                }
+                              }}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs border-2 transition-all cursor-pointer ${
+                                isActive
+                                  ? 'bg-navy-900 border-navy-900 text-saffron-500 shadow-md ring-4 ring-navy-900/10'
+                                  : isCompleted
+                                  ? 'bg-saffron-500 border-saffron-500 text-navy-950 shadow-sm'
+                                  : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+                              }`}
+                            >
+                              {isCompleted ? '✓' : s.number}
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    
+                    {/* Step Labels */}
+                    <div className="grid grid-cols-3 text-center max-w-lg mx-auto gap-2">
+                      {[
+                        { number: 1, label: language === 'te' ? 'పౌర గుర్తింపు' : 'Citizen Identity', desc: language === 'te' ? 'పేరు, ఫోన్' : 'Name, Phone' },
+                        { number: 2, label: language === 'te' ? 'భౌగోళిక ప్రాంతం' : 'Geography', desc: language === 'te' ? 'పిన్‌కోడ్, చిరునామా' : 'Pincode, Address' },
+                        { number: 3, label: language === 'te' ? 'సమస్య వివరాలు' : 'Issue Details', desc: language === 'te' ? 'వర్గం, శీర్షిక' : 'Category, Title' }
+                      ].map((s) => {
+                        const isActive = currentStep === s.number
+                        return (
+                          <div key={s.number} className="flex flex-col items-center">
+                            <span className={`text-[11px] sm:text-xs font-bold transition-colors ${
+                              isActive ? 'text-navy-900' : 'text-slate-400'
+                            }`}>
+                              {s.label}
+                            </span>
+                            <span className="text-[9px] font-semibold text-slate-400 mt-0.5 hidden sm:inline">
+                              {s.desc}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
 
                   {validationErrors.form && (
@@ -559,319 +709,442 @@ function GrievancePortal() {
                   )}
 
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Name & Email */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.citizenNameLabel')}
-                        </label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.name ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.citizenNamePlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.name && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.name}</span>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.emailLabel')}
-                        </label>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.email ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.emailPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.email && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.email}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Phone & Category */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.phoneLabel')}
-                        </label>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.phone ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.phonePlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.phone && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.phone}</span>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.categoryLabel')}
-                        </label>
-                        <select
-                          value={category}
-                          onChange={(e) => setCategory(e.target.value)}
-                          className={`w-full px-4 py-3.5 rounded-xl border ${
-                            validationErrors.category ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none text-slate-800`}
-                          disabled={isSubmitting}
+                    <AnimatePresence mode="wait">
+                      {/* Step 1: Citizen Identity */}
+                      {currentStep === 1 && (
+                        <motion.div
+                          key="step1"
+                          initial={{ opacity: 0, x: 15 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
                         >
-                          <option value="">{t('grievance.categorySelect')}</option>
-                          {categoriesList.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.label}
-                            </option>
-                          ))}
-                        </select>
-                        {validationErrors.category && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.category}</span>
-                        )}
-                      </div>
-                    </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                {t('grievance.citizenNameLabel')} *
+                              </label>
+                              <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className={`w-full px-4 py-3 rounded-xl border ${
+                                  validationErrors.name ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                                } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
+                                placeholder={t('grievance.citizenNamePlaceholder')}
+                                disabled={isSubmitting}
+                              />
+                              {validationErrors.name && (
+                                <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.name}</span>
+                              )}
+                            </div>
 
-                    {/* Location Details (Redesigned) */}
-                    <div className="p-6 rounded-2xl border border-slate-100 bg-slate-50/30 space-y-4">
-                      <div className="flex items-center space-x-2.5 pb-2 border-b border-slate-100">
-                        <MapPin className="w-4.5 h-4.5 text-saffron-600 animate-pulse" />
-                        <h3 className="text-sm font-bold text-navy-900">{t('grievance.locationSubheader')}</h3>
-                      </div>
+                            <div>
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                {t('grievance.emailLabel')} *
+                              </label>
+                              <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className={`w-full px-4 py-3 rounded-xl border ${
+                                  validationErrors.email ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                                } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
+                                placeholder={t('grievance.emailPlaceholder')}
+                                disabled={isSubmitting}
+                              />
+                              {validationErrors.email && (
+                                <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.email}</span>
+                              )}
+                            </div>
+                          </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                        {/* Pincode Input */}
-                        <div>
-                          <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                            {t('grievance.pincode')} *
-                          </label>
-                          <div className="relative">
+                          <div>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                              {t('grievance.phoneLabel')} *
+                            </label>
                             <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              value={pincode}
-                              onChange={(e) => {
-                                const val = e.target.value.replace(/\D/g, '').slice(0, 6)
-                                setPincode(val)
-                                if (val.length === 6) {
-                                  e.target.blur()
-                                }
-                              }}
-                              onFocus={handlePincodeClear}
+                              type="tel"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
                               className={`w-full px-4 py-3 rounded-xl border ${
-                                validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                              } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
-                              placeholder={t('grievance.pincodePlaceholder')}
+                                validationErrors.phone ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                              } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
+                              placeholder={t('grievance.phonePlaceholder')}
                               disabled={isSubmitting}
                             />
-                            {isLoadingPincode && (
-                              <div className="absolute right-3 top-3 flex items-center justify-center">
-                                <RefreshCw className="w-4 h-4 text-saffron-500 animate-spin" />
-                              </div>
-                            )}
-                            {!isLoadingPincode && pincodeRecords.length > 0 && /^\d{6}$/.test(pincode) && (
-                              <div className="absolute right-3 top-3 flex items-center justify-center">
-                                <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Found</span>
-                              </div>
+                            {validationErrors.phone && (
+                              <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.phone}</span>
                             )}
                           </div>
-                          {validationErrors.pincode && (
-                            <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.pincode}</span>
-                          )}
-                        </div>
 
-                        {/* Selected Location Card */}
-                        {villageWard && district && stateName ? (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="p-4 rounded-xl border border-slate-100 bg-white flex items-center justify-between shadow-sm relative overflow-hidden group"
-                          >
-                            <div className="flex items-start space-x-3">
-                              <Building className="w-5 h-5 text-saffron-500 mt-0.5 shrink-0" />
-                              <div>
-                                <h4 className="text-sm font-bold text-navy-900">{villageWard}</h4>
-                                <p className="text-xs text-slate-400 font-medium">
-                                  {district} District, {stateName}
-                                </p>
-                              </div>
-                            </div>
+                          <div className="flex justify-end pt-4 border-t border-slate-100">
                             <button
                               type="button"
                               onClick={() => {
-                                setManualLocationMode(false)
-                                setShowLocationModal(true)
-                              }}
-                              className="px-3 py-1.5 rounded-lg bg-saffron-500/10 hover:bg-saffron-500 hover:text-navy-900 text-[10px] font-bold text-saffron-600 transition-all cursor-pointer font-sans"
-                            >
-                              {t('grievance.changeLocation')}
-                            </button>
-                          </motion.div>
-                        ) : (
-                          <div className="p-4 rounded-xl border border-dashed border-slate-200 bg-white text-center py-6">
-                            <span className="text-xs text-slate-400 font-medium leading-relaxed block">
-                              Enter a valid 6-digit Pincode to choose your village / location.
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Subject & Description */}
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                          {t('grievance.subjectLabel')}
-                        </label>
-                        <input
-                          type="text"
-                          value={subject}
-                          onChange={(e) => setSubject(e.target.value)}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.subject ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.subjectPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.subject && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.subject}</span>
-                        )}
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider">
-                            {t('grievance.descriptionLabel')}
-                          </label>
-                          {sttSupported && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (isListening) {
-                                  stopListening()
-                                } else {
-                                  startListening()
+                                if (validateStep(1)) {
+                                  setCurrentStep(2)
                                 }
                               }}
-                              className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border ${
-                                isListening 
-                                  ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse border-rose-600' 
-                                  : 'bg-slate-100 hover:bg-slate-200 text-navy-900 border-slate-200'
-                              }`}
+                              className="px-6 py-3 bg-navy-900 hover:bg-navy-950 text-white rounded-xl text-sm font-bold shadow-md transition-all flex items-center space-x-1.5 cursor-pointer"
                             >
-                              {isListening ? (
+                              <span>{language === 'te' ? 'తరువాతి దశ' : 'Next Step'}</span>
+                              <ChevronRight className="w-4 h-4 text-saffron-400" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Step 2: Geography */}
+                      {currentStep === 2 && (
+                        <motion.div
+                          key="step2"
+                          initial={{ opacity: 0, x: 15 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Pincode Input */}
+                            <div>
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                {t('grievance.pincode')} *
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  value={pincode}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+                                    setPincode(val)
+                                    if (val.length === 6) {
+                                      e.target.blur()
+                                    }
+                                  }}
+                                  onFocus={handlePincodeClear}
+                                  className={`w-full px-4 py-3 rounded-xl border ${
+                                    validationErrors.pincode ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                                  } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none pr-20`}
+                                  placeholder={t('grievance.pincodePlaceholder')}
+                                  disabled={isSubmitting}
+                                />
+                                {isLoadingPincode && (
+                                  <div className="absolute right-3 top-3 flex items-center justify-center">
+                                    <RefreshCw className="w-4 h-4 text-saffron-500 animate-spin" />
+                                  </div>
+                                )}
+                                {!isLoadingPincode && pincodeRecords.length > 0 && /^\d{6}$/.test(pincode) && (
+                                  <div className="absolute right-3 top-3 flex items-center justify-center">
+                                    <span className="text-emerald-600 text-[10px] font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">✓ Found</span>
+                                  </div>
+                                )}
+                              </div>
+                              {validationErrors.pincode && (
+                                <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.pincode}</span>
+                              )}
+                            </div>
+
+                            {/* Selected Location Details */}
+                            {villageWard && district && stateName ? (
+                              <div>
+                                <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                  {language === 'te' ? 'ఎంచుకున్న ప్రాంతం' : 'Selected Location'}
+                                </label>
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    readOnly
+                                    value={`${villageWard}, ${district} District, ${stateName}`}
+                                    onClick={() => {
+                                      setManualLocationMode(false)
+                                      setShowLocationModal(true)
+                                    }}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-saffron-400 transition-all text-sm outline-none cursor-pointer text-navy-900 font-bold pr-10"
+                                    title="Click to select another area"
+                                  />
+                                  <MapPin className="w-4.5 h-4.5 text-saffron-500 absolute right-3.5 top-3.5 pointer-events-none" />
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                  {language === 'te' ? 'స్థానం' : 'Location'}
+                                </label>
+                                <input
+                                  type="text"
+                                  readOnly
+                                  value="Enter pincode to choose location"
+                                  className="w-full px-4 py-3 rounded-xl border border-dashed border-slate-200 bg-white text-sm text-slate-400 font-medium outline-none"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Address & Mandal Optional Inputs */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                {language === 'te' ? 'మండలం (ఐచ్ఛికం)' : 'Mandal (Optional)'}
+                              </label>
+                              <input
+                                type="text"
+                                value={mandal}
+                                onChange={(e) => setMandal(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                                placeholder={language === 'te' ? 'మండలం పేరు' : 'Mandal name'}
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                                {language === 'te' ? 'నిర్దిష్ట చిరునామా (ఐచ్ఛికం)' : 'Specific Address (Optional)'}
+                              </label>
+                              <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white transition-all text-sm outline-none"
+                                placeholder={language === 'te' ? 'ఇంటి నంబరు, వీధి లేదా మైలురాయి' : 'House No, Street, or Landmark'}
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between pt-4 border-t border-slate-100 gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(1)}
+                              className="px-6 py-3 border border-slate-200 hover:bg-slate-50 text-navy-900 rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer"
+                            >
+                              {language === 'te' ? 'వెనుకకు' : 'Back'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (validateStep(2)) {
+                                  setCurrentStep(3)
+                                }
+                              }}
+                              className="px-6 py-3 bg-navy-900 hover:bg-navy-950 text-white rounded-xl text-sm font-bold shadow-md transition-all flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span>{language === 'te' ? 'తరువాతి దశ' : 'Next Step'}</span>
+                              <ChevronRight className="w-4 h-4 text-saffron-400" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Step 3: Issue Details & Files */}
+                      {currentStep === 3 && (
+                        <motion.div
+                          key="step3"
+                          initial={{ opacity: 0, x: 15 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -15 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-6"
+                        >
+                          {/* Visual Category Selection Cards Grid */}
+                          <div>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-3">
+                              {t('grievance.categoryLabel')} *
+                            </label>
+                            
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {categoriesList.map((c) => {
+                                const IconComponent = categoryIcons[c.id] || HelpCircle
+                                const isSelected = category === c.id
+                                return (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setCategory(c.id)
+                                      setValidationErrors((prev) => {
+                                        const copy = { ...prev }
+                                        delete copy.category
+                                        return copy
+                                      })
+                                    }}
+                                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all cursor-pointer group select-none h-24 ${
+                                      isSelected
+                                        ? 'bg-saffron-50/80 border-saffron-500 text-navy-950 shadow-md shadow-saffron-500/10 ring-2 ring-saffron-500/20'
+                                        : 'bg-white border-slate-200 text-slate-600 hover:border-saffron-300 hover:bg-slate-50/50'
+                                    }`}
+                                  >
+                                    <div className={`p-2 rounded-xl mb-1.5 transition-colors ${
+                                      isSelected ? 'bg-saffron-400 text-navy-950' : 'bg-slate-50 text-slate-500 group-hover:text-saffron-600 group-hover:bg-saffron-50'
+                                    }`}>
+                                      <IconComponent className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-[10px] font-bold tracking-tight leading-snug">
+                                      {c.label}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                            {validationErrors.category && (
+                              <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.category}</span>
+                            )}
+                          </div>
+
+                          {/* Subject */}
+                          <div>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                              {t('grievance.subjectLabel')} *
+                            </label>
+                            <input
+                              type="text"
+                              value={subject}
+                              onChange={(e) => setSubject(e.target.value)}
+                              className={`w-full px-4 py-3 rounded-xl border ${
+                                validationErrors.subject ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                              } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
+                              placeholder={t('grievance.subjectPlaceholder')}
+                              disabled={isSubmitting}
+                            />
+                            {validationErrors.subject && (
+                              <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.subject}</span>
+                            )}
+                          </div>
+
+                          {/* Description */}
+                          <div>
+                            <div className="flex justify-between items-center mb-2">
+                              <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider">
+                                {t('grievance.descriptionLabel')} *
+                              </label>
+                              {sttSupported && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (isListening) {
+                                      stopListening()
+                                    } else {
+                                      startListening()
+                                    }
+                                  }}
+                                  className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border ${
+                                    isListening 
+                                      ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse border-rose-600' 
+                                      : 'bg-slate-100 hover:bg-slate-200 text-navy-900 border-slate-200'
+                                  }`}
+                                >
+                                  {isListening ? (
+                                    <>
+                                      <MicOff className="w-3.5 h-3.5" />
+                                      <span>{language === 'te' ? 'ఆపండి' : 'Stop Voice'}</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Mic className="w-3.5 h-3.5 text-saffron-600" />
+                                      <span>{language === 'te' ? 'వాయిస్ ద్వారా రాయండి' : 'Write with Voice'}</span>
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                            <textarea
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows={5}
+                              className={`w-full px-4 py-3 rounded-xl border ${
+                                validationErrors.description ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
+                              } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
+                              placeholder={t('grievance.descriptionPlaceholder')}
+                              disabled={isSubmitting}
+                            />
+                            {validationErrors.description && (
+                              <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.description}</span>
+                            )}
+                          </div>
+
+                          {/* Mock Document Upload */}
+                          <div>
+                            <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
+                              {t('grievance.uploadDocLabel')}
+                            </label>
+                            <div className="flex items-center justify-center w-full">
+                              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 hover:border-navy-900 rounded-xl bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all">
+                                <div className="flex flex-col items-center justify-center pt-4 pb-5">
+                                  <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                                  <p className="text-xs text-slate-500 font-bold mb-1">
+                                    {uploadedFileName ? `${t('grievance.copied') === 'కాపీ చేయబడింది!' ? 'ఎంచుకోబడింది' : 'Selected'}: ${uploadedFileName}` : t('grievance.dragDropText')}
+                                  </p>
+                                  <p className="text-[10px] text-slate-400">{t('grievance.dragDropSub')}</p>
+                                </div>
+                                <input 
+                                  type="file" 
+                                  className="hidden" 
+                                  onChange={handleFileChange} 
+                                  disabled={isSubmitting}
+                                />
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* DPDP Compliance Checkbox */}
+                          <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                            <input
+                              id="dpdp-consent-check"
+                              type="checkbox"
+                              checked={consentChecked}
+                              onChange={(e) => setConsentChecked(e.target.checked)}
+                              className="w-4 h-4 mt-0.5 border-slate-300 rounded text-saffron-600 focus:ring-saffron-500 cursor-pointer"
+                              disabled={isSubmitting}
+                            />
+                            <label htmlFor="dpdp-consent-check" className="text-xs text-slate-600 font-bold select-none cursor-pointer leading-normal text-left">
+                              {t('dpdp.consent')}
+                            </label>
+                          </div>
+
+                          {/* Privacy Indicator Badge */}
+                          <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs text-slate-600 flex items-start leading-normal text-left">
+                            <ShieldCheck className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-bold text-emerald-800 block mb-0.5">
+                                {language === 'te' ? 'భద్రతా హామీ' : 'DPDP Compliant & Encrypted'}
+                              </span>
+                              <span>{t('dpdp.privacyBadge')}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between pt-4 border-t border-slate-100 gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setCurrentStep(2)}
+                              disabled={isSubmitting}
+                              className="px-6 py-3 border border-slate-200 hover:bg-slate-50 text-navy-900 rounded-xl text-sm font-bold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            >
+                              {language === 'te' ? 'వెనుకకు' : 'Back'}
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={isSubmitting || !consentChecked}
+                              className="flex-1 py-4 bg-saffron-400 text-navy-950 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
+                            >
+                              {isSubmitting ? (
                                 <>
-                                  <MicOff className="w-3.5 h-3.5" />
-                                  <span>{language === 'te' ? 'ఆపండి' : 'Stop Voice'}</span>
+                                  <RefreshCw className="w-4.5 h-4.5 animate-spin text-navy-950" />
+                                  <span>{t('grievance.submittingText')}</span>
                                 </>
                               ) : (
                                 <>
-                                  <Mic className="w-3.5 h-3.5 text-saffron-600" />
-                                  <span>{language === 'te' ? 'వాయిస్ ద్వారా రాయండి' : 'Write with Voice'}</span>
+                                  <Send className="w-4.5 h-4.5 text-navy-950" />
+                                  <span>{t('grievance.submitButton')}</span>
                                 </>
                               )}
                             </button>
-                          )}
-                        </div>
-                        <textarea
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          rows={5}
-                          className={`w-full px-4 py-3 rounded-xl border ${
-                            validationErrors.description ? 'border-rose-400 bg-rose-50/10' : 'border-slate-200 bg-slate-50/50'
-                          } focus:border-navy-900 focus:bg-white transition-all text-sm outline-none`}
-                          placeholder={t('grievance.descriptionPlaceholder')}
-                          disabled={isSubmitting}
-                        />
-                        {validationErrors.description && (
-                          <span className="text-rose-500 text-xs font-medium mt-1.5 block">{validationErrors.description}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Mock Document Upload */}
-                    <div>
-                      <label className="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-2">
-                        {t('grievance.uploadDocLabel')}
-                      </label>
-                      <div className="flex items-center justify-center w-full">
-                        <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-300 hover:border-navy-900 rounded-xl bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                            <p className="text-xs text-slate-500 font-bold mb-1">
-                              {uploadedFileName ? `${t('grievance.copied') === 'కాపీ చేయబడింది!' ? 'ఎంచుకోబడింది' : 'Selected'}: ${uploadedFileName}` : t('grievance.dragDropText')}
-                            </p>
-                            <p className="text-[10px] text-slate-400">{t('grievance.dragDropSub')}</p>
                           </div>
-                          <input 
-                            type="file" 
-                            className="hidden" 
-                            onChange={handleFileChange} 
-                            disabled={isSubmitting}
-                          />
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* DPDP Compliance Checkbox */}
-                    <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                      <input
-                        id="dpdp-consent-check"
-                        type="checkbox"
-                        checked={consentChecked}
-                        onChange={(e) => setConsentChecked(e.target.checked)}
-                        className="w-4 h-4 mt-0.5 border-slate-300 rounded text-saffron-600 focus:ring-saffron-500 cursor-pointer"
-                        disabled={isSubmitting}
-                      />
-                      <label htmlFor="dpdp-consent-check" className="text-xs text-slate-600 font-bold select-none cursor-pointer leading-normal text-left">
-                        {t('dpdp.consent')}
-                      </label>
-                    </div>
-
-                    {/* Privacy Indicator Badge */}
-                    <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl text-xs text-slate-600 flex items-start leading-normal text-left">
-                      <ShieldCheck className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold text-emerald-800 block mb-0.5">
-                          {language === 'te' ? 'భద్రతా హామీ' : 'DPDP Compliant & Encrypted'}
-                        </span>
-                        <span>{t('dpdp.privacyBadge')}</span>
-                      </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || !consentChecked}
-                      className="w-full py-4 bg-saffron-400 text-navy-950 hover:bg-saffron-500 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <RefreshCw className="w-4.5 h-4.5 animate-spin text-navy-950" />
-                          <span>{t('grievance.submittingText')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4.5 h-4.5 text-navy-950" />
-                          <span>{t('grievance.submitButton')}</span>
-                        </>
+                        </motion.div>
                       )}
-                    </button>
+                    </AnimatePresence>
                   </form>
                 </div>
               )}

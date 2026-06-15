@@ -7,6 +7,7 @@ import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
 import { getRoleTitle } from '@/lib/roleHelper'
+import { motion, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion'
 
 interface NavbarProps {
   siteSettings?: {
@@ -261,9 +262,110 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     te: 'తెలుగు'
   }
 
+  // Mobile bottom navbar gesture variables
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(375)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartX = useRef(0)
+  const isDraggingActive = useRef(false)
+
+  // Get active tab index
+  const getActiveIndex = (path: string) => {
+    if (path === '/') return 0
+    if (path.startsWith('/daily-updates')) return 1
+    if (path.startsWith('/grievance')) return 2
+    if (path.startsWith('/press-releases')) return 3
+    if (path.startsWith('/parliamentary-updates')) return 4
+    return 0
+  }
+  const activeIndex = getActiveIndex(pathname)
+  const [localActiveIndex, setLocalActiveIndex] = useState(activeIndex)
+
+  // Sync local active index with pathname changes
+  useEffect(() => {
+    setLocalActiveIndex(activeIndex)
+  }, [activeIndex])
+
+  // Motion values for spring and velocity scaling
+  const targetX = useMotionValue(0)
+  const springX = useSpring(targetX, { stiffness: 350, damping: 28, mass: 0.8 })
+  const velocity = useVelocity(springX)
+  const scaleX = useTransform(velocity, [-1500, 0, 1500], [1.25, 1, 1.25])
+  const skewX = useTransform(velocity, [-1500, 0, 1500], [-8, 0, 8])
+
+  // ResizeObserver to track bottom navbar width
+  useEffect(() => {
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    setContainerWidth(rect.width)
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setContainerWidth(entry.contentRect.width)
+      }
+    })
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  // Update target position based on active index
+  useEffect(() => {
+    if (!isDragging && containerWidth > 0) {
+      const tabWidth = containerWidth / 5
+      const center = (localActiveIndex + 0.5) * tabWidth
+      targetX.set(center)
+    }
+  }, [localActiveIndex, containerWidth, isDragging, targetX])
+
+  // Drag Gesture Handlers
+  const handleStart = (clientX: number) => {
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const relativeX = clientX - rect.left
+    setIsDragging(true)
+    isDraggingActive.current = false
+    dragStartX.current = clientX
+    targetX.set(relativeX)
+  }
+
+  const handleMove = (clientX: number) => {
+    if (!isDragging || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const relativeX = Math.max(0, Math.min(rect.width, clientX - rect.left))
+    targetX.set(relativeX)
+    
+    if (Math.abs(clientX - dragStartX.current) > 5) {
+      isDraggingActive.current = true
+    }
+  }
+
+  const handleEnd = () => {
+    if (!isDragging || !containerRef.current) return
+    setIsDragging(false)
+    const rect = containerRef.current.getBoundingClientRect()
+    const tabWidth = rect.width / 5
+    const currentVal = targetX.get()
+    const index = Math.max(0, Math.min(4, Math.floor(currentVal / tabWidth)))
+    
+    setLocalActiveIndex(index)
+    const center = (index + 0.5) * tabWidth
+    targetX.set(center)
+
+    if (isDraggingActive.current) {
+      const paths = [
+        '/',
+        '/daily-updates',
+        '/grievance',
+        '/press-releases',
+        '/parliamentary-updates'
+      ]
+      router.push(paths[index])
+    }
+  }
+
   return (
     <>
-      <nav ref={navRef} className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-saffron-400 shadow-sm">
+      <nav ref={navRef} className="sticky top-0 z-50 backdrop-blur-md bg-slate-50/85 support-backdrop-blur:bg-slate-50/60 border-b-2 border-saffron-400 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
 
@@ -506,9 +608,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               <Link
                 href="/grievance"
                 onClick={() => setIsOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
+                className="block px-4 py-3 mx-3 rounded-xl text-center text-base font-black text-navy-950 bg-saffron-400 hover:bg-saffron-500 border border-saffron-500/30 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center space-x-2"
               >
-                {t('nav.grievancePortal')}
+                <LifeBuoy className="w-5 h-5 animate-pulse text-navy-950" />
+                <span>{t('nav.grievancePortal')}</span>
               </Link>
 
               {/* Mobile Accessibility Controls Trigger */}
@@ -558,60 +661,111 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       </nav>
 
       {/* Mobile Dedicated Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-        <div className="flex justify-around items-center h-16 px-2">
-          <Link
-            href="/"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
+      <div 
+        ref={containerRef}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        onTouchMove={(e) => {
+          if (e.cancelable) e.preventDefault()
+          handleMove(e.touches[0].clientX)
+        }}
+        onTouchEnd={handleEnd}
+        onMouseDown={(e) => handleStart(e.clientX)}
+        onMouseMove={(e) => handleMove(e.clientX)}
+        onMouseUp={handleEnd}
+        onMouseLeave={() => { if (isDragging) handleEnd() }}
+        style={{ touchAction: 'none' }}
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-t border-white/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] select-none"
+      >
+        <div className="relative flex justify-around items-center h-16 px-2">
+          
+          {/* Liquid Selector Pill (Background indicator) */}
+          <motion.div
+            style={{
+              x: springX,
+              scaleX,
+              skewX,
+              originX: 0.5,
+              width: containerWidth / 5,
+              left: 0,
+              marginLeft: -(containerWidth / 10), // Half of width to center it at springX
+            }}
+            className="absolute top-1.5 bottom-1.5 flex flex-col items-center justify-end pointer-events-none z-0"
           >
-            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>{getBottomNavLabel('home')}</span>
-          </Link>
+            {/* Liquid glass pill */}
+            <div className="absolute inset-0 bg-saffron-400/10 border border-saffron-400/20 rounded-2xl shadow-[0_2px_10px_rgba(255,210,0,0.1)]" />
+            
+            {/* Active state dot indicator */}
+            <div className="w-1.5 h-1.5 rounded-full bg-saffron-500 mb-0.5 z-10" />
+          </motion.div>
 
-          <Link
-            href="/daily-updates"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/daily-updates') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
-          >
-            <Calendar className="w-5.5 h-5.5 mb-1" />
-            <span>{getBottomNavLabel('daily')}</span>
-          </Link>
-
-          <Link
-            href="/grievance"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/grievance') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
-          >
-            <LifeBuoy className="w-5.5 h-5.5 mb-1 animate-pulse" />
-            <span>{getBottomNavLabel('grievance')}</span>
-          </Link>
-
-          <Link
-            href="/press-releases"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/press-releases') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
-          >
-            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <span>{getBottomNavLabel('news')}</span>
-          </Link>
-
-          <Link
-            href="/parliamentary-updates"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/parliamentary-updates') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
-          >
-            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            <span>{getBottomNavLabel('updates')}</span>
-          </Link>
-
-
+          {/* TABS */}
+          {[
+            {
+              id: 'home',
+              path: '/',
+              label: getBottomNavLabel('home'),
+              icon: (isActive: boolean) => (
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              )
+            },
+            {
+              id: 'daily',
+              path: '/daily-updates',
+              label: getBottomNavLabel('daily'),
+              icon: (isActive: boolean) => (
+                <Calendar className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} />
+              )
+            },
+            {
+              id: 'grievance',
+              path: '/grievance',
+              label: getBottomNavLabel('grievance'),
+              icon: (isActive: boolean) => (
+                <LifeBuoy className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'} ${isActive ? 'animate-pulse' : ''}`} />
+              )
+            },
+            {
+              id: 'press',
+              path: '/press-releases',
+              label: getBottomNavLabel('news'),
+              icon: (isActive: boolean) => (
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+              )
+            },
+            {
+              id: 'parliament',
+              path: '/parliamentary-updates',
+              label: getBottomNavLabel('updates'),
+              icon: (isActive: boolean) => (
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              )
+            }
+          ].map((tab, idx) => {
+            const isTabActive = localActiveIndex === idx
+            return (
+              <div
+                key={tab.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setLocalActiveIndex(idx)
+                  router.push(tab.path)
+                }}
+                className={`relative flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors z-10 cursor-pointer ${
+                  isTabActive ? 'text-saffron-600' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {tab.icon(isTabActive)}
+                <span className="mb-0.5">{tab.label}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
 

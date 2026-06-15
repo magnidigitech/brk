@@ -340,13 +340,13 @@ ${siteUrl}
               return (
                 <div
                   key={key}
-                  className="bg-white border-y sm:border-2 border-slate-200 sm:rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-saffron-300 relative"
+                  className="backdrop-blur-md bg-white/70 border-y sm:border border-white/20 sm:rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-saffron-300/50 relative"
                 >
                   {isOpen && <div className="absolute top-0 left-0 right-0 h-1 bg-saffron-500"></div>}
                   <button
                     onClick={() => toggleGroup(key)}
                     className={`w-full p-4 sm:p-5 text-left flex items-center justify-between focus:outline-none transition-colors ${
-                      isOpen ? 'bg-saffron-50/20' : ''
+                      isOpen ? 'bg-saffron-50/10' : ''
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -360,7 +360,7 @@ ${siteUrl}
                     </div>
                     <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-saffron-600' : ''}`} />
                   </button>
-
+ 
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
@@ -378,11 +378,11 @@ ${siteUrl}
                               const imgSrc = item.image
                                 ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                                 : undefined
-
+ 
                               return (
                                 <div
                                   key={item._id}
-                                  className="group flex flex-col cursor-pointer bg-white hover:bg-saffron-50/10 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md"
+                                  className="group flex flex-col cursor-pointer bg-white/75 backdrop-blur-md border border-slate-200/50 hover:bg-saffron-50/20 hover:border-saffron-300/50 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
                                   onClick={() => {
                                     const combinedImages = []
                                     if (item.image) {
@@ -410,7 +410,7 @@ ${siteUrl}
                                       <img
                                         src={imgSrc}
                                         alt={ntitle}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[700ms] ease-out"
                                       />
                                     </div>
                                   )}
