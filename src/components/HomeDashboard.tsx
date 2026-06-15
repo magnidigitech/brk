@@ -69,9 +69,20 @@ interface ActiveMedia {
   date?: string
 }
 
+interface DailyUpdateItem {
+  _id: string
+  title: any
+  date: string
+  summary: any
+  body?: any[]
+  image?: any
+  images?: any[]
+  speechUrl?: string
+}
+
 interface ActiveContent {
   _id: string
-  type: 'update' | 'news'
+  type: 'update' | 'news' | 'daily'
   title: string
   date: string
   excerpt?: string
@@ -83,6 +94,7 @@ interface ActiveContent {
 }
 
 interface HomeDashboardProps {
+  dailyUpdates: DailyUpdateItem[]
   updates: UpdateItem[]
   news: NewsItem[]
   gallery: GalleryItem[]
@@ -188,7 +200,7 @@ function tokenizeText(text: string, globalOffset: number): WordToken[] {
   return words
 }
 
-export default function HomeDashboard({ updates, news, gallery, settings }: HomeDashboardProps) {
+export default function HomeDashboard({ dailyUpdates, updates, news, gallery, settings }: HomeDashboardProps) {
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
   const { t, tContent, language } = useLanguage()
@@ -220,7 +232,11 @@ export default function HomeDashboard({ updates, news, gallery, settings }: Home
     return tokens
   })
 
-  const sharePath = activeContent?.type === 'update' ? '/parliamentary-updates' : '/press-releases'
+  const sharePath = activeContent?.type === 'daily'
+    ? '/daily-updates'
+    : activeContent?.type === 'update'
+      ? '/parliamentary-updates'
+      : '/press-releases'
   const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
   const siteUrl = isClient ? window.location.origin : ''
   const twitterUrl = 'https://x.com/bhashyambrk'
@@ -290,7 +306,31 @@ ${siteUrl}
     const params = new URLSearchParams(window.location.search)
     const id = params.get('id')
     if (id) {
-      // Look in updates first
+      // Look in dailyUpdates first
+      const dailyItem = dailyUpdates?.find((d) => d._id === id || d._id.startsWith(id))
+      if (dailyItem) {
+        const combinedImages = []
+        if (dailyItem.image) {
+          combinedImages.push(dailyItem.image)
+        }
+        if (dailyItem.images && Array.isArray(dailyItem.images)) {
+          combinedImages.push(...dailyItem.images)
+        }
+
+        setActiveContent({
+          _id: dailyItem._id,
+          type: 'daily',
+          title: tContent(dailyItem.title),
+          date: dailyItem.date,
+          excerpt: tContent(dailyItem.summary),
+          speechUrl: dailyItem.speechUrl,
+          images: combinedImages,
+          imageSrc: dailyItem.image ? (typeof dailyItem.image === 'string' ? dailyItem.image : urlFor(dailyItem.image).width(800).url()) : undefined,
+        })
+        return
+      }
+
+      // Look in updates next
       const updateItem = updates?.find((u) => u._id === id || u._id.startsWith(id))
       if (updateItem) {
         const combinedImages = []
@@ -345,7 +385,7 @@ ${siteUrl}
         })
       }
     }
-  }, [updates, news])
+  }, [dailyUpdates, updates, news])
 
   // Sync activeContent changes with URL query parameter
   useEffect(() => {
@@ -500,21 +540,21 @@ ${siteUrl}
             </div>
           </motion.div>
 
-          {/* 3. Parliamentary Updates Card */}
+          {/* 3. Daily Updates Card */}
           <motion.div
             variants={itemVariants}
-            id="updates"
+            id="daily"
             className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
           >
             <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2.5">
-                <TrendingUp className="w-5 h-5 text-saffron-600" />
-                <h3 className="text-lg font-bold text-navy-900">{t('section.updates')}</h3>
+                <Calendar className="w-5 h-5 text-saffron-600" />
+                <h3 className="text-lg font-bold text-navy-900">{t('section.dailyUpdates')}</h3>
               </div>
               <div className="flex items-center space-x-3">
-                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Session</span>
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Updates</span>
                 <Link
-                  href="/parliamentary-updates"
+                  href="/daily-updates"
                   className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
                 >
                   <span>View All</span>
@@ -523,35 +563,34 @@ ${siteUrl}
               </div>
             </div>
 
-            {updates && updates.length > 0 ? (
+            {dailyUpdates && dailyUpdates.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                  {updates.slice(0, 9).map((update) => {
-                    const utitle = tContent(update.title)
-                    const usummary = tContent(update.summary)
+                  {dailyUpdates.slice(0, 9).map((item) => {
+                    const utitle = tContent(item.title)
+                    const usummary = tContent(item.summary)
                     return (
                       <div
-                        key={update._id}
+                        key={item._id}
                         onClick={() => {
-                          const imgSrc = update.image
-                            ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
+                          const imgSrc = item.image
+                            ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                             : undefined
                           const combinedImages = []
-                          if (update.image) {
-                            combinedImages.push(update.image)
+                          if (item.image) {
+                            combinedImages.push(item.image)
                           }
-                          if (update.images && Array.isArray(update.images)) {
-                            combinedImages.push(...update.images)
+                          if (item.images && Array.isArray(item.images)) {
+                            combinedImages.push(...item.images)
                           }
 
                           setActiveContent({
-                            _id: update._id,
-                            type: 'update',
+                            _id: item._id,
+                            type: 'daily',
                             title: utitle,
-                            date: update.date,
+                            date: item.date,
                             excerpt: usummary,
-                            speechUrl: update.speechUrl,
-                            documentUrl: update.documentUrl,
+                            speechUrl: item.speechUrl,
                             images: combinedImages,
                             imageSrc: imgSrc,
                           })
@@ -562,7 +601,7 @@ ${siteUrl}
                           <div className="flex items-center justify-between mb-2.5">
                             <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
                               <Calendar className="w-3.5 h-3.5" />
-                              <span>{new Date(update.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+                              <span>{new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
                             </div>
                             <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               Read more <ChevronRight className="w-3 h-3" />
@@ -576,28 +615,21 @@ ${siteUrl}
                           </p>
                         </div>
 
-                        {(update.speechUrl || update.documentUrl) && (
+                        {item.speechUrl && (
                           <div className="mt-auto pt-3 border-t border-slate-200/50 flex flex-col gap-1.5">
-                            {update.speechUrl && (
-                              <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
-                                <Video className="w-3 h-3 mr-1" /> Speech available
-                              </span>
-                            )}
-                            {update.documentUrl && (
-                              <span className="inline-flex items-center text-[11px] font-bold text-navy-700">
-                                <Download className="w-3 h-3 mr-1" /> Document attached
-                              </span>
-                            )}
+                            <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
+                              <Video className="w-3 h-3 mr-1" /> Speech available
+                            </span>
                           </div>
                         )}
                       </div>
                     )
                   })}
                 </div>
-                {updates.length > 0 && (
+                {dailyUpdates.length > 0 && (
                   <div className="mt-8 flex justify-center">
                     <Link
-                      href="/parliamentary-updates"
+                      href="/daily-updates"
                       className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
                     >
                       <span>View All Updates</span>
@@ -708,6 +740,117 @@ ${siteUrl}
               </>
             ) : (
               <p className="text-sm text-slate-500 py-6 text-center">No press releases published yet.</p>
+            )}
+          </motion.div>
+
+          {/* 5. Parliamentary Updates Card */}
+          <motion.div
+            variants={itemVariants}
+            id="updates"
+            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
+          >
+            <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2.5">
+                <TrendingUp className="w-5 h-5 text-saffron-600" />
+                <h3 className="text-lg font-bold text-navy-900">{t('section.updates')}</h3>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Session</span>
+                <Link
+                  href="/parliamentary-updates"
+                  className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
+                >
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {updates && updates.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {updates.slice(0, 9).map((update) => {
+                    const utitle = tContent(update.title)
+                    const usummary = tContent(update.summary)
+                    return (
+                      <div
+                        key={update._id}
+                        onClick={() => {
+                          const imgSrc = update.image
+                            ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
+                            : undefined
+                          const combinedImages = []
+                          if (update.image) {
+                            combinedImages.push(update.image)
+                          }
+                          if (update.images && Array.isArray(update.images)) {
+                            combinedImages.push(...update.images)
+                          }
+
+                          setActiveContent({
+                            _id: update._id,
+                            type: 'update',
+                            title: utitle,
+                            date: update.date,
+                            excerpt: usummary,
+                            speechUrl: update.speechUrl,
+                            documentUrl: update.documentUrl,
+                            images: combinedImages,
+                            imageSrc: imgSrc,
+                          })
+                        }}
+                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span>{new Date(update.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+                            </div>
+                            <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Read more <ChevronRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                          <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
+                            {utitle}
+                          </h4>
+                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
+                            {usummary}
+                          </p>
+                        </div>
+
+                        {(update.speechUrl || update.documentUrl) && (
+                          <div className="mt-auto pt-3 border-t border-slate-200/50 flex flex-col gap-1.5">
+                            {update.speechUrl && (
+                              <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
+                                <Video className="w-3 h-3 mr-1" /> Speech available
+                              </span>
+                            )}
+                            {update.documentUrl && (
+                              <span className="inline-flex items-center text-[11px] font-bold text-navy-700">
+                                <Download className="w-3 h-3 mr-1" /> Document attached
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                {updates.length > 0 && (
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/parliamentary-updates"
+                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                    >
+                      <span>View All Updates</span>
+                      <ChevronRight className="w-4 h-4 text-navy-950" />
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 py-6 text-center">No updates logged yet.</p>
             )}
           </motion.div>
 
@@ -843,13 +986,15 @@ ${siteUrl}
                 onPointerDown={(e) => dragControls.start(e)}
               >
                 <div className="flex items-center space-x-2.5 pointer-events-none">
-                  {activeContent.type === 'update' ? (
+                  {activeContent.type === 'daily' ? (
+                    <Calendar className="w-5 h-5 text-saffron-600" />
+                  ) : activeContent.type === 'update' ? (
                     <TrendingUp className="w-5 h-5 text-saffron-600" />
                   ) : (
                     <FileText className="w-5 h-5 text-saffron-600" />
                   )}
                   <span className="text-xs font-bold text-saffron-600 uppercase tracking-widest">
-                    {activeContent.type === 'update' ? 'Parliamentary Update' : 'Press Release'}
+                    {activeContent.type === 'daily' ? 'Daily Update' : activeContent.type === 'update' ? 'Parliamentary Update' : 'Press Release'}
                   </span>
                 </div>
                 <button
@@ -1068,31 +1213,30 @@ ${siteUrl}
                             >
                               <svg className="w-4 h-4 mr-3 text-[#25D366]" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.216 3.076.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            WhatsApp
-                          </a>
-                          <a
-                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                              activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
-                            )}&url=${encodeURIComponent(
-                              window.location.origin + (activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases') + '?id=' + activeContent._id.slice(0, 8)
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setShowShareMenu(false)}
-                            className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
-                          >
-                            <svg className="w-4 h-4 mr-3 text-black" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                            </svg>
-                            X (Twitter)
-                          </a>
-                          <button
-                            onClick={async () => {
-                              const path = activeContent.type === 'update' ? '/parliamentary-updates' : '/press-releases'
-                              const shareUrl = `${window.location.origin}${path}?id=${activeContent._id.slice(0, 8)}`
-                              try {
-                                await navigator.clipboard.writeText(shareUrl)
+                              </svg>
+                              WhatsApp
+                            </a>
+                            <a
+                              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                                activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
+                              )}&url=${encodeURIComponent(
+                                window.location.origin + sharePath + '?id=' + activeContent._id.slice(0, 8)
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setShowShareMenu(false)}
+                              className="flex items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-semibold"
+                            >
+                              <svg className="w-4 h-4 mr-3 text-black" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                              </svg>
+                              X (Twitter)
+                            </a>
+                            <button
+                              onClick={async () => {
+                                const shareUrl = `${window.location.origin}${sharePath}?id=${activeContent._id.slice(0, 8)}`
+                                try {
+                                  await navigator.clipboard.writeText(shareUrl)
                                   setCopied(true)
                                   setTimeout(() => setCopied(false), 2000)
                                 } catch (err) {

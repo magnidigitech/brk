@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/development-works',
     '/grievance',
     '/parliamentary-updates',
+    '/daily-updates',
     '/press-releases',
     '/state-focus',
     '/contact',

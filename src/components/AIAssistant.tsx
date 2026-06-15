@@ -10,7 +10,6 @@ import {
   MicOff, 
   Volume2, 
   VolumeX, 
-  Bot, 
   MapPin, 
   Phone, 
   Mail, 
@@ -53,6 +52,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
   const [isMuted, setIsMuted] = useState(true)
   const [isTyping, setIsTyping] = useState(false)
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null)
+  const [latestNews, setLatestNews] = useState<any[]>([])
   
   // Refs
   const messageEndRef = useRef<HTMLDivElement>(null)
@@ -71,13 +71,61 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
     chipGrievance: { en: 'Submit Grievance', te: 'ఫిర్యాదు చేయడం ఎలా' },
     chipBio: { en: 'About MP', te: 'మన నాయకత్వం గురించి' },
     chipSectors: { en: 'Priority Sectors', te: 'రాష్ట్ర రంగాలు' },
+    chipNews: { en: 'Latest News', te: 'తాజా వార్తలు' },
     voiceListening: { en: 'Listening...', te: 'వింటున్నాను...' },
     copLink: { en: 'Copy Details', te: 'కాపీ చేయండి' },
     copied: { en: 'Copied!', te: 'కాపీ చేయబడింది!' }
   }
 
-  // Load greeting on mount
+  // Fetch latest news on mount from Sanity client-side
   useEffect(() => {
+    const fetchLatestNews = async () => {
+      try {
+        const { client } = await import('@/sanity/lib/client')
+        const items = await client.fetch(
+          `*[_type in ["pressRelease", "parliamentaryUpdate"]] | order(publishedAt desc, date desc)[0...3] {
+            _id,
+            _type,
+            title,
+            publishedAt,
+            date,
+            excerpt,
+            summary
+          }`
+        )
+        setLatestNews(items || [])
+      } catch (err) {
+        console.error('Failed to fetch latest news for chatbot:', err)
+      }
+    }
+    fetchLatestNews()
+  }, [])
+
+  // Hydrate messages & open state from localStorage on mount (Client-side only)
+  useEffect(() => {
+    try {
+      const storedOpen = localStorage.getItem('ai-assistant-open')
+      if (storedOpen === 'true') {
+        setIsOpen(true)
+      }
+      
+      const storedMessages = localStorage.getItem('ai-assistant-messages')
+      if (storedMessages) {
+        const parsed = JSON.parse(storedMessages)
+        const messagesWithDates = parsed.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        }))
+        if (messagesWithDates.length > 0) {
+          setMessages(messagesWithDates)
+          return
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to restore AI Assistant cache:', err)
+    }
+
+    // Default welcome message if cache is empty
     setMessages([
       {
         id: 'welcome',
@@ -87,6 +135,27 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
       }
     ])
   }, [language])
+
+  // Save messages to localStorage when updated
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem('ai-assistant-messages', JSON.stringify(messages))
+      } catch (err) {
+        console.warn('Failed to cache AI Assistant messages:', err)
+      }
+    }
+  }, [messages])
+
+  // Save open state to localStorage when updated
+  useEffect(() => {
+    try {
+      localStorage.setItem('ai-assistant-open', String(isOpen))
+    } catch (err) {
+      console.warn('Failed to cache AI Assistant open status:', err)
+    }
+  }, [isOpen])
+
 
   // Scroll to bottom on updates
   useEffect(() => {
@@ -175,44 +244,55 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
     let replyText = ''
     let richCard: ChatMessage['richCard'] = undefined
 
-    // 1. Direct local intent matching for speed
-    const isContact = lowerQuery.includes('contact') || lowerQuery.includes('office') || lowerQuery.includes('address') || lowerQuery.includes('camp') || lowerQuery.includes('కార్యాలయం') || lowerQuery.includes('చిరునామా')
-    const isGrievance = lowerQuery.includes('grievance') || lowerQuery.includes('complaint') || lowerQuery.includes('petition') || lowerQuery.includes('ticket') || lowerQuery.includes('ఫిర్యాదు') || lowerQuery.includes('సమస్య') || lowerQuery.includes('ఇబ్బంది')
-    const isAbout = lowerQuery.includes('about') || lowerQuery.includes('who is') || lowerQuery.includes('biography') || lowerQuery.includes('రామకృష్ణ') || lowerQuery.includes('చరిత్ర') || lowerQuery.includes('ఎవరు')
-    const isSectors = lowerQuery.includes('sector') || lowerQuery.includes('focus') || lowerQuery.includes('vision') || lowerQuery.includes('రంగాలు') || lowerQuery.includes('లక్ష్యాలు')
+    // Check if it is an exact suggestion chip match to preserve quick actions
+    const isChipContact = query === localT.chipContact.en || query === localT.chipContact.te
+    const isChipGrievance = query === localT.chipGrievance.en || query === localT.chipGrievance.te
+    const isChipBio = query === localT.chipBio.en || query === localT.chipBio.te
+    const isChipSectors = query === localT.chipSectors.en || query === localT.chipSectors.te
+    const isChipNews = query === localT.chipNews.en || query === localT.chipNews.te
 
-    if (isContact) {
+    if (isChipContact) {
       replyText = language === 'te'
         ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా విజయవాడ క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
         : "Here are the contact details for Shri Bhashyam Ramakrishna's official New Delhi and Vijayawada camp offices:"
       richCard = { type: 'contact' }
-    } else if (isGrievance) {
+    } else if (isChipGrievance) {
       replyText = language === 'te'
         ? "మీరు మీ స్థానిక సమస్యలను నేరుగా సమర్పించి, వాటి పురోగతిని ట్రాక్ చేయడానికి మన ప్రజా ఫిర్యాదుల పోర్టల్‌ను ఉపయోగించవచ్చు. ఏ కేటగిరీ కింద ఫిర్యాదు చేయాలనుకుంటున్నారో ఎంచుకోండి:"
         : "You can submit your local and community concerns directly to the MP's office and track their resolution status in real-time. Choose a category to begin your petition:"
       richCard = { type: 'grievance' }
-    } else if (isAbout) {
+    } else if (isChipBio) {
       replyText = language === 'te'
         ? "శ్రీ భాష్యం రామకృష్ణ గారు ప్రముఖ విద్యావేత్త, భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్ మరియు ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన గౌరవ రాజ్యసభ అభ్యర్థి. ఆయన విద్యా వికాసం మరియు ప్రజా సేవకు కట్టుబడి ఉన్నారు."
         : "Shri Bhashyam Ramakrishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
       richCard = { type: 'about' }
-    } else if (isSectors) {
+    } else if (isChipSectors) {
       replyText = language === 'te'
         ? "ఆంధ్రప్రదేశ్ రాష్ట్ర సమగ్ర ప్రగతి కోసం విద్యా రంగం, యువత సాధికారత, వ్యవసాయం, వైద్యం మరియు మౌలిక వసతుల వంటి కీలక రంగాలలో ప్రజా కార్యక్రమాలను చేపట్టాము."
         : "Explore the priority sectors where the MP's office is initiating legislative push and community projects to support Andhra Pradesh's inclusive growth:"
       richCard = { type: 'sectors' }
+    } else if (isChipNews) {
+      if (latestNews && latestNews.length > 0) {
+        replyText = language === 'te'
+          ? "తాజా పత్రికా ప్రకటనలు మరియు పార్లమెంటరీ అప్‌డేట్స్ ఇక్కడ ఉన్నాయి:"
+          : "Here are the latest press releases and parliamentary updates:"
+        richCard = {
+          type: 'updates',
+          data: latestNews
+        }
+      } else {
+        replyText = language === 'te'
+          ? "తాజా పత్రికా ప్రకటనలు ఏవీ లేవు"
+          : "No latest press release"
+      }
     } else {
-      // 2. Query bilingual backend Search API
+      // It is a TYPED message: query live search API first for partial/exact keyword matches
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
         if (res.ok) {
           const data = await res.json()
-          if (data.faqs && data.faqs.length > 0) {
-            // Found a matching FAQ
-            const matchedFaq = data.faqs[0]
-            replyText = matchedFaq.answer[language] || matchedFaq.answer.en
-          } else if (data.items && data.items.length > 0) {
-            // Found updates or press releases
+          if (data.items && data.items.length > 0) {
+            // Found updates or press releases (contains partial content match)
             replyText = language === 'te'
               ? `మీ శోధనకు సంబంధించిన పత్రికా ప్రకటనలు మరియు పార్లమెంటరీ అప్‌డేట్స్ లభించాయి:`
               : `I found these updates and press releases matching your query:`
@@ -220,12 +300,62 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
               type: 'updates',
               data: data.items.slice(0, 3)
             }
+          } else if (data.faqs && data.faqs.length > 0) {
+            // Found a matching FAQ
+            const matchedFaq = data.faqs[0]
+            replyText = matchedFaq.answer[language] || matchedFaq.answer.en
           }
         }
       } catch (err) {
         console.error('Chatbot search API failed', err)
       }
+
+      // If search API matches are empty, fall back to checking local keyword intents
+      if (!replyText) {
+        const isContact = lowerQuery.includes('contact') || lowerQuery.includes('office') || lowerQuery.includes('address') || lowerQuery.includes('camp') || lowerQuery.includes('కార్యాలయం') || lowerQuery.includes('చిరునామా')
+        const isGrievance = lowerQuery.includes('grievance') || lowerQuery.includes('complaint') || lowerQuery.includes('petition') || lowerQuery.includes('ticket') || lowerQuery.includes('ఫిర్యాదు') || lowerQuery.includes('సమస్య') || lowerQuery.includes('ఇబ్బంది')
+        const isAbout = lowerQuery.includes('about') || lowerQuery.includes('who is') || lowerQuery.includes('biography') || lowerQuery.includes('రామకృష్ణ') || lowerQuery.includes('చరిత్ర') || lowerQuery.includes('ఎవరు')
+        const isSectors = lowerQuery.includes('sector') || lowerQuery.includes('focus') || lowerQuery.includes('vision') || lowerQuery.includes('రంగాలు') || lowerQuery.includes('లక్ష్యాలు')
+        const isNews = lowerQuery.includes('news') || lowerQuery.includes('press') || lowerQuery.includes('release') || lowerQuery.includes('update') || lowerQuery.includes('తాజా') || lowerQuery.includes('వార్త') || lowerQuery.includes('ప్రకటన') || lowerQuery.includes('అప్‌డేట్')
+
+        if (isContact) {
+          replyText = language === 'te'
+            ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా విజయవాడ క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
+            : "Here are the contact details for Shri Bhashyam Ramakrishna's official New Delhi and Vijayawada camp offices:"
+          richCard = { type: 'contact' }
+        } else if (isGrievance) {
+          replyText = language === 'te'
+            ? "మీరు మీ స్థానిక సమస్యలను నేరుగా సమర్పించి, వాటి పురోగతిని ట్రాక్ చేయడానికి మన ప్రజా ఫిర్యాదుల పోర్టల్‌ను ఉపయోగించవచ్చు. ఏ కేటగిరీ కింద ఫిర్యాదు చేయాలనుకుంటున్నారో ఎంచుకోండి:"
+            : "You can submit your local and community concerns directly to the MP's office and track their resolution status in real-time. Choose a category to begin your petition:"
+          richCard = { type: 'grievance' }
+        } else if (isAbout) {
+          replyText = language === 'te'
+            ? "శ్రీ భాష్యం రామకృష్ణ గారు ప్రముఖ విద్యావేత్త, భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్ మరియు ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన గౌరవ రాజ్యసభ అభ్యర్థి. ఆయన విద్యా వికాసం మరియు ప్రజా సేవకు కట్టుబడి ఉన్నారు."
+            : "Shri Bhashyam Ramakrishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
+          richCard = { type: 'about' }
+        } else if (isSectors) {
+          replyText = language === 'te'
+            ? "ఆంధ్రప్రదేశ్ రాష్ట్ర సమగ్ర ప్రగతి కోసం విద్యా రంగం, యువత సాధికారత, వ్యవసాయం, వైద్యం మరియు మౌలిక వసతుల వంటి కీలక రంగాలలో ప్రజా కార్యక్రమాలను చేపట్టాము."
+            : "Explore the priority sectors where the MP's office is initiating legislative push and community projects to support Andhra Pradesh's inclusive growth:"
+          richCard = { type: 'sectors' }
+        } else if (isNews) {
+          if (latestNews && latestNews.length > 0) {
+            replyText = language === 'te'
+              ? "తాజా పత్రికా ప్రకటనలు మరియు పార్లమెంటరీ అప్‌డేట్స్ ఇక్కడ ఉన్నాయి:"
+              : "Here are the latest press releases and parliamentary updates:"
+            richCard = {
+              type: 'updates',
+              data: latestNews
+            }
+          } else {
+            replyText = language === 'te'
+              ? "తాజా పత్రికా ప్రకటనలు ఏవీ లేవు"
+              : "No latest press release"
+          }
+        }
+      }
     }
+
 
     // Fallback if no match
     if (!replyText) {
@@ -252,7 +382,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
   return (
     <>
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50">
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.05 }}
@@ -298,13 +428,14 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96 h-[520px] bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between"
+            className="fixed bottom-[148px] lg:bottom-24 right-4 lg:right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-11rem)] bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between"
           >
             {/* Header */}
             <div className="px-5 py-4 bg-[#0B192C] text-white flex justify-between items-center border-b border-navy-950 shrink-0">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-saffron-500 rounded-xl flex items-center justify-center text-navy-950 shadow-inner relative">
-                  <Bot className="w-5.5 h-5.5" />
+                <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-navy-950 shadow-inner relative overflow-hidden p-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/images/logo.png" alt="Assistant" className="w-full h-full object-contain rounded-lg" />
                   <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#0B192C]" />
                 </div>
                 <div>
@@ -352,8 +483,9 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                   }`}
                 >
                   {msg.sender === 'bot' && (
-                    <div className="w-7 h-7 bg-navy-900 border border-navy-800 text-saffron-400 rounded-lg flex items-center justify-center mr-2 shrink-0 mt-0.5 shadow-sm">
-                      <Bot className="w-4 h-4" />
+                    <div className="w-7 h-7 bg-white border border-slate-200 rounded-lg flex items-center justify-center mr-2 shrink-0 mt-0.5 shadow-sm overflow-hidden p-0.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/logo.png" alt="Bot Logo" className="w-full h-full object-contain rounded-md" />
                     </div>
                   )}
 
@@ -483,9 +615,12 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                             <div className="space-y-2">
                               {msg.richCard.data.map((item: any) => {
                                 const isPress = item._type === 'pressRelease'
-                                const linkUrl = isPress 
-                                  ? `/press-releases?id=${item._id}`
-                                  : `/parliamentary-updates?id=${item._id}`
+                                const isDaily = item._type === 'dailyUpdate'
+                                const linkUrl = isDaily
+                                  ? `/daily-updates?id=${item._id}`
+                                  : isPress 
+                                    ? `/press-releases?id=${item._id}`
+                                    : `/parliamentary-updates?id=${item._id}`
                                 const localizedTitle = item.title?.[language] || item.title?.en || item.title
                                 
                                 return (
@@ -496,7 +631,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                   >
                                     <div className="pr-2 truncate">
                                       <span className="block text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
-                                        {isPress ? 'Press Release' : 'Parliamentary Update'}
+                                        {isDaily ? 'Daily Update' : isPress ? 'Press Release' : 'Parliamentary Update'}
                                       </span>
                                       <span className="block truncate max-w-[200px]">{localizedTitle}</span>
                                     </div>
@@ -520,8 +655,9 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
 
               {isTyping && (
                 <div className="flex items-start justify-start">
-                  <div className="w-7 h-7 bg-navy-900 border border-navy-800 text-saffron-400 rounded-lg flex items-center justify-center mr-2 shrink-0 shadow-sm">
-                    <Bot className="w-4 h-4" />
+                  <div className="w-7 h-7 bg-white border border-slate-200 rounded-lg flex items-center justify-center mr-2 shrink-0 shadow-sm overflow-hidden p-0.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/images/logo.png" alt="Bot Logo" className="w-full h-full object-contain rounded-md" />
                   </div>
                   <div className="px-4 py-3 rounded-2xl bg-white border border-slate-200 rounded-tl-none flex items-center space-x-1 shadow-sm">
                     <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -536,6 +672,12 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
 
             {/* Quick Action Suggestion Chips */}
             <div className="px-4 py-2 border-t border-slate-100 flex overflow-x-auto gap-2 shrink-0 bg-white scrollbar-hide py-3">
+              <button
+                onClick={() => handleSend(localT.chipNews[language])}
+                className="px-3 py-1.5 border border-slate-200 hover:border-saffron-400 hover:bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-600 hover:text-navy-950 rounded-full shrink-0 transition-colors cursor-pointer font-bold border-saffron-400/60 bg-saffron-50/20"
+              >
+                {localT.chipNews[language]}
+              </button>
               <button
                 onClick={() => handleSend(localT.chipContact[language])}
                 className="px-3 py-1.5 border border-slate-200 hover:border-saffron-400 hover:bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-600 hover:text-navy-950 rounded-full shrink-0 transition-colors cursor-pointer"
@@ -577,28 +719,31 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                   disabled={isListening}
                 />
                 
-                {/* Voice Input Button */}
-                <button
-                  onClick={toggleListen}
-                  className={`absolute right-2.5 top-1.5 p-1.5 rounded-lg transition-colors cursor-pointer ${
-                    isListening 
-                      ? 'bg-rose-500 text-white animate-pulse' 
-                      : 'text-slate-400 hover:text-navy-900 hover:bg-slate-100'
-                  }`}
-                  title={isListening ? 'Stop voice input' : 'Start voice input'}
-                >
-                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                </button>
+                {/* Voice Input Button - Show only when input is empty */}
+                {inputValue.trim() === '' && (
+                  <button
+                    onClick={toggleListen}
+                    className={`absolute right-2.5 top-1.5 p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      isListening 
+                        ? 'bg-rose-500 text-white animate-pulse' 
+                        : 'text-slate-400 hover:text-navy-900 hover:bg-slate-100'
+                    }`}
+                    title={isListening ? 'Stop voice input' : 'Start voice input'}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                )}
               </div>
 
-              {/* Send Button */}
-              <button
-                onClick={() => handleSend()}
-                disabled={!inputValue.trim()}
-                className="p-3 bg-saffron-500 hover:bg-saffron-600 disabled:bg-slate-100 text-slate-950 disabled:text-slate-300 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center shrink-0 border border-saffron-600 disabled:border-slate-200"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              {/* Send Button - Show only when there is input */}
+              {inputValue.trim() !== '' && (
+                <button
+                  onClick={() => handleSend()}
+                  className="p-3 bg-saffron-500 hover:bg-saffron-600 text-slate-950 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center shrink-0 border border-saffron-600"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </motion.div>
         )}

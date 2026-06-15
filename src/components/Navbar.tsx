@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, X, LifeBuoy, Globe, Bell, Search, Accessibility } from 'lucide-react'
+import { Menu, X, LifeBuoy, Globe, Bell, Search, Accessibility, Calendar } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
@@ -244,10 +244,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
   const getBottomNavLabel = (key: string): string => {
     if (key === 'home') return t('nav.home')
+    if (key === 'daily') return language === 'te' ? 'రోజువారీ' : 'Daily'
     if (key === 'news') return language === 'te' ? 'పత్రికా' : 'Press'
     if (key === 'grievance') return language === 'te' ? 'ఫిర్యాదు' : 'Grievance'
     if (key === 'updates') return language === 'te' ? 'పార్లమెంట్' : 'Parliament'
-    if (key === 'contact') return language === 'te' ? 'కార్యాలయం' : 'Contact'
     return ''
   }
 
@@ -280,21 +280,21 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                     height={48}
                   />
                 </div>
-                  <div className="flex flex-col justify-center py-1">
-                    <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-normal uppercase">
-                      {dispName}
-                    </span>
-                    <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase leading-normal mt-0.5 md:mt-1">
-                      {dispBadge.includes('(') ? (
-                        <>
-                          <span className="block md:inline">{dispBadge.split('(')[0].trim()}</span>
-                          <span className="block md:inline md:ml-1">({dispBadge.split('(')[1]}</span>
-                        </>
-                      ) : (
-                        dispBadge
-                      )}
-                    </span>
-                  </div>
+                <div className="flex flex-col justify-center py-1">
+                  <span className="block font-black text-base md:text-lg text-navy-900 tracking-wide leading-normal uppercase">
+                    {dispName}
+                  </span>
+                  <span className="block text-[10px] font-bold text-saffron-600 tracking-widest uppercase leading-normal mt-0.5 md:mt-1">
+                    {dispBadge.includes('(') ? (
+                      <>
+                        <span className="block md:inline">{dispBadge.split('(')[0].trim()}</span>
+                        <span className="block md:inline md:ml-1">({dispBadge.split('(')[1]}</span>
+                      </>
+                    ) : (
+                      dispBadge
+                    )}
+                  </span>
+                </div>
               </Link>
             </div>
 
@@ -347,6 +347,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                   </svg>
                 </button>
                 <div className="absolute left-0 top-full hidden group-hover:block w-52 rounded-xl bg-white border border-slate-200 shadow-xl py-2 z-50">
+                  <Link
+                    href="/daily-updates"
+                    className="block px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-saffron-600 transition-colors"
+                  >
+                    {t('nav.dailyUpdates')}
+                  </Link>
                   <Link
                     href="/press-releases"
                     className="block px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-saffron-600 transition-colors"
@@ -456,6 +462,13 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 {t('nav.about')}
               </Link>
               <Link
+                href="/daily-updates"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
+              >
+                {t('nav.dailyUpdates')}
+              </Link>
+              <Link
                 href="/press-releases"
                 onClick={() => setIsOpen(false)}
                 className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
@@ -559,14 +572,12 @@ export default function Navbar({ siteSettings }: NavbarProps) {
           </Link>
 
           <Link
-            href="/press-releases"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/press-releases') ? 'text-saffron-600' : 'text-slate-500'
+            href="/daily-updates"
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/daily-updates') ? 'text-saffron-600' : 'text-slate-500'
               }`}
           >
-            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <span>{getBottomNavLabel('news')}</span>
+            <Calendar className="w-5.5 h-5.5 mb-1" />
+            <span>{getBottomNavLabel('daily')}</span>
           </Link>
 
           <Link
@@ -576,6 +587,17 @@ export default function Navbar({ siteSettings }: NavbarProps) {
           >
             <LifeBuoy className="w-5.5 h-5.5 mb-1 animate-pulse" />
             <span>{getBottomNavLabel('grievance')}</span>
+          </Link>
+
+          <Link
+            href="/press-releases"
+            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/press-releases') ? 'text-saffron-600' : 'text-slate-500'
+              }`}
+          >
+            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>{getBottomNavLabel('news')}</span>
           </Link>
 
           <Link
@@ -589,16 +611,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
             <span>{getBottomNavLabel('updates')}</span>
           </Link>
 
-          <Link
-            href="/contact"
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors ${isActive('/contact') ? 'text-saffron-600' : 'text-slate-500'
-              }`}
-          >
-            <svg className="w-5.5 h-5.5 mb-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            <span>{getBottomNavLabel('contact')}</span>
-          </Link>
+
         </div>
       </div>
 
@@ -655,7 +668,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
       {searchOpen && (
         <div className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md flex justify-center items-start pt-16 md:pt-24 px-4 overflow-y-auto" data-modal="true">
           <div className="bg-white w-full max-w-2xl rounded-2xl border-2 border-saffron-400 shadow-2xl overflow-hidden mb-12 pwa-animate-slideup text-left">
-            
+
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 p-4">
               <div className="flex items-center space-x-2 text-navy-900">
@@ -739,9 +752,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                             >
                               <div className="flex justify-between items-start">
                                 <div className="space-y-1">
-                                  <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
-                                    isPress ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-saffron-50 text-saffron-700 border border-saffron-100'
-                                  }`}>
+                                  <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isPress ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-saffron-50 text-saffron-700 border border-saffron-100'
+                                    }`}>
                                     {isPress ? (t('search.pressType') || 'Press Release') : (t('search.speechType') || 'Parliament Speech')}
                                   </span>
                                   <h5 className="font-bold text-sm text-navy-950 group-hover:text-saffron-600 transition-colors">

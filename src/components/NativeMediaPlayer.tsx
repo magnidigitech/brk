@@ -83,7 +83,6 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
               src={`https://www.instagram.com/p/${igCode}/embed`}
               title={title || "Instagram reel player"}
               className="absolute inset-0 w-full h-full border-0"
-              allowTransparency={true}
               frameBorder="0"
               scrolling="no"
             />
@@ -102,7 +101,6 @@ export default function NativeMediaPlayer({ url, title }: NativeMediaPlayerProps
             src={`https://www.instagram.com/p/${igCode}/embed`}
             title={title || "Instagram post player"}
             className="w-full h-full border-0"
-            allowTransparency={true}
             frameBorder="0"
             scrolling="no"
           />

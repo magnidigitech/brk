@@ -32,7 +32,7 @@ function convertTextToBlocks(text: string) {
   }))
 }
 
-// GET: Fetch all Press Releases and Parliamentary Updates from Sanity
+// GET: Fetch all Press Releases, Parliamentary Updates, and Daily Updates from Sanity
 export async function GET(request: NextRequest) {
   try {
     const pressReleases = await writeClient.fetch(`
@@ -73,10 +73,29 @@ export async function GET(request: NextRequest) {
       }
     `)
 
+    const dailyUpdates = await writeClient.fetch(`
+      *[_type == "dailyUpdate"] | order(date desc) {
+        _id,
+        _type,
+        title,
+        slug,
+        date,
+        summary,
+        speechUrl,
+        "mainImageUrl": mainImage.asset->url,
+        "mainImageAssetId": mainImage.asset._ref,
+        "slideshowImageUrls": images[].asset->url,
+        "slideshowAssetIds": images[].asset._ref,
+        body,
+        images
+      }
+    `)
+
     return NextResponse.json({
       success: true,
       pressReleases,
-      parliamentaryUpdates
+      parliamentaryUpdates,
+      dailyUpdates
     })
   } catch (error: any) {
     console.error('Error fetching content lists from Sanity:', error)
@@ -93,7 +112,7 @@ export async function POST(request: NextRequest) {
     const bodyData = await request.json()
     const { type, title, speechUrl, mainImageAssetId, slideshowAssetIds } = bodyData
 
-    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate')) {
+    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate' && type !== 'dailyUpdate')) {
       return NextResponse.json({ error: 'Invalid document type.' }, { status: 400 })
     }
 
@@ -135,6 +154,17 @@ export async function POST(request: NextRequest) {
       }
       doc.publishedAt = publishedAt
       doc.excerpt = excerpt?.trim() || ''
+      doc.body = convertTextToBlocks(bodyContent || '')
+    } else if (type === 'dailyUpdate') {
+      const { date, summary, bodyContent } = bodyData
+      if (!date) {
+        return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      }
+      if (!summary || !summary.trim()) {
+        return NextResponse.json({ error: 'Summary is required.' }, { status: 400 })
+      }
+      doc.date = date
+      doc.summary = summary.trim()
       doc.body = convertTextToBlocks(bodyContent || '')
     } else {
       const { date, summary, documentAssetId } = bodyData
@@ -179,7 +209,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Document ID is required.' }, { status: 400 })
     }
 
-    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate')) {
+    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate' && type !== 'dailyUpdate')) {
       return NextResponse.json({ error: 'Invalid document type.' }, { status: 400 })
     }
 
@@ -231,6 +261,19 @@ export async function PATCH(request: NextRequest) {
       patch = patch.set({
         publishedAt,
         excerpt: excerpt?.trim() || '',
+        body: convertTextToBlocks(bodyContent || '')
+      })
+    } else if (type === 'dailyUpdate') {
+      const { date, summary, bodyContent } = bodyData
+      if (!date) {
+        return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      }
+      if (!summary || !summary.trim()) {
+        return NextResponse.json({ error: 'Summary is required.' }, { status: 400 })
+      }
+      patch = patch.set({
+        date,
+        summary: summary.trim(),
         body: convertTextToBlocks(bodyContent || '')
       })
     } else {

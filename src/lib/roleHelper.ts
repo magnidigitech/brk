@@ -1,6 +1,6 @@
 export function getRoleTitle(language: 'en' | 'te'): string {
-  // June 18, 2026 local time is: 2026-06-18
-  const targetDate = new Date('2026-06-18T00:00:00+05:30');
+  // June 22, 2026 local time is: 2026-06-22
+  const targetDate = new Date('2026-06-22T00:00:00+05:30');
   const now = new Date();
   
   if (now < targetDate) {

@@ -37,6 +37,11 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     te: 'తాజా సమాచారం',
     ten: 'Updates'
   },
+  'nav.dailyUpdates': {
+    en: 'Daily Updates',
+    te: 'రోజువారీ అప్‌డేట్స్',
+    ten: 'Daily Updates'
+  },
 
   // Titles & Headings
   'site.title': {
@@ -83,6 +88,11 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
   },
 
   // News & Updates section
+  'section.dailyUpdates': {
+    en: 'Daily Updates',
+    te: 'రోజువారీ అప్‌డేట్స్',
+    ten: 'Daily Updates'
+  },
   'section.updates': {
     en: 'Parliamentary Updates',
     te: 'పార్లమెంటరీ అప్‌డేట్స్',
@@ -806,9 +816,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'What is his official designation?'
   },
   'faq.a4': {
-    en: 'Prior to June 18, 2026, he serves as Rajya Sabha Member-Elect. From June 18, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.',
-    te: 'జూన్ 18, 2026కి ముందు ఆయన \'రాజ్యసభ ఎన్నికైన సభ్యులు\'గా వ్యవహరిస్తారు. జూన్ 18, 2026 నుండి ఆయన \'రాజ్యసభ సభ్యులు\'గా పూర్తి బాధ్యతలు స్వీకరిస్తారు.',
-    ten: 'Prior to June 18, 2026, he serves as Rajya Sabha Member-Elect. From June 18, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.'
+    en: 'Prior to June 22, 2026, he serves as Rajya Sabha Member-Elect. From June 22, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.',
+    te: 'జూన్ 22, 2026కి ముందు ఆయన \'రాజ్యసభ ఎన్నికైన సభ్యులు\'గా వ్యవహరిస్తారు. జూన్ 22, 2026 నుండి ఆయన \'రాజ్యసభ సభ్యులు\'గా పూర్తి బాధ్యతలు స్వీకరిస్తారు.',
+    ten: 'Prior to June 22, 2026, he serves as Rajya Sabha Member-Elect. From June 22, 2026 onwards, he serves as Member of Parliament, Rajya Sabha.'
   },
   'faq.q5': {
     en: 'What are his primary public focus areas?',
@@ -969,6 +979,14 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
   'meta.press.desc': {
     en: 'Read latest statements, news coverage, press notes, and media releases issued by the office of Rajya Sabha member Bhashyam Ramakrishna.',
     te: 'భాష్యం రామకృష్ణ గారి కార్యాలయం నుండి విడుదలైన తాజా అధికారిక పత్రికా ప్రకటనలు, పత్రికా నోట్స్ మరియు వార్తల వివరాలు.',
+  },
+  'meta.daily.title': {
+    en: 'Daily Activities & Updates | Bhashyam Ramakrishna MP',
+    te: 'రోజువారీ కార్యకలాపాలు & అప్‌డేట్స్ | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.daily.desc': {
+    en: 'Explore daily work updates, news briefs, and activities of Rajya Sabha MP Bhashyam Ramakrishna.',
+    te: 'గౌరవనీయులైన రాజ్యసభ సభ్యులు భాష్యం రామకృష్ణ గారి రోజువారీ పనులు, వార్తా నివేదికలు మరియు ప్రజాసేవ కార్యక్రమాల వివరాలు.',
   },
   'meta.state.title': {
     en: 'Andhra Pradesh Development Sectors | Bhashyam Ramakrishna',

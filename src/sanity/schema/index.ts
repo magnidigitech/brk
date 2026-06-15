@@ -5,6 +5,7 @@ import { siteSettings } from './siteSettings'
 import { aboutPage } from './aboutPage'
 import { stateSector } from './stateSector'
 import { developmentProject } from './developmentProject'
+import { dailyUpdate } from './dailyUpdate'
 
 export const schemaTypes = [
   pressRelease,
@@ -14,6 +15,7 @@ export const schemaTypes = [
   aboutPage,
   stateSector,
   developmentProject,
+  dailyUpdate,
 ]
 
 

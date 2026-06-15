@@ -33,13 +33,26 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   // Fetch from Sanity.io CMS concurrently
+  let dailyUpdates: any[] = []
   let updates: any[] = []
   let news: any[] = []
   let gallery: any[] = []
   let settings: any = null
 
   try {
-    const [fetchedUpdates, fetchedNews, fetchedGallery, fetchedSettings] = await Promise.all([
+    const [fetchedDaily, fetchedUpdates, fetchedNews, fetchedGallery, fetchedSettings] = await Promise.all([
+      sanityFetch<any[]>({
+        query: `*[_type == "dailyUpdate"] | order(date desc)[0...10] {
+          _id,
+          title,
+          date,
+          summary,
+          body,
+          "image": mainImage,
+          images,
+          speechUrl
+        }`
+      }),
       sanityFetch<any[]>({
         query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...10] {
           _id,
@@ -87,6 +100,7 @@ export default async function Page() {
       })
     ])
 
+    dailyUpdates = fetchedDaily || []
     updates = fetchedUpdates || []
     news = fetchedNews || []
     gallery = fetchedGallery || []
@@ -95,6 +109,7 @@ export default async function Page() {
     console.error('Failed to fetch from Sanity, using fallback content:', error)
   }
 
+  const displayDaily = dailyUpdates || []
   const displayUpdates = updates || []
   const displayNews = news || []
   const displayGallery = gallery || []
@@ -139,6 +154,7 @@ export default async function Page() {
     <>
       <JsonLd schema={[personSchema, websiteSchema]} />
       <HomeDashboard
+        dailyUpdates={displayDaily}
         updates={displayUpdates}
         news={displayNews}
         gallery={displayGallery}

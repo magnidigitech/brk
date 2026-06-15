@@ -29,14 +29,14 @@ export async function GET(request: Request) {
     // 2. Query Sanity for matches in press releases and parliamentary updates using GROQ match
     // We search using both the English and Telugu query variations.
     const sanityQuery = `
-      *[_type in ["pressRelease", "parliamentaryUpdate"] && (
+      *[_type in ["dailyUpdate", "pressRelease", "parliamentaryUpdate"] && (
         title match $enQuery || 
         excerpt match $enQuery || 
         summary match $enQuery || 
         title match $teQuery || 
         excerpt match $teQuery || 
         summary match $teQuery
-      )] | order(publishedAt desc, date desc)[0...30] {
+      )] | order(date desc, publishedAt desc)[0...30] {
         _id,
         _type,
         title,
