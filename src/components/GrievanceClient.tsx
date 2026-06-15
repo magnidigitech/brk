@@ -112,6 +112,8 @@ function GrievancePortal() {
   const [subject, setSubject] = useState('')
   const [description, setDescription] = useState('')
 
+  const voiceBaseTextRef = useRef('')
+
   const {
     startListening,
     stopListening,
@@ -122,8 +124,13 @@ function GrievancePortal() {
     error: sttError,
     interimTranscript
   } = useSpeechToText(language, (transcript) => {
-    setDescription((prev) => prev + transcript)
+    setDescription(voiceBaseTextRef.current + transcript)
   })
+
+  const handleStartListening = () => {
+    voiceBaseTextRef.current = description ? (description.endsWith(' ') ? description : description + ' ') : ''
+    startListening()
+  }
 
   const previewScrollRef = useRef<HTMLDivElement>(null)
 
@@ -1027,7 +1034,7 @@ function GrievancePortal() {
                                     if (isListening) {
                                       stopListening()
                                     } else {
-                                      startListening()
+                                      handleStartListening()
                                     }
                                   }}
                                   className={`flex items-center space-x-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border ${

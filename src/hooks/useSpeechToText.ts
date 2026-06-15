@@ -52,7 +52,7 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
     rec.onresult = (event: any) => {
       let finalTranscript = ''
       let currentInterim = ''
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
+      for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript + ' '
         } else {
@@ -60,9 +60,7 @@ export function useSpeechToText(defaultLang: 'en' | 'te', onTranscriptChange: (t
         }
       }
       setInterimTranscript(currentInterim)
-      if (finalTranscript) {
-        onTranscriptChange(finalTranscript)
-      }
+      onTranscriptChange(finalTranscript)
     }
 
     rec.onerror = (e: any) => {

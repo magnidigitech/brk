@@ -195,6 +195,11 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         return
       }
 
+      // If we popped history but are still on the same subpage, do not redirect
+      if (window.history.state && window.history.state.subpageEntry === window.location.pathname) {
+        return
+      }
+
       const hasOpenModal = !!document.querySelector('[data-modal="true"]')
 
       if (searchOpen) {
@@ -671,12 +676,9 @@ export default function Navbar({ siteSettings }: NavbarProps) {
         onTouchEnd={handleEnd}
         onMouseDown={(e) => handleStart(e.clientX)}
         onMouseMove={(e) => handleMove(e.clientX)}
-        onMouseUp={handleEnd}
-        onMouseLeave={() => { if (isDragging) handleEnd() }}
-        style={{ touchAction: 'none' }}
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-t border-white/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] select-none"
+           className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-t border-white/20 shadow-[0_-8px_32px_rgba(0,0,0,0.06)] select-none"
       >
-        <div className="relative flex justify-around items-center h-16 px-2">
+        <div className="relative flex items-stretch h-16 w-full">
           
           {/* Liquid Selector Pill (Background indicator) */}
           <motion.div
@@ -692,10 +694,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
             className="absolute top-1.5 bottom-1.5 flex flex-col items-center justify-end pointer-events-none z-0"
           >
             {/* Liquid glass pill */}
-            <div className="absolute inset-0 bg-saffron-400/10 border border-saffron-400/20 rounded-2xl shadow-[0_2px_10px_rgba(255,210,0,0.1)]" />
+            <div className="absolute inset-0 bg-navy-900/5 border border-navy-900/10 rounded-2xl shadow-[0_2px_8px_rgba(11,25,44,0.04)]" />
             
-            {/* Active state dot indicator */}
-            <div className="w-1.5 h-1.5 rounded-full bg-saffron-500 mb-0.5 z-10" />
+            {/* Active state line indicator (_) */}
+            <div className="w-5 h-0.75 bg-navy-900 rounded-full mb-1 z-10" />
           </motion.div>
 
           {/* TABS */}
@@ -705,7 +707,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               path: '/',
               label: getBottomNavLabel('home'),
               icon: (isActive: boolean) => (
-                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               )
@@ -715,7 +717,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               path: '/daily-updates',
               label: getBottomNavLabel('daily'),
               icon: (isActive: boolean) => (
-                <Calendar className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} />
+                <Calendar className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'}`} />
               )
             },
             {
@@ -723,7 +725,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               path: '/grievance',
               label: getBottomNavLabel('grievance'),
               icon: (isActive: boolean) => (
-                <LifeBuoy className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'} ${isActive ? 'animate-pulse' : ''}`} />
+                <LifeBuoy className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'} ${isActive ? 'animate-pulse' : ''}`} />
               )
             },
             {
@@ -731,7 +733,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               path: '/press-releases',
               label: getBottomNavLabel('news'),
               icon: (isActive: boolean) => (
-                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               )
@@ -741,7 +743,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
               path: '/parliamentary-updates',
               label: getBottomNavLabel('updates'),
               icon: (isActive: boolean) => (
-                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-saffron-600' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               )
@@ -758,7 +760,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                   router.push(tab.path)
                 }}
                 className={`relative flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-black transition-colors z-10 cursor-pointer ${
-                  isTabActive ? 'text-saffron-600' : 'text-slate-500 hover:text-slate-800'
+                  isTabActive ? 'text-navy-900' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
                 {tab.icon(isTabActive)}
