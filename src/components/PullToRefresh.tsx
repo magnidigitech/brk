@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function PullToRefresh() {
+  const router = useRouter()
   const [pullDistance, setPullDistance] = useState(0)
   const [isPulling, setIsPulling] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -18,8 +20,6 @@ export default function PullToRefresh() {
     if (typeof window === 'undefined') return
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (isRefreshing) return
-      
       // Check scroll position robustly across browsers
       const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
       if (scrollTop === 0) {
@@ -33,43 +33,53 @@ export default function PullToRefresh() {
     return () => {
       window.removeEventListener('touchstart', handleTouchStart)
     }
-  }, [isRefreshing])
+  }, [])
 
   // Hook 2: Active touchmove/touchend listeners registered ONLY when dragging, minimizing scroll overhead
   useEffect(() => {
-    if (!isPulling || isRefreshing) return
+    if (!isPulling) return
 
     const handleTouchMove = (e: TouchEvent) => {
       currentY.current = e.touches[0].clientY
       const diff = currentY.current - startY.current
 
       if (diff > 0) {
-        // Apply resistance / damping
-        const pull = Math.min(maxPull, diff * 0.4)
-        setPullDistance(pull)
+        if (!isRefreshing) {
+          // Apply resistance / damping
+          const pull = Math.min(maxPull, diff * 0.4)
+          setPullDistance(pull)
+        }
 
-        // Prevent default browser refresh pull-down indicator
+        // Prevent default browser refresh pull-down indicator (and block native refresh while spinning)
         if (e.cancelable) {
           e.preventDefault()
         }
       } else {
-        // If swiping up (scrolling down), cancel pull-to-refresh to let native scroll take over instantly
-        setIsPulling(false)
-        setPullDistance(0)
+        if (!isRefreshing) {
+          // If swiping up (scrolling down), cancel pull-to-refresh to let native scroll take over instantly
+          setIsPulling(false)
+          setPullDistance(0)
+        }
       }
     }
 
     const handleTouchEnd = () => {
       setIsPulling(false)
 
+      if (isRefreshing) return
+
       if (pullDistance >= threshold) {
         setIsRefreshing(true)
         setPullDistance(threshold)
         
-        // Trigger page refresh with a clean delay for the loading animation to shine
+        // Soft refresh route data without full browser page reload (hiding browser progress bar)
+        router.refresh()
+        
+        // Keep spinning for a short premium animation window before closing
         setTimeout(() => {
-          window.location.reload()
-        }, 850)
+          setIsRefreshing(false)
+          setPullDistance(0)
+        }, 1500)
       } else {
         // Smoothly animate back to 0
         setPullDistance(0)
@@ -83,7 +93,7 @@ export default function PullToRefresh() {
       window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [isPulling, pullDistance, isRefreshing])
+  }, [isPulling, pullDistance, isRefreshing, router])
 
   if (pullDistance === 0 && !isRefreshing) return null
 
