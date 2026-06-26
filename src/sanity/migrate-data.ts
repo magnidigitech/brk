@@ -141,7 +141,14 @@ async function run() {
       },
       phone: '+91 866 247 XXXX',
       email: 'state.office@bramakrishna.mp.in'
-    }
+    },
+    introVideoUrl: 'https://www.youtube.com/watch?v=EMgeoUKZJQ4',
+    introVideoTitle: {
+      en: 'Featured Video',
+      te: 'ఫీచర్ చేసిన వీడియో',
+      ten: 'Featured Video'
+    },
+    showIntroVideo: true
   }
   await client.createOrReplace(siteSettingsDoc)
   console.log('Site Settings updated!\n')
@@ -225,25 +232,25 @@ async function run() {
       { en: 'Rural and urban development', te: 'గ్రామీణ మరియు పట్టణ అభివృద్ధి', ten: 'Rural and urban development' }
     ].map(area => ({ ...area, _type: 'localeString' })),
     values: [
-      { 
-        name: { en: 'Discipline', te: 'క్రమశిక్షణ', ten: 'Discipline' }, 
-        desc: { en: 'The baseline for all successful educational and social institutions.', te: 'అన్ని విజయవంతమైన విద్యా మరియు సామాజిక సంస్థల పునాది.', ten: 'Successful systems కి base-line.' } 
+      {
+        name: { en: 'Discipline', te: 'క్రమశిక్షణ', ten: 'Discipline' },
+        desc: { en: 'The baseline for all successful educational and social institutions.', te: 'అన్ని విజయవంతమైన విద్యా మరియు సామాజిక సంస్థల పునాది.', ten: 'Successful systems కి base-line.' }
       },
-      { 
-        name: { en: 'Education', te: 'విద్య', ten: 'Education' }, 
-        desc: { en: 'The core pillar of public progress and individual empowerment.', te: 'ప్రజా పురోగతి మరియు వ్యక్తిగత సాధికారత యొక్క ప్రధాన స్తంభం.', ten: 'Progress and empowerment core pillar.' } 
+      {
+        name: { en: 'Education', te: 'విద్య', ten: 'Education' },
+        desc: { en: 'The core pillar of public progress and individual empowerment.', te: 'ప్రజా పురోగతి మరియు వ్యక్తిగత సాధికారత యొక్క ప్రధాన స్తంభం.', ten: 'Progress and empowerment core pillar.' }
       },
-      { 
-        name: { en: 'Service', te: 'సేవ', ten: 'Service' }, 
-        desc: { en: 'The highest responsibility of public and political leadership.', te: 'ప్రజా మరియు రాజకీయ నాయకత్వం యొక్క అత్యున్నత బాధ్యత.', ten: 'Public leadership top priority.' } 
+      {
+        name: { en: 'Service', te: 'సేవ', ten: 'Service' },
+        desc: { en: 'The highest responsibility of public and political leadership.', te: 'ప్రజా మరియు రాజకీయ నాయకత్వం యొక్క అత్యున్నత బాధ్యత.', ten: 'Public leadership top priority.' }
       },
-      { 
-        name: { en: 'Integrity', te: 'నిజాయితీ', ten: 'Integrity' }, 
-        desc: { en: 'A transparent commitment to honest governance and representation.', te: 'నిజాయితీతో కూడిన పరిపాలన మరియు ప్రాతినిధ్యం పట్ల పారదర్శక నిబద్ధత.', ten: 'Honest governance and representation కి transparent commitment.' } 
+      {
+        name: { en: 'Integrity', te: 'నిజాయితీ', ten: 'Integrity' },
+        desc: { en: 'A transparent commitment to honest governance and representation.', te: 'నిజాయితీతో కూడిన పరిపాలన మరియు ప్రాతినిధ్యం పట్ల పారదర్శక నిబద్ధత.', ten: 'Honest governance and representation కి transparent commitment.' }
       },
-      { 
-        name: { en: 'Social Progress', te: 'సామాజిక పురోగతి', ten: 'Social Progress' }, 
-        desc: { en: 'Driving inclusive and long-term socio-economic growth.', te: 'సమ్మిళిత మరియు దీర్ఘకాలిక సామాజిక-ఆర్థిక వృద్ధిని నడపడం.', ten: 'Inclusive and long-term socio-economic growth ని నడపడం.' } 
+      {
+        name: { en: 'Social Progress', te: 'సామాజిక పురోగతి', ten: 'Social Progress' },
+        desc: { en: 'Driving inclusive and long-term socio-economic growth.', te: 'సమ్మిళిత మరియు దీర్ఘకాలిక సామాజిక-ఆర్థిక వృద్ధిని నడపడం.', ten: 'Inclusive and long-term socio-economic growth ని నడపడం.' }
       }
     ]
   }
@@ -294,7 +301,7 @@ async function run() {
   // 4. Press Releases (Requires Image Upload)
   console.log('Uploading Press Releases...')
   const pressImage = await uploadImage('public/images/WhatsApp Image 2026-06-06 at 23.32.04.jpeg')
-  
+
   const newsList: any[] = [
     {
       _id: 'press-release-1',

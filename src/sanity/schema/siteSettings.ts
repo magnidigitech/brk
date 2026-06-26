@@ -61,5 +61,24 @@ export const siteSettings = defineType({
         { name: 'email', title: 'Email Address', type: 'string' },
       ],
     }),
+    defineField({
+      name: 'introVideoUrl',
+      title: 'Intro Video YouTube URL',
+      type: 'url',
+      description: 'The URL of the YouTube video to show above the profile intro.',
+    }),
+    defineField({
+      name: 'introVideoTitle',
+      title: 'Intro Video Title',
+      type: 'string',
+      description: 'The title to display above the video player (e.g. "Featured Video" or "Intro Video"). Defaults to "Featured Video".',
+    }),
+    defineField({
+      name: 'showIntroVideo',
+      title: 'Show Intro Video',
+      type: 'boolean',
+      description: 'Toggle to show or hide the intro video player on the Home Page.',
+      initialValue: false,
+    }),
   ],
 })

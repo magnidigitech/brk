@@ -91,11 +91,22 @@ export async function GET(request: NextRequest) {
       }
     `)
 
+    const siteSettings = await writeClient.fetch(`
+      *[_type == "siteSettings"][0] {
+        _id,
+        _type,
+        introVideoUrl,
+        introVideoTitle,
+        showIntroVideo
+      }
+    `)
+
     return NextResponse.json({
       success: true,
       pressReleases,
       parliamentaryUpdates,
-      dailyUpdates
+      dailyUpdates,
+      siteSettings
     })
   } catch (error: any) {
     console.error('Error fetching content lists from Sanity:', error)
@@ -204,6 +215,21 @@ export async function PATCH(request: NextRequest) {
   try {
     const bodyData = await request.json()
     const { id, type, title, speechUrl, mainImageAssetId, removeMainImage, slideshowAssetIds, removeSlideshowImages } = bodyData
+
+    if (type === 'siteSettings' || id === 'siteSettings') {
+      const { introVideoUrl, introVideoTitle, showIntroVideo } = bodyData
+      console.log('Updating Site Settings in Sanity...')
+      const result = await writeClient
+        .patch('siteSettings')
+        .set({
+          introVideoUrl: introVideoUrl?.trim() || '',
+          introVideoTitle: typeof introVideoTitle === 'string' ? introVideoTitle.trim() : introVideoTitle,
+          showIntroVideo: !!showIntroVideo
+        })
+        .commit()
+      console.log('Site Settings updated:', result._id)
+      return NextResponse.json({ success: true, document: result })
+    }
 
     if (!id) {
       return NextResponse.json({ error: 'Document ID is required.' }, { status: 400 })

@@ -95,7 +95,17 @@ export default function ContentManager() {
   const [pressReleases, setPressReleases] = useState<PressRelease[]>([])
   const [parliamentaryUpdates, setParliamentaryUpdates] = useState<ParliamentaryUpdate[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'daily' | 'press' | 'parliament'>('daily')
+  const [activeTab, setActiveTab] = useState<'daily' | 'press' | 'parliament' | 'video'>('daily')
+
+  // Video Settings States
+  const [videoUrl, setVideoUrl] = useState('')
+  const [videoTitleEn, setVideoTitleEn] = useState('')
+  const [videoTitleTe, setVideoTitleTe] = useState('')
+  const [videoTitleTen, setVideoTitleTen] = useState('')
+  const [showVideo, setShowVideo] = useState(false)
+  const [isSavingVideo, setIsSavingVideo] = useState(false)
+  const [videoSaveError, setVideoSaveError] = useState('')
+  const [videoSaveSuccess, setVideoSaveSuccess] = useState(false)
   
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -174,6 +184,14 @@ export default function ContentManager() {
         setDailyUpdates(data.dailyUpdates || [])
         setPressReleases(data.pressReleases || [])
         setParliamentaryUpdates(data.parliamentaryUpdates || [])
+        if (data.siteSettings) {
+          const settings = data.siteSettings
+          setVideoUrl(settings.introVideoUrl || '')
+          setVideoTitleEn(settings.introVideoTitle?.en || settings.introVideoTitle || '')
+          setVideoTitleTe(settings.introVideoTitle?.te || '')
+          setVideoTitleTen(settings.introVideoTitle?.ten || '')
+          setShowVideo(!!settings.showIntroVideo)
+        }
       }
     } catch (err) {
       console.error('Failed to fetch content list', err)
@@ -437,6 +455,45 @@ export default function ContentManager() {
     }
   }
 
+  const handleSaveVideoSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setVideoSaveError('')
+    setVideoSaveSuccess(false)
+    setIsSavingVideo(true)
+
+    try {
+      const res = await fetch('/api/admin/content', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: 'siteSettings',
+          type: 'siteSettings',
+          introVideoUrl: videoUrl,
+          introVideoTitle: {
+            en: videoTitleEn,
+            te: videoTitleTe,
+            ten: videoTitleTen
+          },
+          showIntroVideo: showVideo
+        }),
+      })
+
+      if (res.ok) {
+        setVideoSaveSuccess(true)
+        setTimeout(() => setVideoSaveSuccess(false), 3500)
+        fetchContent()
+      } else {
+        const errData = await res.json()
+        setVideoSaveError(errData.error || 'Failed to save video settings.')
+      }
+    } catch (err) {
+      setVideoSaveError('Network error saving video settings.')
+      console.error(err)
+    } finally {
+      setIsSavingVideo(false)
+    }
+  }
+
   // Deletion Handlers
   const handleConfirmDelete = async () => {
     if (!deletingDoc) return
@@ -618,30 +675,44 @@ export default function ContentManager() {
             >
               Parliamentary Updates
             </button>
+            <button
+              onClick={() => { setActiveTab('video'); setSearchQuery(''); }}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                activeTab === 'video' 
+                  ? 'bg-navy-900 text-white shadow-md' 
+                  : 'text-slate-600 hover:text-navy-900'
+              }`}
+            >
+              Video Settings
+            </button>
           </div>
 
-          <button
-            onClick={() => handleOpenCreate(activeTab === 'daily' ? 'dailyUpdate' : activeTab === 'press' ? 'pressRelease' : 'parliamentaryUpdate')}
-            className="flex items-center space-x-2 px-5 py-3.5 bg-saffron-500 hover:bg-saffron-600 text-slate-950 font-bold text-xs tracking-wider uppercase rounded-2xl shadow-md transition-all cursor-pointer w-full sm:w-auto justify-center"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create {activeTab === 'daily' ? 'Daily Update' : activeTab === 'press' ? 'Press Release' : 'Parliamentary Update'}</span>
-          </button>
+          {activeTab !== 'video' && (
+            <button
+              onClick={() => handleOpenCreate(activeTab === 'daily' ? 'dailyUpdate' : activeTab === 'press' ? 'pressRelease' : 'parliamentaryUpdate')}
+              className="flex items-center space-x-2 px-5 py-3.5 bg-saffron-500 hover:bg-saffron-600 text-slate-950 font-bold text-xs tracking-wider uppercase rounded-2xl shadow-md transition-all cursor-pointer w-full sm:w-auto justify-center"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create {activeTab === 'daily' ? 'Daily Update' : activeTab === 'press' ? 'Press Release' : 'Parliamentary Update'}</span>
+            </button>
+          )}
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm mb-6 flex items-center">
-          <div className="relative w-full">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pl-11 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none"
-              placeholder={`Search ${activeTab === 'daily' ? 'Daily Updates' : activeTab === 'press' ? 'Press Releases' : 'Parliamentary Updates'} by title or text...`}
-            />
-            <Search className="w-4.5 h-4.5 text-slate-400 absolute left-4 top-3.5" />
+        {activeTab !== 'video' && (
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm mb-6 flex items-center">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 pl-11 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none"
+                placeholder={`Search ${activeTab === 'daily' ? 'Daily Updates' : activeTab === 'press' ? 'Press Releases' : 'Parliamentary Updates'} by title or text...`}
+              />
+              <Search className="w-4.5 h-4.5 text-slate-400 absolute left-4 top-3.5" />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content Lists */}
         <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
@@ -812,7 +883,7 @@ export default function ContentManager() {
                 </table>
               </div>
             )
-          ) : (
+          ) : activeTab === 'parliament' ? (
             /* Parliamentary Updates Table */
             filteredUpdates.length === 0 ? (
               <div className="text-center py-20">
@@ -909,6 +980,128 @@ export default function ContentManager() {
                 </table>
               </div>
             )
+          ) : (
+            /* activeTab === 'video' -> Video Settings Form */
+            <div className="p-6 max-w-2xl mx-auto">
+              <div className="mb-6">
+                <h3 className="text-base font-extrabold text-navy-900 mb-1">Featured Video Player Settings</h3>
+                <p className="text-xs text-slate-400">Configure the dynamic YouTube video block displayed on the home page.</p>
+              </div>
+
+              {videoSaveError && (
+                <div className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-xl mb-6 flex items-start">
+                  <AlertCircle className="w-4 h-4 mr-2 shrink-0 mt-0.5" />
+                  <span>{videoSaveError}</span>
+                </div>
+              )}
+
+              {videoSaveSuccess && (
+                <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl mb-6 flex items-start">
+                  <Check className="w-4 h-4 mr-2 shrink-0 mt-0.5" />
+                  <span>Video settings updated successfully! Changes published to Sanity.</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveVideoSettings} className="space-y-6">
+                {/* Toggle switch */}
+                <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200/60 rounded-xl">
+                  <div>
+                    <label className="block text-xs font-bold text-navy-900">Show Video Player</label>
+                    <span className="block text-[10px] text-slate-400 mt-0.5">Toggle to show or hide the video block on the Home page.</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={showVideo}
+                      onChange={(e) => setShowVideo(e.target.checked)}
+                      className="sr-only peer" 
+                    />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
+                  </label>
+                </div>
+
+                {/* Video URL */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    YouTube Video URL
+                  </label>
+                  <input
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50 focus:bg-white text-xs outline-none"
+                    disabled={isSavingVideo}
+                  />
+                  <span className="block text-[9px] text-slate-400 mt-1.5">Provide a standard YouTube watch or short share link.</span>
+                </div>
+
+                {/* Localized Titles */}
+                <div className="border-t border-slate-100 pt-6 space-y-4">
+                  <h4 className="text-xs font-bold text-navy-900">Video Section Title (Multilingual)</h4>
+                  
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Title (English)
+                    </label>
+                    <input
+                      type="text"
+                      value={videoTitleEn}
+                      onChange={(e) => setVideoTitleEn(e.target.value)}
+                      placeholder="Featured Video"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
+                      disabled={isSavingVideo}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Title (Telugu)
+                    </label>
+                    <input
+                      type="text"
+                      value={videoTitleTe}
+                      onChange={(e) => setVideoTitleTe(e.target.value)}
+                      placeholder="ఫీచర్ చేసిన వీడియో"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
+                      disabled={isSavingVideo}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Title (Tenglish)
+                    </label>
+                    <input
+                      type="text"
+                      value={videoTitleTen}
+                      onChange={(e) => setVideoTitleTen(e.target.value)}
+                      placeholder="Featured Video"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
+                      disabled={isSavingVideo}
+                    />
+                  </div>
+                </div>
+
+                {/* Save button */}
+                <div className="border-t border-slate-100 pt-6">
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-navy-900 hover:bg-navy-850 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                    disabled={isSavingVideo}
+                  >
+                    {isSavingVideo ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <span>Save Video Settings</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
       </main>

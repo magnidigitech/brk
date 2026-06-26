@@ -95,7 +95,10 @@ export default async function Page() {
           stateRepresented,
           socialLinks,
           delhiOffice,
-          stateOffice
+          stateOffice,
+          introVideoUrl,
+          introVideoTitle,
+          showIntroVideo
         }`
       })
     ])
