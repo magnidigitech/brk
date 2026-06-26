@@ -84,6 +84,12 @@ function convertBlocksToText(blocks: any[] | undefined): string {
     .join('\n\n')
 }
 
+function resolveLocale(field: any): string {
+  if (!field) return ''
+  if (typeof field === 'string') return field
+  return field.en || field.te || field.ten || ''
+}
+
 export default function ContentManager() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [email, setEmail] = useState('')
@@ -234,7 +240,7 @@ export default function ContentManager() {
     setFormType(type)
     setEditingDocId(item._id)
 
-    setTitle(item.title)
+    setTitle(resolveLocale(item.title))
     setSpeechUrl(item.speechUrl || '')
 
     setMainImageAssetId(item.mainImageAssetId || '')
@@ -248,11 +254,11 @@ export default function ContentManager() {
     if (type === 'pressRelease') {
       // Adjust standard datetime input format
       setDateField(item.publishedAt ? item.publishedAt.substring(0, 16) : '')
-      setExcerptOrSummary(item.excerpt || '')
+      setExcerptOrSummary(resolveLocale(item.excerpt))
       setBodyContent(convertBlocksToText(item.body))
     } else if (type === 'dailyUpdate') {
       setDateField(item.date || '')
-      setExcerptOrSummary(item.summary || '')
+      setExcerptOrSummary(resolveLocale(item.summary))
       setBodyContent(convertBlocksToText(item.body))
       
       setDocumentAssetId('')
@@ -261,7 +267,7 @@ export default function ContentManager() {
       setRemoveDocument(false)
     } else {
       setDateField(item.date || '')
-      setExcerptOrSummary(item.summary || '')
+      setExcerptOrSummary(resolveLocale(item.summary))
       
       setDocumentAssetId(item.documentAssetId || '')
       setDocumentUrl(item.documentUrl || '')
@@ -517,18 +523,18 @@ export default function ContentManager() {
 
   // Filter lists by search query
   const filteredDaily = dailyUpdates.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.summary.toLowerCase().includes(searchQuery.toLowerCase())
+    resolveLocale(item.title).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resolveLocale(item.summary).toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const filteredPress = pressReleases.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.excerpt && item.excerpt.toLowerCase().includes(searchQuery.toLowerCase()))
+    resolveLocale(item.title).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.excerpt && resolveLocale(item.excerpt).toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   const filteredUpdates = parliamentaryUpdates.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.summary.toLowerCase().includes(searchQuery.toLowerCase())
+    resolveLocale(item.title).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resolveLocale(item.summary).toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   // Render Login Screen if not authenticated
@@ -755,8 +761,8 @@ export default function ContentManager() {
                           )}
                         </td>
                         <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{item.title}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{item.summary || 'No summary provided.'}</p>
+                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary) || 'No summary provided.'}</p>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
                           {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
@@ -789,7 +795,7 @@ export default function ContentManager() {
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => setDeletingDoc({ id: item._id, title: item.title, type: 'dailyUpdate' })}
+                            onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'dailyUpdate' })}
                             className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
                             title="Delete"
                           >
@@ -836,8 +842,8 @@ export default function ContentManager() {
                           )}
                         </td>
                         <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{item.title}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{item.excerpt || 'No excerpt summary provided.'}</p>
+                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.excerpt) || 'No excerpt summary provided.'}</p>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
                           {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'Draft'}
@@ -870,7 +876,7 @@ export default function ContentManager() {
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => setDeletingDoc({ id: item._id, title: item.title, type: 'pressRelease' })}
+                            onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'pressRelease' })}
                             className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
                             title="Delete"
                           >
@@ -918,8 +924,8 @@ export default function ContentManager() {
                           )}
                         </td>
                         <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{item.title}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{item.summary}</p>
+                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary)}</p>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
                           {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
@@ -967,7 +973,7 @@ export default function ContentManager() {
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => setDeletingDoc({ id: item._id, title: item.title, type: 'parliamentaryUpdate' })}
+                            onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentaryUpdate' })}
                             className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
                             title="Delete"
                           >
