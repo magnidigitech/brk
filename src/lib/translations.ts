@@ -45,9 +45,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
 
   // Titles & Headings
   'site.title': {
-    en: 'Bhashyam Ramakrishna | Official Rajya Sabha Portal',
+    en: 'Bhashyam Rama Krishna | Official Rajya Sabha Portal',
     te: 'భాష్యం రామకృష్ణ | అధికారిక రాజ్యసభ పోర్టల్',
-    ten: 'Bhashyam Ramakrishna | Official Rajya Sabha Portal'
+    ten: 'Bhashyam Rama Krishna | Official Rajya Sabha Portal'
   },
   'hero.candidateNomination': {
     en: 'Rajya Sabha Nominee',
@@ -836,19 +836,19 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'How can citizens submit grievances or contact his office?'
   },
   'faq.a6': {
-    en: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Vijayawada and New Delhi office.',
-    te: 'ప్రజలు ఈ వెబ్‌సైట్‌లోని ఫిర్యాదుల పోర్టల్ ద్వారా నేరుగా తమ సమస్యలను పంపవచ్చు లేదా విజయవాడ, న్యూఢిల్లీ కార్యాలయాలను సంప్రదించవచ్చు.',
-    ten: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Vijayawada and New Delhi office.'
+    en: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Guntur and New Delhi office.',
+    te: 'ప్రజలు ఈ వెబ్‌సైట్‌లోని ఫిర్యాదుల పోర్టల్ ద్వారా నేరుగా తమ సమస్యలను పంపవచ్చు లేదా గుంటూరు, న్యూఢిల్లీ కార్యాలయాలను సంప్రదించవచ్చు.',
+    ten: 'Citizens can submit issues directly through the online Grievance Portal on this website or reach out to the State Camp Office in Guntur and New Delhi office.'
   },
   'faq.q7': {
-    en: 'Where is the MP\'s camp office located in Vijayawada?',
-    te: 'విజయవాడలో ఎంపీ గారి క్యాంప్ కార్యాలయం ఎక్కడ ఉంది?',
-    ten: 'Camp office location in Vijayawada'
+    en: 'Where is the MP\'s camp office located in Guntur?',
+    te: 'గుంటూరులో ఎంపీ గారి క్యాంప్ కార్యాలయం ఎక్కడ ఉంది?',
+    ten: 'Camp office location in Guntur'
   },
   'faq.a7': {
-    en: 'The State Camp Office is located at Bhashyam Main Campus, Vijayawada, Andhra Pradesh, dedicated to receiving constituent grievances and coordinating state development pushes.',
-    te: 'రాష్ట్ర క్యాంప్ కార్యాలయం విజయవాడలోని భాష్యం ప్రధాన క్యాంపస్ నందు కలదు. ఇది పౌరుల ఫిర్యాదులను స్వీకరించడానికి మరియు రాష్ట్ర అభివృద్ధి పనుల సమన్వయానికి కేటాయించబడింది.',
-    ten: 'Camp office Vijayawada Bhashyam Main Campus లో ఉంది.'
+    en: 'The State Camp Office is located at Navabharath Nagar 4/3 Line, Guntur - 522006, dedicated to receiving constituent grievances and coordinating state development pushes.',
+    te: 'రాష్ట్ర క్యాంప్ కార్యాలయం గుంటూరులోని నవభారత్ నగర్ 4/3 లైన్ నందు కలదు. ఇది పౌరుల ఫిర్యాదులను స్వీకరించడానికి మరియు రాష్ట్ర అభివృద్ధి పనుల సమన్వయానికి కేటాయించబడింది.',
+    ten: 'Camp office Guntur, Navabharath Nagar 4/3 Line లో ఉంది.'
   },
   'faq.q8': {
     en: 'What is the residency address of Rajya Sabha member Bhashyam Ramakrishna in New Delhi?',
@@ -953,8 +953,8 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     te: 'కార్యాలయాల సంప్రదింపు వివరాలు | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.contact.desc': {
-    en: 'Contact offices of Shri Bhashyam Ramakrishna in New Delhi and Camp Office in Vijayawada, Andhra Pradesh. Submit inquiries and policy feedback.',
-    te: 'న్యూఢిల్లీ మరియు విజయవాడ క్యాంప్ కార్యాలయాల చిరునామా, ఫోన్ మరియు ఈమెయిల్ వివరాలు. మీ సలహాలు, సూచనలను ఇక్కడ పంపండి.',
+    en: 'Contact offices of Shri Bhashyam Ramakrishna in New Delhi and Camp Office in Guntur, Andhra Pradesh. Submit inquiries and policy feedback.',
+    te: 'న్యూఢిల్లీ మరియు గుంటూరు క్యాంప్ కార్యాలయాల చిరునామా, ఫోన్ మరియు ఈమెయిల్ వివరాలు. మీ సలహాలు, సూచనలను ఇక్కడ పంపండి.',
   },
   'meta.grievance.title': {
     en: 'Public Grievance Portal | Bhashyam Ramakrishna MP',

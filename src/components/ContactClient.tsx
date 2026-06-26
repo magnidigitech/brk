@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react'
+import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle, ShieldCheck, ExternalLink } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 
 interface ContactClientProps {
@@ -113,7 +113,18 @@ export default function ContactClient({ settings }: ContactClientProps) {
               <ul className="space-y-3 text-xs text-slate-500">
                 <li className="flex items-start">
                   <MapPin className="w-4 h-4 mr-2.5 text-navy-900 shrink-0 mt-0.5" />
-                  <span className="whitespace-pre-line text-left block">{tContent(settings.stateOffice.address)}</span>
+                  <div>
+                    <span className="whitespace-pre-line text-left block">{tContent(settings.stateOffice.address)}</span>
+                    <a 
+                      href="https://maps.app.goo.gl/FRBmf7CNdemcodYN7"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold text-saffron-600 hover:text-saffron-700 mt-1.5 inline-flex items-center space-x-1 transition-colors"
+                    >
+                      <span>View on Google Maps</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </li>
                 <li className="flex items-center">
                   <Phone className="w-4 h-4 mr-2.5 text-navy-900 shrink-0" />

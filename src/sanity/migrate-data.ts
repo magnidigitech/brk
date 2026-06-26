@@ -95,9 +95,9 @@ async function run() {
     _id: 'siteSettings',
     _type: 'siteSettings',
     candidateName: {
-      en: 'Bhashyam Ramakrishna',
+      en: 'Bhashyam Rama Krishna',
       te: 'భాష్యం రామకృష్ణ',
-      ten: 'Bhashyam Ramakrishna'
+      ten: 'Bhashyam Rama Krishna'
     },
     roleBadge: {
       en: 'Member of Parliament (Rajya Sabha)',
@@ -135,9 +135,9 @@ async function run() {
     },
     stateOffice: {
       address: {
-        en: 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, Andhra Pradesh - 520010',
-        te: 'డోర్ నెం. 40-5-1, ఎం.జి. రోడ్డు, లబ్బీపేట, విజయవాడ, ఆంధ్రప్రదేశ్ - 520010',
-        ten: 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010'
+        en: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
+        te: 'నవభారత్ నగర్ 4/3 లైన్, గుంటూరు - 522006',
+        ten: 'Navabharath Nagar 4/3 Line, Guntur - 522006'
       },
       phone: '+91 866 247 XXXX',
       email: 'state.office@bramakrishna.mp.in'
@@ -161,9 +161,9 @@ async function run() {
     _id: 'aboutPage',
     _type: 'aboutPage',
     title: {
-      en: 'Bhashyam Ramakrishna',
+      en: 'Bhashyam Rama Krishna',
       te: 'భాష్యం రామకృష్ణ',
-      ten: 'Bhashyam Ramakrishna'
+      ten: 'Bhashyam Rama Krishna'
     },
     subtitle: {
       en: 'A Visionary Educationist | A Committed Public Leader | A Voice for AP',

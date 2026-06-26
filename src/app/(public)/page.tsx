@@ -126,7 +126,7 @@ export default async function Page() {
   const personSchema = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    'name': 'Shri Bhashyam Ramakrishna',
+    'name': 'Shri Bhashyam Rama Krishna',
     'url': 'https://bramakrishna.mp.in',
     'image': 'https://bramakrishna.mp.in/images/brk.png',
     'jobTitle': getRoleTitle(lang),
@@ -151,7 +151,7 @@ export default async function Page() {
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    'name': 'Bhashyam Ramakrishna | Official Rajya Sabha Portal',
+    'name': 'Bhashyam Rama Krishna | Official Rajya Sabha Portal',
     'url': 'https://bramakrishna.mp.in'
   }
 

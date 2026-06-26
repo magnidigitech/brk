@@ -32,13 +32,13 @@ export default function Footer({ siteSettings }: FooterProps) {
   const { t, tContent } = useLanguage()
 
   // All values resolved from server-passed siteSettings
-  const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Ramakrishna')
+  const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Rama Krishna')
   const roleBadge = getRoleTitle(useLanguage().language)
   const instagram = siteSettings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/'
   const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamramakrishnaofficial'
   const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
   const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
-  const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010')
+  const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Navabharath Nagar 4/3 Line, Guntur - 522006')
   const statePhone = siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'
   const stateEmail = siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'
 

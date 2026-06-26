@@ -37,7 +37,7 @@ export default async function ContactPage() {
       email: 'delhi.office@bramakrishna.mp.in'
     },
     stateOffice: {
-      address: 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, Andhra Pradesh - 520010',
+      address: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
       phone: '+91 866 247 XXXX',
       email: 'state.office@bramakrishna.mp.in'
     }
@@ -82,16 +82,16 @@ export default async function ContactPage() {
   const stateOfficeSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    'name': 'Shri Bhashyam Ramakrishna State Camp Office',
+    'name': 'Shri Bhashyam Rama Krishna State Camp Office',
     'image': 'https://bramakrishna.mp.in/images/logo.png',
     'telephone': settings.stateOffice.phone,
     'email': settings.stateOffice.email,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': 'Door No. 40-5-1, MG Road, Labbipet',
-      'addressLocality': 'Vijayawada',
+      'streetAddress': 'Navabharath Nagar 4/3 Line',
+      'addressLocality': 'Guntur',
       'addressRegion': 'Andhra Pradesh',
-      'postalCode': '520010',
+      'postalCode': '522006',
       'addressCountry': 'IN'
     }
   }
@@ -99,7 +99,7 @@ export default async function ContactPage() {
   const delhiOfficeSchema = {
     '@context': 'https://schema.org',
     '@type': 'GovernmentOffice',
-    'name': 'Shri Bhashyam Ramakrishna Parliamentary Office',
+    'name': 'Shri Bhashyam Rama Krishna Parliamentary Office',
     'telephone': settings.delhiOffice.phone,
     'email': settings.delhiOffice.email,
     'address': {

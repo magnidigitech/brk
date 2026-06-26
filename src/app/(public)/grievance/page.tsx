@@ -51,18 +51,18 @@ export default async function Page() {
   const contactPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    'name': lang === 'te' ? 'ప్రజా ఫిర్యాదుల పోర్టల్ | శ్రీ భాష్యం రామకృష్ణ' : 'Public Grievance Portal | Shri Bhashyam Ramakrishna',
+    'name': lang === 'te' ? 'ప్రజా ఫిర్యాదుల పోర్టల్ | శ్రీ భాష్యం రామకృష్ణ' : 'Public Grievance Portal | Shri Bhashyam Rama Krishna',
     'description': lang === 'te' ? 'సమస్యలు, సలహాలను నేరుగా మా కార్యాలయానికి పంపండి.' : 'Submit local challenges, community requests, or suggestions directly to our office.',
     'url': 'https://bramakrishna.mp.in/grievance',
     'mainEntity': {
       '@type': 'GovernmentOffice',
-      'name': 'Shri Bhashyam Ramakrishna Camp Office',
+      'name': 'Shri Bhashyam Rama Krishna Camp Office',
       'address': {
         '@type': 'PostalAddress',
-        'streetAddress': 'Door No. 40-5-1, MG Road, Labbipet',
-        'addressLocality': 'Vijayawada',
+        'streetAddress': 'Navabharath Nagar 4/3 Line',
+        'addressLocality': 'Guntur',
         'addressRegion': 'Andhra Pradesh',
-        'postalCode': '520010',
+        'postalCode': '522006',
         'addressCountry': 'IN'
       }
     }

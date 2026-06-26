@@ -253,8 +253,8 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
 
     if (isChipContact) {
       replyText = language === 'te'
-        ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా విజయవాడ క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
-        : "Here are the contact details for Shri Bhashyam Ramakrishna's official New Delhi and Vijayawada camp offices:"
+        ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా గుంటూరు క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
+        : "Here are the contact details for Shri Bhashyam Rama Krishna's official New Delhi and Guntur camp offices:"
       richCard = { type: 'contact' }
     } else if (isChipGrievance) {
       replyText = language === 'te'
@@ -264,7 +264,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
     } else if (isChipBio) {
       replyText = language === 'te'
         ? "శ్రీ భాష్యం రామకృష్ణ గారు ప్రముఖ విద్యావేత్త, భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్ మరియు ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన గౌరవ రాజ్యసభ అభ్యర్థి. ఆయన విద్యా వికాసం మరియు ప్రజా సేవకు కట్టుబడి ఉన్నారు."
-        : "Shri Bhashyam Ramakrishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
+        : "Shri Bhashyam Rama Krishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
       richCard = { type: 'about' }
     } else if (isChipSectors) {
       replyText = language === 'te'
@@ -320,8 +320,8 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
 
         if (isContact) {
           replyText = language === 'te'
-            ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా విజయవాడ క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
-            : "Here are the contact details for Shri Bhashyam Ramakrishna's official New Delhi and Vijayawada camp offices:"
+            ? "శ్రీ భాష్యం రామకృష్ణ గారి క్యాంప్ కార్యాలయాల వివరాలు క్రింద ఇవ్వబడ్డాయి. మీరు న్యూఢిల్లీ లేదా గుంటూరు క్యాంప్ కార్యాలయాన్ని నేరుగా ఫోన్ లేదా ఈమెయిల్ ద్వారా సంప్రదించవచ్చు."
+            : "Here are the contact details for Shri Bhashyam Rama Krishna's official New Delhi and Guntur camp offices:"
           richCard = { type: 'contact' }
         } else if (isGrievance) {
           replyText = language === 'te'
@@ -508,21 +508,21 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                             <div className="space-y-3">
                               {/* State Camp Office */}
                               <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] leading-relaxed relative">
-                                <span className="block text-[8px] font-black text-saffron-600 uppercase tracking-widest mb-1.5">Vijayawada Camp Office</span>
+                                <span className="block text-[8px] font-black text-saffron-600 uppercase tracking-widest mb-1.5">Guntur Camp Office</span>
                                 <p className="text-navy-950 font-bold mb-1.5 flex items-start">
                                   <MapPin className="w-3.5 h-3.5 mr-1 shrink-0 text-slate-400 mt-0.5" />
-                                  {siteSettings?.stateOffice?.address || 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010'}
+                                  {siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'}
                                 </p>
                                 <div className="space-y-1 font-bold text-slate-600">
                                   <a href={`tel:${siteSettings?.stateOffice?.phone || '+918662470000'}`} className="flex items-center hover:text-navy-900">
-                                    <Phone className="w-3 h-3 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'}
+                                    <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'}
                                   </a>
                                   <a href={`mailto:${siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'}`} className="flex items-center hover:text-navy-900 truncate">
-                                    <Mail className="w-3 h-3 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'}
+                                    <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'}
                                   </a>
                                 </div>
                                 <button
-                                  onClick={() => handleCopy(`${siteSettings?.stateOffice?.address || 'Door No. 40-5-1, MG Road, Labbipet, Vijayawada, AP - 520010'} Phone: ${siteSettings?.stateOffice?.phone || '+918662470000'}`, 'state-office')}
+                                  onClick={() => handleCopy(`${siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'} Phone: ${siteSettings?.stateOffice?.phone || '+918662470000'}`, 'state-office')}
                                   className="absolute top-2 right-2 text-slate-400 hover:text-navy-900"
                                 >
                                   {copiedIndex === 'state-office' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
