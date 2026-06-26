@@ -140,7 +140,7 @@ export default function AnimatedHeaderBanner({
             />
           </motion.div>
 
-          {/* 4. Right Ramakrishna: Fade in from right */}
+          {/* 4. Right Rama Krishna: Fade in from right */}
           <motion.div
             initial={{ x: 60, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -155,7 +155,7 @@ export default function AnimatedHeaderBanner({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={brkPath}
-              alt="Bhashyam Ramakrishna"
+              alt="Bhashyam Rama Krishna"
               className="w-full h-full object-cover"
               fetchPriority="high"
             />

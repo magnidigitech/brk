@@ -176,17 +176,17 @@ async function run() {
       ten: 'Member of Parliament (Rajya Sabha)'
     },
     profileShortName: {
-      en: 'B. Ramakrishna',
+      en: 'B. Rama Krishna',
       te: 'బి. రామకృష్ణ',
-      ten: 'B. Ramakrishna'
+      ten: 'B. Rama Krishna'
     },
     bioParagraph1: {
-      en: 'Bhashyam Ramakrishna is a respected educationist, institution builder, and public service leader from Andhra Pradesh. With decades of dedicated work in the field of education, he has played a significant role in shaping the academic journey of thousands of students through Bhashyam Educational Institutions.',
+      en: 'Bhashyam Rama Krishna is a respected educationist, institution builder, and public service leader from Andhra Pradesh. With decades of dedicated work in the field of education, he has played a significant role in shaping the academic journey of thousands of students through Bhashyam Educational Institutions.',
       te: 'భాష్యం రామకృష్ణ ఆంధ్రప్రదేశ్ నుండి గౌరవనీయ విద్యావేత్త, సంస్థల నిర్మాత మరియు ప్రజా సేవకుడు. విద్యా రంగంలో దశాబ్దాల అంకితమైన సేవతో, ఆయన భాష్యం విద్యా సంస్థల ద్వారా వేలాది మంది విద్యార్థుల విద్యా ప్రయాణాన్ని తీర్చిదిద్దడంలో కీలక పాత్ర పోషించారు.',
-      ten: 'Bhashyam Ramakrishna is a respected educationist, institution builder, and public service leader. Education sector లో decades పాటు work చేసి, Bhashyam Educational Institutions ద్వారా thousands of students career ని shape చేశారు.'
+      ten: 'Bhashyam Rama Krishna is a respected educationist, institution builder, and public service leader. Education sector లో decades పాటు work చేసి, Bhashyam Educational Institutions ద్వారా thousands of students career ని shape చేశారు.'
     },
     bioParagraph2: {
-      en: 'Known for his disciplined approach, service-oriented mindset, and strong commitment to youth development, Bhashyam Ramakrishna has built a reputation as a leader who believes that education is the foundation for social progress. His work has always focused on empowering students, supporting families, and contributing to the growth of society through quality education and value-based learning.',
+      en: 'Known for his disciplined approach, service-oriented mindset, and strong commitment to youth development, Bhashyam Rama Krishna has built a reputation as a leader who believes that education is the foundation for social progress. His work has always focused on empowering students, supporting families, and contributing to the growth of society through quality education and value-based learning.',
       te: 'క్రమశిక్షణ, సేవానిరతి మరియు యువత అభివృద్ధిపై బలమైన నిబద్ధతకు పేరుగాంచిన భాష్యం రామకృష్ణ, విద్య అనేది సామాజిక పురోగతికి పునాది అని నమ్మే నాయకుడిగా గుర్తింపు పొందారు. ఆయన సేవలు ఎల్లప్పుడూ విద్యార్థుల సాధికారత, కుటుంబాల మద్దతు మరియు విలువలతో కూడిన నాణ్యమైన విద్య ద్వారా సమాజ అభివృద్ధిపై కేంద్రీకృతమై ఉన్నాయి.',
       ten: 'Disciplined approach, service mindset, and youth development కి నిబద్ధత ఉన్న leader గా పేరు తెచ్చుకున్నారు. Education అనేది social progress కి foundation అని నమ్ముతారు. Quality education and values ద్వారా students ని empower చెయ్యడమే target.'
     },
@@ -196,7 +196,7 @@ async function run() {
       ten: 'Founder Chairman of Bhashyam Educational Institutions'
     },
     eduContent: {
-      en: 'Under Bhashyam Ramakrishna\'s leadership, the Bhashyam group has grown into one of the well-known educational networks in Andhra Pradesh and Telangana. His vision has always been to make quality education accessible, structured, and result-oriented. His belief is simple and powerful: when students are guided with the right education, values, and confidence, they can build a better future for themselves, their families, and the nation.',
+      en: 'Under Bhashyam Rama Krishna\'s leadership, the Bhashyam group has grown into one of the well-known educational networks in Andhra Pradesh and Telangana. His vision has always been to make quality education accessible, structured, and result-oriented. His belief is simple and powerful: when students are guided with the right education, values, and confidence, they can build a better future for themselves, their families, and the nation.',
       te: 'భాష్యం రామకృష్ణ నాయకత్వంలో, భాష్యం విద్యా సంస్థలు ఆంధ్రప్రదేశ్ మరియు తెలంగాణలలో ప్రముఖ విద్యా నెట్‌వర్క్‌లలో ఒకటిగా విస్తరించాయి. నాణ్యమైన విద్యను అందుబాటులో ఉంచడం, క్రమబద్ధంగా మరియు ఫలితాల ఆధారితంగా అందించడమే ఆయన ప్రధాన లక్ష్యం. విద్యార్థులకు సరైన జ్ఞానం, విలువలు, ఆత్మవిశ్వాసం అందిస్తే వారు దేశ భవిష్యత్తును మార్చగలరని ఆయన నమ్ముతారు.',
       ten: 'Bhashyam group of institutions ని AP & Telangana లో top educational network గా నిలబెట్టారు. Quality education ని accessible, structured అండ్ result-oriented గా మార్చడమే target. Right guidance and values తో students super future బిల్డ్ చేస్తారని నమ్ముతారు.'
     },
@@ -206,9 +206,9 @@ async function run() {
       ten: 'Public Service Journey'
     },
     publicContent: {
-      en: 'Beyond education, Bhashyam Ramakrishna has remained closely connected with public service and social development. His journey reflects a strong commitment to people, especially students, youth, parents, teachers, and communities that seek better opportunities. His public service approach is rooted in listening to people, understanding their challenges, and working towards practical solutions. As a Rajya Sabha candidate from Andhra Pradesh nominated by the Telugu Desam Party (TDP), Bhashyam Ramakrishna represents a leadership profile built on education, discipline, development, and service.',
+      en: 'Beyond education, Bhashyam Rama Krishna has remained closely connected with public service and social development. His journey reflects a strong commitment to people, especially students, youth, parents, teachers, and communities that seek better opportunities. His public service approach is rooted in listening to people, understanding their challenges, and working towards practical solutions. As a Rajya Sabha candidate from Andhra Pradesh nominated by the Telugu Desam Party (TDP), Bhashyam Rama Krishna represents a leadership profile built on education, discipline, development, and service.',
       te: 'విద్యతో పాటు, భాష్యం రామకృష్ణ గారు ప్రజాసేవ మరియు సామాజిక అభివృద్ధి కార్యక్రమాలలో నిరంతరం చురుగ్గా పాల్గొంటున్నారు. ప్రజలకు, ముఖ్యంగా విద్యార్థులు, యువత మరియు ఉపాధ్యాయులకు మెరుగైన అవకాశాలు కల్పించడంలో ఆయన నిబద్ధత స్పష్టంగా కనిపిస్తుంది. ప్రజల సమస్యలను ఆలకించి, ఆచరణాత్మక పరిష్కారాలు కనుగొనడమే ఆయన సేవా విధానం. తెలుగుదేశం పార్టీ (TDP) తరఫున రాజ్యసభ అభ్యర్థిగా ఎంపికైన ఆయన, క్రమశిక్షణ, అభివృద్ధి, విద్యతో కూడిన నాయకత్వానికి నిదర్శనం.',
-      ten: 'Education తో పాటు, Bhashyam Ramakrishna గారు public service లో active గా ఉన్నారు. Students, youth, and parents కి opportunities కల్పించడానికి work చేస్తున్నారు. People challenges కి practical solutions తేవడమే strategy. TDP Rajya Sabha leader గా dynamic గా నిలబడ్డారు.'
+      ten: 'Education తో పాటు, Bhashyam Rama Krishna గారు public service లో active గా ఉన్నారు. Students, youth, and parents కి opportunities కల్పించడానికి work చేస్తున్నారు. People challenges కి practical solutions తేవడమే strategy. TDP Rajya Sabha leader గా dynamic గా నిలబడ్డారు.'
     },
     quoteText: {
       en: 'Education has the power to change lives, strengthen families, and build the future of our society. My journey has always been guided by the belief that service to people is the highest responsibility. My team and I remain committed to working for the progress of Andhra Pradesh, the empowerment of youth, and the development of our nation.',
@@ -216,14 +216,14 @@ async function run() {
       ten: 'Education has the power to change lives, strengthen families, and build the future. Service to people అనేది top responsibility. AP progress కి అండ్ youth empowerment కి నిరంతరం శ్రమిస్తాము.'
     },
     quoteAuthor: {
-      en: 'Bhashyam Ramakrishna',
+      en: 'Bhashyam Rama Krishna',
       te: 'భాష్యం రామకృష్ణ',
-      ten: 'Bhashyam Ramakrishna'
+      ten: 'Bhashyam Rama Krishna'
     },
     summaryContent: {
-      en: 'Bhashyam Ramakrishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh. With decades of contribution to education and social development, he continues to work with a vision to empower youth, support families, and contribute to the progress of society. His journey from education to public service reflects his commitment to creating meaningful change and serving people with dedication, discipline, and responsibility.',
+      en: 'Bhashyam Rama Krishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh. With decades of contribution to education and social development, he continues to work with a vision to empower youth, support families, and contribute to the progress of society. His journey from education to public service reflects his commitment to creating meaningful change and serving people with dedication, discipline, and responsibility.',
       te: 'భాష్యం రామకృష్ణ విద్యావేత్త, విద్యా సంస్థల వ్యవస్థాపక చైర్మన్ మరియు సామాజిక నాయకుడు. దశాబ్దాలుగా విద్య మరియు సమాజ అభివృద్ధికి కృషి చేస్తూ, యువతకు అవకాశాలు కల్పించడమే ధ్యేయంగా పనిచేస్తున్నారు. విద్యారంగం నుండి ప్రజా సేవ వైపు సాగిన ఆయన ప్రయాణం క్రమశిక్షణ, బాధ్యతతో కూడిన నిబద్ధతను తెలియజేస్తుంది.',
-      ten: 'Bhashyam Ramakrishna గారు educationist, Founder Chairman, and public service leader. Decades of contribution తో youth ని empower చెయ్యడమే vision. Education to public service journey represents dedication, discipline, and responsibility.'
+      ten: 'Bhashyam Rama Krishna గారు educationist, Founder Chairman, and public service leader. Decades of contribution తో youth ని empower చెయ్యడమే vision. Education to public service journey represents dedication, discipline, and responsibility.'
     },
     focusAreas: [
       { en: 'Quality education for all sections of society', te: 'సమాజంలోని అన్ని వర్గాలకు నాణ్యమైన విద్య', ten: 'Quality education for all sections of society' },
@@ -309,9 +309,9 @@ async function run() {
       _id: 'press-release-1',
       _type: 'pressRelease',
       title: {
-        en: "Bhashyam Ramakrishna MP Initiates Multi-Village Drinking Water Action Plan",
+        en: "Bhashyam Rama Krishna MP Initiates Multi-Village Drinking Water Action Plan",
         te: "భాష్యం రామకృష్ణ ఎంపీ బహుళ గ్రామ తాగునీటి కార్యాచరణ ప్రణాళికను ప్రారంభించారు",
-        ten: "Bhashyam Ramakrishna MP Multi-Village Drinking Water Action Plan start చేశారు"
+        ten: "Bhashyam Rama Krishna MP Multi-Village Drinking Water Action Plan start చేశారు"
       },
       slug: { _type: 'slug', current: 'bhashyam-ramakrishna-mp-initiates-multi-village-drinking-water-action-plan' },
       publishedAt: '2026-06-05T00:00:00Z',
@@ -333,9 +333,9 @@ async function run() {
       slug: { _type: 'slug', current: 'parliamentary-committee-reviews-digital-literacy-achievements' },
       publishedAt: '2026-05-29T00:00:00Z',
       excerpt: {
-        en: "Rajya Sabha MP Bhashyam Ramakrishna joined the delegation to verify rural center resources and digital training progress.",
+        en: "Rajya Sabha MP Bhashyam Rama Krishna joined the delegation to verify rural center resources and digital training progress.",
         te: "గ్రామీణ కేంద్ర వనరులు మరియు డిజిటల్ శిక్షణ పురోగతిని ధృవీకరించడానికి రాజ్యసభ ఎంపీ భాష్యం రామకృష్ణ ప్రతినిధి బృందంలో చేరారు.",
-        ten: "Rajya Sabha MP Bhashyam Ramakrishna delegation లో join అయ్యారు to verify rural center resources and digital training progress."
+        ten: "Rajya Sabha MP Bhashyam Rama Krishna delegation లో join అయ్యారు to verify rural center resources and digital training progress."
       }
     }
   ]
@@ -359,9 +359,9 @@ async function run() {
       _type: 'gallery',
       title: { en: 'Road Widening Inspections', te: 'రోడ్డు విస్తరణ పనుల పరిశీలన', ten: 'Road Widening Inspections' },
       caption: {
-        en: "MP Bhashyam Ramakrishna reviewing regional highway connectivity projects and local transport updates.",
+        en: "MP Bhashyam Rama Krishna reviewing regional highway connectivity projects and local transport updates.",
         te: "ఎంపీ భాష్యం రామకృష్ణ ప్రాంతీయ రహదారి కనెక్టివిటీ ప్రాజెక్టులు మరియు స్థానిక రవాణా నవీకరణలను సమీక్షిస్తున్నారు.",
-        ten: "MP Bhashyam Ramakrishna regional highway connectivity projects and local transport updates review చేస్తున్నారు."
+        ten: "MP Bhashyam Rama Krishna regional highway connectivity projects and local transport updates review చేస్తున్నారు."
       },
       date: '2026-06-02',
       image: galImg1
@@ -395,9 +395,9 @@ async function run() {
       _type: 'gallery',
       title: { en: 'Bhashyam Kireeti', te: 'భాష్యం కిరీటి పర్యటన', ten: 'Bhashyam Kireeti Visit' },
       caption: {
-        en: "MP Bhashyam Ramakrishna wishes from Bhashyam Kireeti.",
+        en: "MP Bhashyam Rama Krishna wishes from Bhashyam Kireeti.",
         te: "భాష్యం కిరీటి పర్యటనలో శుభాకాంక్షలు తెలుపుతున్న ఎంపీ భాష్యం రామకృష్ణ.",
-        ten: "MP Bhashyam Ramakrishna wishes from Bhashyam Kireeti."
+        ten: "MP Bhashyam Rama Krishna wishes from Bhashyam Kireeti."
       },
       date: '2026-06-07',
       image: galImg4

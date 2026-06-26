@@ -160,7 +160,7 @@ export default function DailyUpdatesClient({ dailyUpdates }: DailyUpdatesClientP
   const rawExcerptText = activeContent ? (activeContent.excerpt || rawBodyText || '') : ''
   const truncatedExcerptText = rawExcerptText.length > 250 ? rawExcerptText.slice(0, 250) + '...' : rawExcerptText
   
-  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMAKRISHNA PORTAL*
+  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMA KRISHNA PORTAL*
 ━━━━━━━━━━━━━━━━━━
 📰 *${activeContent.title}*
 
@@ -323,7 +323,7 @@ ${siteUrl}
             Daily Updates
           </h1>
           <p className="text-slate-600 text-base max-w-2xl mx-auto">
-            Stay informed with day-to-day updates, event listings, and highlights of work executed by Bhashyam Ramakrishna.
+            Stay informed with day-to-day updates, event listings, and highlights of work executed by Bhashyam Rama Krishna.
           </p>
           <div className="w-24 h-1 bg-saffron-500 mx-auto mt-4 rounded-full"></div>
         </div>

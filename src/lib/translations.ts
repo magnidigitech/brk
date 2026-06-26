@@ -306,9 +306,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'Public Grievance Portal'
   },
   'grievance.portalSubtitle': {
-    en: 'Submit policy issues, civic difficulties, or local grievances directly to the office of Hon. MP Bhashyam Ramakrishna. Track ticket status transparently.',
+    en: 'Submit policy issues, civic difficulties, or local grievances directly to the office of Hon. MP Bhashyam Rama Krishna. Track ticket status transparently.',
     te: 'స్థానిక సమస్యలు, పౌర ఇబ్బందులు లేదా ప్రజా ఫిర్యాదులను గౌరవనీయులైన రాజ్యసభ సభ్యులు భాష్యం రామకృష్ణ గారి కార్యాలయానికి నేరుగా పంపండి. టికెట్ స్థితిని పారదర్శకంగా ట్రాక్ చేయండి.',
-    ten: 'Local issues ని, local challenges ని Hon. MP Bhashyam Ramakrishna గారి office కి direct గా submit చెయ్యండి. Clear గా status track చేసుకోండి.'
+    ten: 'Local issues ని, local challenges ని Hon. MP Bhashyam Rama Krishna గారి office కి direct గా submit చెయ్యండి. Clear గా status track చేసుకోండి.'
   },
   'grievance.successTitle': {
     en: 'Grievance Logged Securely!',
@@ -781,19 +781,19 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'Frequently Asked Questions'
   },
   'faq.q1': {
-    en: 'Who is Shri Bhashyam Ramakrishna?',
+    en: 'Who is Shri Bhashyam Rama Krishna?',
     te: 'శ్రీ భాష్యం రామకృష్ణ ఎవరు?',
-    ten: 'Who is Shri Bhashyam Ramakrishna?'
+    ten: 'Who is Shri Bhashyam Rama Krishna?'
   },
   'faq.a1': {
-    en: 'Shri Bhashyam Ramakrishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.',
+    en: 'Shri Bhashyam Rama Krishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.',
     te: 'శ్రీ భాష్యం రామకృష్ణ ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన రాజ్యసభ సభ్యులు, ప్రముఖ విద్యావేత్త మరియు భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్.',
-    ten: 'Shri Bhashyam Ramakrishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.'
+    ten: 'Shri Bhashyam Rama Krishna is a respected educationist, Founder Chairman of Bhashyam Educational Institutions, and a public service leader from Andhra Pradesh who is elected to the Rajya Sabha.'
   },
   'faq.q2': {
-    en: 'Which political party does Shri Bhashyam Ramakrishna belong to?',
+    en: 'Which political party does Shri Bhashyam Rama Krishna belong to?',
     te: 'శ్రీ భాష్యం రామకృష్ణ ఏ రాజకీయ పార్టీకి చెందినవారు?',
-    ten: 'Which political party does Shri Bhashyam Ramakrishna belong to?'
+    ten: 'Which political party does Shri Bhashyam Rama Krishna belong to?'
   },
   'faq.a2': {
     en: 'He belongs to the Telugu Desam Party (TDP), representing Andhra Pradesh in the Rajya Sabha.',
@@ -801,9 +801,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'He belongs to the Telugu Desam Party (TDP), representing Andhra Pradesh in the Rajya Sabha.'
   },
   'faq.q3': {
-    en: 'How was Shri Bhashyam Ramakrishna elected to the Rajya Sabha?',
+    en: 'How was Shri Bhashyam Rama Krishna elected to the Rajya Sabha?',
     te: 'శ్రీ భాష్యం రామకృష్ణ రాజ్యసభకు ఎలా ఎన్నికయ్యారు?',
-    ten: 'How was Shri Bhashyam Ramakrishna elected to the Rajya Sabha?'
+    ten: 'How was Shri Bhashyam Rama Krishna elected to the Rajya Sabha?'
   },
   'faq.a3': {
     en: 'He was elected unopposed to the Rajya Sabha from Andhra Pradesh, representing the aspirations of the people.',
@@ -851,7 +851,7 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'Camp office Guntur, Navabharath Nagar 4/3 Line లో ఉంది.'
   },
   'faq.q8': {
-    en: 'What is the residency address of Rajya Sabha member Bhashyam Ramakrishna in New Delhi?',
+    en: 'What is the residency address of Rajya Sabha member Bhashyam Rama Krishna in New Delhi?',
     te: 'న్యూఢిల్లీలో రాజ్యసభ సభ్యులు భాష్యం రామకృష్ణ గారి అధికారిక నివాస చిరునామా ఏమిటి?',
     ten: 'New Delhi residency address'
   },
@@ -933,87 +933,87 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
   },
   // SEO Meta values
   'meta.home.title': {
-    en: 'Shri Bhashyam Ramakrishna | Official Rajya Sabha Portal',
+    en: 'Shri Bhashyam Rama Krishna | Official Rajya Sabha Portal',
     te: 'శ్రీ భాష్యం రామకృష్ణ | అధికారిక రాజ్యసభ పోర్టల్',
   },
   'meta.home.desc': {
-    en: 'Official public portal of Shri Bhashyam Ramakrishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Rajya Sabha representative from Andhra Pradesh.',
+    en: 'Official public portal of Shri Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Rajya Sabha representative from Andhra Pradesh.',
     te: 'శ్రీ భాష్యం రామకృష్ణ అధికారిక ప్రజా సేవా పోర్టల్. విద్యా రంగ అభివృద్ధి, యువత సాధికారత మరియు ప్రజా సమస్యల పరిష్కార వేదిక.',
   },
   'meta.about.title': {
-    en: 'Biography & Vision | Shri Bhashyam Ramakrishna',
+    en: 'Biography & Vision | Shri Bhashyam Rama Krishna',
     te: 'జీవిత చరిత్ర & దూరదృష్టి | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.about.desc': {
-    en: 'Learn about Bhashyam Ramakrishna\'s journey from Founder Chairman of Bhashyam Educational Institutions to Rajya Sabha representative from Andhra Pradesh.',
+    en: 'Learn about Bhashyam Rama Krishna\'s journey from Founder Chairman of Bhashyam Educational Institutions to Rajya Sabha representative from Andhra Pradesh.',
     te: 'భాష్యం విద్యా సంస్థల చైర్మన్ నుండి రాజ్యసభ ప్రతినిధి వరకు శ్రీ భాష్యం రామకృష్ణ ప్రజా సేవ ప్రస్థానాన్ని తెలుసుకోండి.',
   },
   'meta.contact.title': {
-    en: 'Contact Offices | Rajya Sabha MP Bhashyam Ramakrishna',
+    en: 'Contact Offices | Rajya Sabha MP Bhashyam Rama Krishna',
     te: 'కార్యాలయాల సంప్రదింపు వివరాలు | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.contact.desc': {
-    en: 'Contact offices of Shri Bhashyam Ramakrishna in New Delhi and Camp Office in Guntur, Andhra Pradesh. Submit inquiries and policy feedback.',
+    en: 'Contact offices of Shri Bhashyam Rama Krishna in New Delhi and Camp Office in Guntur, Andhra Pradesh. Submit inquiries and policy feedback.',
     te: 'న్యూఢిల్లీ మరియు గుంటూరు క్యాంప్ కార్యాలయాల చిరునామా, ఫోన్ మరియు ఈమెయిల్ వివరాలు. మీ సలహాలు, సూచనలను ఇక్కడ పంపండి.',
   },
   'meta.grievance.title': {
-    en: 'Public Grievance Portal | Bhashyam Ramakrishna MP',
+    en: 'Public Grievance Portal | Bhashyam Rama Krishna MP',
     te: 'ప్రజా ఫిర్యాదుల పోర్టల్ | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.grievance.desc': {
-    en: 'Submit local challenges, community requests, or suggestions directly to Bhashyam Ramakrishna Rajya Sabha office. Track grievance status.',
+    en: 'Submit local challenges, community requests, or suggestions directly to Bhashyam Rama Krishna Rajya Sabha office. Track grievance status.',
     te: 'మీ స్థానిక సమస్యలు, సలహాలు మరియు పౌర ఇబ్బందులను నేరుగా సమర్పించండి మరియు మీ టికెట్ స్థితిని ఇక్కడ లైవ్‌లో ట్రాక్ చేయండి.',
   },
   'meta.parliament.title': {
-    en: 'Parliamentary Speeches & Updates | Bhashyam Ramakrishna MP',
+    en: 'Parliamentary Speeches & Updates | Bhashyam Rama Krishna MP',
     te: 'పార్లమెంటరీ ప్రసంగాలు & అప్‌డేట్స్ | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.parliament.desc': {
-    en: 'Track questions raised, speeches delivered, debates joined, and legislative activity by Bhashyam Ramakrishna in the Rajya Sabha, Parliament of India.',
+    en: 'Track questions raised, speeches delivered, debates joined, and legislative activity by Bhashyam Rama Krishna in the Rajya Sabha, Parliament of India.',
     te: 'భారత పార్లమెంటు రాజ్యసభలో భాష్యం రామకృష్ణ గారు అడిగిన ప్రశ్నలు, ప్రసంగాలు మరియు శాసనసభ కార్యకలాపాల తాజా వివరాలు.',
   },
   'meta.press.title': {
-    en: 'Official Press Releases & Media | Bhashyam Ramakrishna',
+    en: 'Official Press Releases & Media | Bhashyam Rama Krishna',
     te: 'అధికారిక పత్రికా ప్రకటనలు | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.press.desc': {
-    en: 'Read latest statements, news coverage, press notes, and media releases issued by the office of Rajya Sabha member Bhashyam Ramakrishna.',
+    en: 'Read latest statements, news coverage, press notes, and media releases issued by the office of Rajya Sabha member Bhashyam Rama Krishna.',
     te: 'భాష్యం రామకృష్ణ గారి కార్యాలయం నుండి విడుదలైన తాజా అధికారిక పత్రికా ప్రకటనలు, పత్రికా నోట్స్ మరియు వార్తల వివరాలు.',
   },
   'meta.daily.title': {
-    en: 'Daily Activities & Updates | Bhashyam Ramakrishna MP',
+    en: 'Daily Activities & Updates | Bhashyam Rama Krishna MP',
     te: 'రోజువారీ కార్యకలాపాలు & అప్‌డేట్స్ | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.daily.desc': {
-    en: 'Explore daily work updates, news briefs, and activities of Rajya Sabha MP Bhashyam Ramakrishna.',
+    en: 'Explore daily work updates, news briefs, and activities of Rajya Sabha MP Bhashyam Rama Krishna.',
     te: 'గౌరవనీయులైన రాజ్యసభ సభ్యులు భాష్యం రామకృష్ణ గారి రోజువారీ పనులు, వార్తా నివేదికలు మరియు ప్రజాసేవ కార్యక్రమాల వివరాలు.',
   },
   'meta.state.title': {
-    en: 'Andhra Pradesh Development Sectors | Bhashyam Ramakrishna',
+    en: 'Andhra Pradesh Development Sectors | Bhashyam Rama Krishna',
     te: 'ఆంధ్రప్రదేశ్ ప్రాధాన్యత రంగాలు | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.state.desc': {
-    en: 'Explore key sectors, concerns, and progress vision of Rajya Sabha MP Bhashyam Ramakrishna for the development of Andhra Pradesh.',
+    en: 'Explore key sectors, concerns, and progress vision of Rajya Sabha MP Bhashyam Rama Krishna for the development of Andhra Pradesh.',
     te: 'ఆంధ్రప్రదేశ్ ప్రగతి మరియు అభివృద్ధి కోసం శ్రీ భాష్యం రామకృష్ణ గారి రంగాలు, ఆలోచనలు మరియు ప్రణాళికలు.',
   },
   'meta.development.title': {
-    en: 'Public Initiatives & Works | Bhashyam Ramakrishna',
+    en: 'Public Initiatives & Works | Bhashyam Rama Krishna',
     te: 'ప్రజా అభివృద్ధి పనులు & కార్యక్రమాలు | శ్రీ భాష్యం రామకృష్ణ',
   },
   'meta.development.desc': {
-    en: 'Track dynamic progress, ordering, and execution of public welfare initiatives and educational works pushed by Bhashyam Ramakrishna in AP.',
+    en: 'Track dynamic progress, ordering, and execution of public welfare initiatives and educational works pushed by Bhashyam Rama Krishna in AP.',
     te: 'శ్రీ భాష్యం రామకృష్ణ ఆధ్వర్యంలో జరుగుతున్న ప్రజా సంక్షేమ మరియు విద్యా అభివృద్ధి పనుల తాజా పురోగతి నివేదిక.',
   },
   'meta.privacy.title': {
-    en: 'Privacy Policy | Bhashyam Ramakrishna Portal',
+    en: 'Privacy Policy | Bhashyam Rama Krishna Portal',
     te: 'గోప్యతా విధానం | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
   },
   'meta.privacy.desc': {
-    en: 'Privacy policy for citizen data and grievance submission protection on the official Bhashyam Ramakrishna portal.',
+    en: 'Privacy policy for citizen data and grievance submission protection on the official Bhashyam Rama Krishna portal.',
     te: 'పౌరుల సమాచారం మరియు సమర్పించిన సమస్యల భద్రతకు సంబంధించిన అధికారిక గోప్యతా విధానం.',
   },
   'meta.terms.title': {
-    en: 'Terms of Use | Bhashyam Ramakrishna Portal',
+    en: 'Terms of Use | Bhashyam Rama Krishna Portal',
     te: 'నిబంధనలు & షరతులు | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
   },
   'meta.terms.desc': {
@@ -1021,11 +1021,11 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     te: 'అధికారిక ప్రజా సేవా పోర్టల్ మరియు ఫిర్యాదుల పోర్టల్ వినియోగానికి సంబంధించిన నిబంధనలు మరియు షరతులు.',
   },
   'meta.accessibility.title': {
-    en: 'Accessibility Statement | Bhashyam Ramakrishna Portal',
+    en: 'Accessibility Statement | Bhashyam Rama Krishna Portal',
     te: 'యాక్సెసిబిలిటీ ప్రకటన | శ్రీ భాష్యం రామకృష్ణ పోర్టల్',
   },
   'meta.accessibility.desc': {
-    en: 'Accessibility commitment and WCAG standards compliance description for the official Bhashyam Ramakrishna portal.',
+    en: 'Accessibility commitment and WCAG standards compliance description for the official Bhashyam Rama Krishna portal.',
     te: 'వెబ్‌సైట్ అందరికీ సులభంగా అందుబాటులో ఉండేలా మేము అనుసరిస్తున్న యాక్సెసిబిలిటీ విధానాలు మరియు ప్రమాణాలు.',
   }
 }

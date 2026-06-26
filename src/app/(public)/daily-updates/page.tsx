@@ -36,7 +36,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
         const imageUrl = update.mainImage ? urlFor(update.mainImage).width(1200).height(630).url() : undefined
 
         return {
-          title: `${rTitle} | Shri Bhashyam Ramakrishna`,
+          title: `${rTitle} | Shri Bhashyam Rama Krishna`,
           description: rDesc,
           alternates: {
             canonical: `https://bramakrishna.mp.in/daily-updates?id=${id}`,
@@ -123,7 +123,7 @@ export default async function DailyUpdatesPage() {
     'description': upd.summary || '',
     'author': {
       '@type': 'Person',
-      'name': 'Shri Bhashyam Ramakrishna'
+      'name': 'Shri Bhashyam Rama Krishna'
     }
   }))
 

@@ -37,7 +37,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
         const imageUrl = release.mainImage ? urlFor(release.mainImage).width(1200).height(630).url() : undefined
 
         return {
-          title: `${rTitle} | Shri Bhashyam Ramakrishna`,
+          title: `${rTitle} | Shri Bhashyam Rama Krishna`,
           description: rDesc,
           alternates: {
             canonical: `https://bramakrishna.mp.in/press-releases?id=${id}`,
@@ -124,7 +124,7 @@ export default async function PressReleasesPage() {
     'description': rel.excerpt || '',
     'author': {
       '@type': 'Person',
-      'name': 'Shri Bhashyam Ramakrishna'
+      'name': 'Shri Bhashyam Rama Krishna'
     }
   }))
 

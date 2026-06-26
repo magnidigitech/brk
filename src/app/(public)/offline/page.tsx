@@ -53,7 +53,7 @@ export default function OfflinePage() {
       te: 'కార్యాలయం సంప్రదించండి'
     },
     portalSubtitle: {
-      en: 'SHRI BHASHYAM RAMAKRISHNA PORTAL',
+      en: 'SHRI BHASHYAM RAMA KRISHNA PORTAL',
       te: 'శ్రీ భాష్యం రామకృష్ణ అధికారిక పోర్టల్'
     }
   }

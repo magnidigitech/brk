@@ -236,8 +236,8 @@ export default function Navbar({ siteSettings }: NavbarProps) {
 
   // Resolve localized name from server-provided settings
   const rawName = siteSettings?.candidateName
-  let dispName = tContent(rawName, 'B. Ramakrishna')
-  if (dispName.startsWith('Bhashyam')) dispName = 'B. Ramakrishna'
+  let dispName = tContent(rawName, 'B. Rama Krishna')
+  if (dispName.startsWith('Bhashyam')) dispName = 'B. Rama Krishna'
 
   const dispBadge = getRoleTitle(language)
 

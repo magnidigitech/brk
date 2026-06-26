@@ -64,7 +64,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
     statusOnline: { en: 'Online', te: 'లైవ్‌లో ఉన్నారు' },
     placeholder: { en: 'Ask me anything...', te: 'ఏదైనా అడగండి...' },
     greeting: {
-      en: "Namaste! I am the official digital assistant for the office of Rajya Sabha Nominee Shri Bhashyam Ramakrishna. I can assist you with locating Camp Offices, submitting Grievance Petitions, exploring Key Focus Sectors, or searching recent announcements. What can I help you with today?",
+      en: "Namaste! I am the official digital assistant for the office of Rajya Sabha Nominee Shri Bhashyam Rama Krishna. I can assist you with locating Camp Offices, submitting Grievance Petitions, exploring Key Focus Sectors, or searching recent announcements. What can I help you with today?",
       te: "నమస్తే! రాజ్యసభ అభ్యర్థి శ్రీ భాష్యం రామకృష్ణ గారి కార్యాలయ డిజిటల్ సహాయకుడిని. నేను మీకు క్యాంప్ కార్యాలయాల చిరునామా, ప్రజా ఫిర్యాదుల సమర్పణ, ప్రాధాన్యత రంగాలు లేదా తాజా పత్రికా ప్రకటనల శోధనలో సహాయం చేయగలను. నేను ఈ రోజు మీకు ఏ విధంగా సహాయం చేయాలి?"
     },
     chipContact: { en: 'Camp Offices', te: 'కార్యాలయాల వివరాలు' },
@@ -331,7 +331,7 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
         } else if (isAbout) {
           replyText = language === 'te'
             ? "శ్రీ భాష్యం రామకృష్ణ గారు ప్రముఖ విద్యావేత్త, భాష్యం విద్యా సంస్థల వ్యవస్థాపక చైర్మన్ మరియు ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన గౌరవ రాజ్యసభ అభ్యర్థి. ఆయన విద్యా వికాసం మరియు ప్రజా సేవకు కట్టుబడి ఉన్నారు."
-            : "Shri Bhashyam Ramakrishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
+            : "Shri Bhashyam Rama Krishna is an educationist, Founder Chairman of Bhashyam Educational Institutions, and a dedicated Rajya Sabha representative from Andhra Pradesh, committed to social progress and empowerment."
           richCard = { type: 'about' }
         } else if (isSectors) {
           replyText = language === 'te'

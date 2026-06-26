@@ -163,7 +163,7 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
   const rawExcerptText = activeContent ? (activeContent.excerpt || rawBodyText || '') : ''
   const truncatedExcerptText = rawExcerptText.length > 250 ? rawExcerptText.slice(0, 250) + '...' : rawExcerptText
   
-  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMAKRISHNA PORTAL*
+  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMA KRISHNA PORTAL*
 ━━━━━━━━━━━━━━━━━━
 📰 *${activeContent.title}*
 

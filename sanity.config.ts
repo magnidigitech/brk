@@ -5,7 +5,7 @@ import { TranslateDocumentAction } from './src/sanity/actions/TranslateDocumentA
 
 export default defineConfig({
   name: 'default',
-  title: 'Bhashyam Ramakrishna Portal',
+  title: 'Bhashyam Rama Krishna Portal',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'cf3wvwse',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',

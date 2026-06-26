@@ -81,7 +81,7 @@ export default async function AboutPage() {
     'url': 'https://bramakrishna.mp.in/about',
     'mainEntity': {
       '@type': 'Person',
-      'name': 'Shri Bhashyam Ramakrishna',
+      'name': 'Shri Bhashyam Rama Krishna',
       'jobTitle': getRoleTitle(lang),
       'affiliation': {
         '@type': 'PoliticalParty',

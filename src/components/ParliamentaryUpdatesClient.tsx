@@ -131,7 +131,7 @@ export default function ParliamentaryUpdatesClient({ updates }: ParliamentaryUpd
   const rawExcerptText = activeContent ? (activeContent.excerpt || '') : ''
   const truncatedExcerptText = rawExcerptText.length > 250 ? rawExcerptText.slice(0, 250) + '...' : rawExcerptText
   
-  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMAKRISHNA PORTAL*
+  const whatsappShareText = activeContent ? `🏛️ *SHRI BHASHYAM RAMA KRISHNA PORTAL*
 ━━━━━━━━━━━━━━━━━━
 📰 *${activeContent.title}*
 

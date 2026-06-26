@@ -163,7 +163,7 @@ export default function DevelopmentWorksClient({ projects }: DevelopmentWorksCli
             <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-3">
               {language === 'te'
                 ? 'సభ్యుల స్థానిక ప్రాంత అభివృద్ధి పథకం (MPLADS) కింద, రాజ్యసభ సభ్యులు తాగునీరు, పారిశుధ్యం, విద్య మరియు రోడ్ల పునర్నిర్మాణం కోసం జిల్లా కలెక్టర్లకు సిఫార్సులు చేయవచ్చు. 100% పారదర్శకతతో పనుల పురోగతిని ఇక్కడ పర్యవేక్షించవచ్చు.'
-                : 'Under the Member of Parliament Local Area Development Scheme (MPLADS), Rajya Sabha members recommend community infrastructure works. Hon. MP Bhashyam Ramakrishna coordinates directly with local administrators to deploy funds for education, health, and transport.'}
+                : 'Under the Member of Parliament Local Area Development Scheme (MPLADS), Rajya Sabha members recommend community infrastructure works. Hon. MP Bhashyam Rama Krishna coordinates directly with local administrators to deploy funds for education, health, and transport.'}
             </p>
             <span className="inline-flex items-center text-xs font-bold text-saffron-600">
               <ShieldCheck className="w-4 h-4 mr-1.5" />

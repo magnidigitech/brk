@@ -166,7 +166,7 @@ export default function PWAInstallPrompt() {
                   {t('pwa.installTitle')}
                 </h3>
                 <p className="text-[11px] font-bold text-saffron-600 tracking-wider uppercase">
-                  B. RAMAKRISHNA MP PORTAL
+                  B. RAMA KRISHNA MP PORTAL
                 </p>
               </div>
             </div>

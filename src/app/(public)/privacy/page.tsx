@@ -76,7 +76,7 @@ export default async function PrivacyPage() {
           ) : (
             <>
               <p>
-                We are committed to protecting the privacy of citizens utilizing the official public portal of Shri Bhashyam Ramakrishna.
+                We are committed to protecting the privacy of citizens utilizing the official public portal of Shri Bhashyam Rama Krishna.
               </p>
               <h2 className="text-lg font-bold text-navy-950 mt-4">1. Information We Collect</h2>
               <p>

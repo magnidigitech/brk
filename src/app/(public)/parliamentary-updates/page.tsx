@@ -37,7 +37,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
         const imageUrl = update.mainImage ? urlFor(update.mainImage).width(1200).height(630).url() : undefined
 
         return {
-          title: `${uTitle} | Shri Bhashyam Ramakrishna`,
+          title: `${uTitle} | Shri Bhashyam Rama Krishna`,
           description: uDesc,
           alternates: {
             canonical: `https://bramakrishna.mp.in/parliamentary-updates?id=${id}`,
@@ -131,7 +131,7 @@ export default async function ParliamentaryUpdatesPage() {
     'description': up.summary || '',
     'author': {
       '@type': 'Person',
-      'name': 'Shri Bhashyam Ramakrishna'
+      'name': 'Shri Bhashyam Rama Krishna'
     },
     'publisher': {
       '@type': 'GovernmentOrganization',
@@ -158,7 +158,7 @@ export default async function ParliamentaryUpdatesPage() {
         'embedUrl': `https://www.youtube.com/embed/${ytId}`,
         'publisher': {
           '@type': 'Person',
-          'name': 'Shri Bhashyam Ramakrishna'
+          'name': 'Shri Bhashyam Rama Krishna'
         }
       }
     })
