@@ -22,7 +22,8 @@ import {
   Copy,
   Check,
   Volume2,
-  VolumeX
+  VolumeX,
+  Code
 } from 'lucide-react'
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
@@ -112,6 +113,8 @@ interface HomeDashboardProps {
     introVideoUrl?: string
     introVideoTitle?: any
     showIntroVideo?: boolean
+    customEmbedCode?: string
+    showCustomEmbed?: boolean
   }
 }
 
@@ -463,6 +466,25 @@ ${siteUrl}
             {tagline}
           </p>
         </div>
+
+        {/* Custom HTML Embed Block (Dynamic sanity field & toggle) */}
+        {isClient && settings.showCustomEmbed && settings.customEmbedCode && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="mb-8 overflow-hidden rounded-3xl bg-white border border-slate-200 p-4 sm:p-6 shadow-md hover:border-saffron-300 transition-all duration-300 relative group"
+          >
+            <div className="flex items-center space-x-2.5 text-navy-900 font-extrabold text-xs uppercase tracking-widest mb-4">
+              <Code className="w-4 h-4 text-saffron-600 animate-pulse" />
+              <span>Custom Embed Block</span>
+            </div>
+            <div 
+              className="w-full overflow-hidden rounded-2xl"
+              dangerouslySetInnerHTML={{ __html: settings.customEmbedCode }}
+            />
+          </motion.div>
+        )}
 
         {/* Intro Video Player (Dynamic sanity field & toggle) */}
         {settings.showIntroVideo && settings.introVideoUrl && (

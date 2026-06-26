@@ -80,5 +80,18 @@ export const siteSettings = defineType({
       description: 'Toggle to show or hide the intro video player on the Home Page.',
       initialValue: false,
     }),
+    defineField({
+      name: 'customEmbedCode',
+      title: 'Custom Embed HTML Code',
+      type: 'text',
+      description: 'Paste any HTML/iframe embed code here to display above the YouTube video player.',
+    }),
+    defineField({
+      name: 'showCustomEmbed',
+      title: 'Show Custom Embed Block',
+      type: 'boolean',
+      description: 'Toggle to show or hide the custom embed block on the Home Page.',
+      initialValue: false,
+    }),
   ],
 })

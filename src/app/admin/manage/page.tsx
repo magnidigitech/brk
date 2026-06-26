@@ -19,7 +19,8 @@ import {
   X,
   Check,
   FileText,
-  Video
+  Video,
+  Code
 } from 'lucide-react'
 
 // Document types interfaces
@@ -109,6 +110,8 @@ export default function ContentManager() {
   const [videoTitleTe, setVideoTitleTe] = useState('')
   const [videoTitleTen, setVideoTitleTen] = useState('')
   const [showVideo, setShowVideo] = useState(false)
+  const [customEmbedCode, setCustomEmbedCode] = useState('')
+  const [showCustomEmbed, setShowCustomEmbed] = useState(false)
   const [isSavingVideo, setIsSavingVideo] = useState(false)
   const [videoSaveError, setVideoSaveError] = useState('')
   const [videoSaveSuccess, setVideoSaveSuccess] = useState(false)
@@ -197,6 +200,8 @@ export default function ContentManager() {
           setVideoTitleTe(settings.introVideoTitle?.te || '')
           setVideoTitleTen(settings.introVideoTitle?.ten || '')
           setShowVideo(!!settings.showIntroVideo)
+          setCustomEmbedCode(settings.customEmbedCode || '')
+          setShowCustomEmbed(!!settings.showCustomEmbed)
         }
       }
     } catch (err) {
@@ -480,7 +485,9 @@ export default function ContentManager() {
             te: videoTitleTe,
             ten: videoTitleTen
           },
-          showIntroVideo: showVideo
+          showIntroVideo: showVideo,
+          customEmbedCode: customEmbedCode,
+          showCustomEmbed: showCustomEmbed
         }),
       })
 
@@ -1009,83 +1016,131 @@ export default function ContentManager() {
               )}
 
               <form onSubmit={handleSaveVideoSettings} className="space-y-6">
-                {/* Toggle switch */}
-                <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200/60 rounded-xl">
-                  <div>
-                    <label className="block text-xs font-bold text-navy-900">Show Video Player</label>
-                    <span className="block text-[10px] text-slate-400 mt-0.5">Toggle to show or hide the video block on the Home page.</span>
+                {/* Segment 1: Custom HTML Embed Settings */}
+                <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <Code className="w-4 h-4 text-saffron-600" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-navy-900">Custom HTML Embed block</h3>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={showVideo}
-                      onChange={(e) => setShowVideo(e.target.checked)}
-                      className="sr-only peer" 
+
+                  {/* Custom Embed Toggle */}
+                  <div className="flex items-center justify-between p-4 bg-white border border-slate-200/40 rounded-xl">
+                    <div>
+                      <label className="block text-xs font-bold text-navy-900">Show Custom Embed Block</label>
+                      <span className="block text-[10px] text-slate-400 mt-0.5">Toggle to show or hide the custom embed code on the Home page.</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={showCustomEmbed}
+                        onChange={(e) => setShowCustomEmbed(e.target.checked)}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
+                    </label>
+                  </div>
+
+                  {/* Custom Embed HTML Code */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Custom Embed HTML Code
+                    </label>
+                    <textarea
+                      value={customEmbedCode}
+                      onChange={(e) => setCustomEmbedCode(e.target.value)}
+                      placeholder="Paste your HTML/iframe code here..."
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-white text-xs outline-none font-mono min-h-[120px]"
+                      disabled={isSavingVideo}
                     />
-                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
-                  </label>
+                    <span className="block text-[9px] text-slate-400 mt-1.5">Paste standard HTML code (e.g. YouTube iframe, external widgets, custom scripts).</span>
+                  </div>
                 </div>
 
-                {/* Video URL */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    YouTube Video URL
-                  </label>
-                  <input
-                    type="url"
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50 focus:bg-white text-xs outline-none"
-                    disabled={isSavingVideo}
-                  />
-                  <span className="block text-[9px] text-slate-400 mt-1.5">Provide a standard YouTube watch or short share link.</span>
-                </div>
-
-                {/* Localized Titles */}
-                <div className="border-t border-slate-100 pt-6 space-y-4">
-                  <h4 className="text-xs font-bold text-navy-900">Video Section Title (Multilingual)</h4>
-                  
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Title (English)
-                    </label>
-                    <input
-                      type="text"
-                      value={videoTitleEn}
-                      onChange={(e) => setVideoTitleEn(e.target.value)}
-                      placeholder="Featured Video"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
-                      disabled={isSavingVideo}
-                    />
+                {/* Segment 2: YouTube Video Player Settings */}
+                <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                    <Video className="w-4 h-4 text-saffron-600 animate-pulse" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-navy-900">YouTube Video Player</h3>
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Title (Telugu)
+                  {/* Toggle switch */}
+                  <div className="flex items-center justify-between p-4 bg-white border border-slate-200/40 rounded-xl">
+                    <div>
+                      <label className="block text-xs font-bold text-navy-900">Show Video Player</label>
+                      <span className="block text-[10px] text-slate-400 mt-0.5">Toggle to show or hide the video block on the Home page.</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={showVideo}
+                        onChange={(e) => setShowVideo(e.target.checked)}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
                     </label>
-                    <input
-                      type="text"
-                      value={videoTitleTe}
-                      onChange={(e) => setVideoTitleTe(e.target.value)}
-                      placeholder="ఫీచర్ చేసిన వీడియో"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
-                      disabled={isSavingVideo}
-                    />
                   </div>
 
+                  {/* Video URL */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Title (Tenglish)
+                      YouTube Video URL
                     </label>
                     <input
-                      type="text"
-                      value={videoTitleTen}
-                      onChange={(e) => setVideoTitleTen(e.target.value)}
-                      placeholder="Featured Video"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-slate-50/50 focus:bg-white text-xs outline-none"
+                      type="url"
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-white text-xs outline-none"
                       disabled={isSavingVideo}
                     />
+                    <span className="block text-[9px] text-slate-400 mt-1.5">Provide a standard YouTube watch or short share link.</span>
+                  </div>
+
+                  {/* Localized Titles */}
+                  <div className="border-t border-slate-150 pt-4 space-y-4">
+                    <h4 className="text-xs font-bold text-navy-900">Video Section Title (Multilingual)</h4>
+                    
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Title (English)
+                      </label>
+                      <input
+                        type="text"
+                        value={videoTitleEn}
+                        onChange={(e) => setVideoTitleEn(e.target.value)}
+                        placeholder="Featured Video"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-white text-xs outline-none"
+                        disabled={isSavingVideo}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Title (Telugu)
+                      </label>
+                      <input
+                        type="text"
+                        value={videoTitleTe}
+                        onChange={(e) => setVideoTitleTe(e.target.value)}
+                        placeholder="ఫీచర్ చేసిన వీడియో"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-white text-xs outline-none"
+                        disabled={isSavingVideo}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Title (Tenglish)
+                      </label>
+                      <input
+                        type="text"
+                        value={videoTitleTen}
+                        onChange={(e) => setVideoTitleTen(e.target.value)}
+                        placeholder="Featured Video"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-navy-900 bg-white text-xs outline-none"
+                        disabled={isSavingVideo}
+                      />
+                    </div>
                   </div>
                 </div>
 

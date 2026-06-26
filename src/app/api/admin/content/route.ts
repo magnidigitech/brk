@@ -97,7 +97,9 @@ export async function GET(request: NextRequest) {
         _type,
         introVideoUrl,
         introVideoTitle,
-        showIntroVideo
+        showIntroVideo,
+        customEmbedCode,
+        showCustomEmbed
       }
     `)
 
@@ -217,14 +219,16 @@ export async function PATCH(request: NextRequest) {
     const { id, type, title, speechUrl, mainImageAssetId, removeMainImage, slideshowAssetIds, removeSlideshowImages } = bodyData
 
     if (type === 'siteSettings' || id === 'siteSettings') {
-      const { introVideoUrl, introVideoTitle, showIntroVideo } = bodyData
+      const { introVideoUrl, introVideoTitle, showIntroVideo, customEmbedCode, showCustomEmbed } = bodyData
       console.log('Updating Site Settings in Sanity...')
       const result = await writeClient
         .patch('siteSettings')
         .set({
           introVideoUrl: introVideoUrl?.trim() || '',
           introVideoTitle: typeof introVideoTitle === 'string' ? introVideoTitle.trim() : introVideoTitle,
-          showIntroVideo: !!showIntroVideo
+          showIntroVideo: !!showIntroVideo,
+          customEmbedCode: customEmbedCode || '',
+          showCustomEmbed: !!showCustomEmbed
         })
         .commit()
       console.log('Site Settings updated:', result._id)

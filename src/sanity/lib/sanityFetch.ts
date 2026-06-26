@@ -47,7 +47,9 @@ async function translateObject(obj: any, targetLang: 'en' | 'te' | 'ten'): Promi
         key === 'twitter' || 
         key === 'email' || 
         key === 'phone' ||
-        key === 'asset'
+        key === 'asset' ||
+        key === 'customEmbedCode' ||
+        key === 'introVideoUrl'
       ) {
         newObj[key] = value
       } else {

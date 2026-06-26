@@ -148,7 +148,9 @@ async function run() {
       te: 'ఫీచర్ చేసిన వీడియో',
       ten: 'Featured Video'
     },
-    showIntroVideo: true
+    showIntroVideo: true,
+    customEmbedCode: '',
+    showCustomEmbed: false
   }
   await client.createOrReplace(siteSettingsDoc)
   console.log('Site Settings updated!\n')

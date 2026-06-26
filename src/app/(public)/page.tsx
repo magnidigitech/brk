@@ -98,7 +98,9 @@ export default async function Page() {
           stateOffice,
           introVideoUrl,
           introVideoTitle,
-          showIntroVideo
+          showIntroVideo,
+          customEmbedCode,
+          showCustomEmbed
         }`
       })
     ])
