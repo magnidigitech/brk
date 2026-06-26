@@ -208,7 +208,38 @@ function tokenizeText(text: string, globalOffset: number): WordToken[] {
 
 function getYouTubeEmbedUrl(url?: string): string | null {
   if (!url) return null
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+  try {
+    const parsed = new URL(url)
+    const pathname = parsed.pathname
+    
+    if (parsed.hostname === 'youtu.be') {
+      const videoId = pathname.slice(1).split(/[?#]/)[0]
+      if (videoId.length === 11) {
+        return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`
+      }
+    }
+    
+    if (pathname.includes('/live/') || pathname.includes('/shorts/') || pathname.includes('/embed/') || pathname.includes('/v/')) {
+      const parts = pathname.split('/')
+      const keywordIdx = parts.findIndex(p => p === 'live' || p === 'shorts' || p === 'embed' || p === 'v')
+      if (keywordIdx !== -1 && keywordIdx + 1 < parts.length) {
+        const videoId = parts[keywordIdx + 1].split(/[?#]/)[0]
+        if (videoId.length === 11) {
+          return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`
+        }
+      }
+    }
+    
+    const searchParams = parsed.searchParams
+    const videoId = searchParams.get('v')
+    if (videoId && videoId.length === 11) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`
+    }
+  } catch (e) {
+    // Fallback to regex
+  }
+
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|live\/|shorts\/)([^#\&\?]*).*/
   const match = url.match(regExp)
   const videoId = (match && match[2].length === 11) ? match[2] : null
   if (!videoId) return null
