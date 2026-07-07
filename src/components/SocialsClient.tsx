@@ -32,19 +32,6 @@ export default function SocialsClient({ settings }: SocialsClientProps) {
 
   const socials = [
     {
-      name: 'YouTube',
-      username: '@ramakrishnabhashyam',
-      url: settings?.socialLinks?.youtube || 'https://www.youtube.com/@ramakrishnabhashyam',
-      color: 'hover:bg-[#FF0000] hover:text-white',
-      accentColor: '#FF0000',
-      description: language === 'te' ? 'అధికారిక ప్రసంగాలు & సమాచారం' : 'Official Speeches & Updates',
-      icon: (
-        <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-          <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.108C19.53 3.5 12 3.5 12 3.5s-7.53 0-9.388.555A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.108C4.47 20.5 12 20.5 12 20.5s7.53 0 9.388-.555a3.003 3.003 0 0 0 2.11-2.108C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-        </svg>
-      )
-    },
-    {
       name: 'Instagram',
       username: '@ramakrishnabhashyam',
       url: settings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam',
@@ -80,6 +67,19 @@ export default function SocialsClient({ settings }: SocialsClientProps) {
       icon: (
         <svg className="w-5.5 h-5.5 fill-current" viewBox="0 0 24 24">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      )
+    },
+    {
+      name: 'YouTube',
+      username: '@ramakrishnabhashyam',
+      url: settings?.socialLinks?.youtube || 'https://www.youtube.com/@ramakrishnabhashyam',
+      color: 'hover:bg-[#FF0000] hover:text-white',
+      accentColor: '#FF0000',
+      description: language === 'te' ? 'అధికారిక ప్రసంగాలు & సమాచారం' : 'Official Speeches & Updates',
+      icon: (
+        <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+          <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.108C19.53 3.5 12 3.5 12 3.5s-7.53 0-9.388.555A3.003 3.003 0 0 0 .502 6.163C0 8.07 0 12 0 12s0 3.93.502 5.837a3.003 3.003 0 0 0 2.11 2.108C4.47 20.5 12 20.5 12 20.5s7.53 0 9.388-.555a3.003 3.003 0 0 0 2.11-2.108C24 15.93 24 12 24 12s0-3.93-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
         </svg>
       )
     }
