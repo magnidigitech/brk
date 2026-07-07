@@ -22,6 +22,7 @@ import Script from "next/script";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bhashyamramakrishna.in"),
   title: "Bhashyam Rama Krishna | Official Rajya Sabha Portal",
   description: "Official public service portal of Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Telugu Desam Party (TDP) Rajya Sabha Candidate from Andhra Pradesh.",
   keywords: ["Bhashyam Rama Krishna", "Rajya Sabha MP AP", "Andhra Pradesh Rajya Sabha", "Telugu Desam Party", "Bhashyam Chairman", "Grievance Portal AP", "State Focus Andhra Pradesh"],
