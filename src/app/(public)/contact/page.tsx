@@ -18,12 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/contact',
+      canonical: 'https://bhashyamramakrishna.in/contact',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/contact',
+      url: 'https://bhashyamramakrishna.in/contact',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -34,12 +34,12 @@ export default async function ContactPage() {
     delhiOffice: {
       address: '12, Rajya Sabha Members Residences, New Delhi - 110001',
       phone: '+91 11 2301 XXXX',
-      email: 'delhi.office@bramakrishna.mp.in'
+      email: 'delhi.office@bhashyamramakrishna.in'
     },
     stateOffice: {
       address: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
       phone: '+91 866 247 XXXX',
-      email: 'state.office@bramakrishna.mp.in'
+      email: 'state.office@bhashyamramakrishna.in'
     }
   }
 
@@ -76,14 +76,14 @@ export default async function ContactPage() {
     '@type': 'ContactPage',
     'name': uiTranslations['meta.contact.title'][lang] || uiTranslations['meta.contact.title']['en'],
     'description': uiTranslations['meta.contact.desc'][lang] || uiTranslations['meta.contact.desc']['en'],
-    'url': 'https://bramakrishna.mp.in/contact'
+    'url': 'https://bhashyamramakrishna.in/contact'
   }
 
   const stateOfficeSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     'name': 'Shri Bhashyam Rama Krishna State Camp Office',
-    'image': 'https://bramakrishna.mp.in/images/logo.png',
+    'image': 'https://bhashyamramakrishna.in/images/logo.png',
     'telephone': settings.stateOffice.phone,
     'email': settings.stateOffice.email,
     'address': {
@@ -93,6 +93,11 @@ export default async function ContactPage() {
       'addressRegion': 'Andhra Pradesh',
       'postalCode': '522006',
       'addressCountry': 'IN'
+    },
+    'geo': {
+      '@type': 'GeoCoordinates',
+      'latitude': '16.321667',
+      'longitude': '80.419433'
     }
   }
 
@@ -108,6 +113,11 @@ export default async function ContactPage() {
       'addressLocality': 'New Delhi',
       'postalCode': '110001',
       'addressCountry': 'IN'
+    },
+    'geo': {
+      '@type': 'GeoCoordinates',
+      'latitude': '28.6186',
+      'longitude': '77.2144'
     }
   }
 

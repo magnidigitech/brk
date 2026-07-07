@@ -19,12 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/about',
+      canonical: 'https://bhashyamramakrishna.in/about',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/about',
+      url: 'https://bhashyamramakrishna.in/about',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -78,7 +78,7 @@ export default async function AboutPage() {
     '@type': 'AboutPage',
     'name': uiTranslations['meta.about.title'][lang] || uiTranslations['meta.about.title']['en'],
     'description': uiTranslations['meta.about.desc'][lang] || uiTranslations['meta.about.desc']['en'],
-    'url': 'https://bramakrishna.mp.in/about',
+    'url': 'https://bhashyamramakrishna.in/about',
     'mainEntity': {
       '@type': 'Person',
       'name': 'Shri Bhashyam Rama Krishna',

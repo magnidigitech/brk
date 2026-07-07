@@ -93,7 +93,7 @@ export default function FloatingSocials() {
               </svg>
             </a>
             <a
-              href="https://www.youtube.com/@bhashyamramakrishnaofficial"
+              href="https://www.youtube.com/@ramakrishnabhashyam"
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center hover:scale-105 transition-transform shadow-sm cursor-pointer"

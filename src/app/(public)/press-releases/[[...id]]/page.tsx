@@ -10,19 +10,21 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
 interface PageProps {
-  searchParams: Promise<{ id?: string }>
+  params: Promise<{ id?: string[] }>
 }
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
-  const resolvedSearchParams = await searchParams
-  const id = resolvedSearchParams.id
+  const resolvedParams = await params
+  const id = resolvedParams.id?.[0]
 
   if (id) {
     try {
       const release = await sanityFetch<any>({
-        query: `*[_type == "pressRelease" && (_id == $id || _id match $id + "*")][0] {
+        query: `*[_type == "pressRelease" && (slug.current == $id || _id == $id || _id match $id + "*")][0] {
+          _id,
+          slug,
           title,
           excerpt,
           mainImage
@@ -31,7 +33,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       })
 
       if (release) {
-        // extract title, excerpt and main image for social share previews
+        const slugOrId = release.slug?.current || release._id
         const rTitle = release.title?.[lang] || release.title?.en || release.title || uiTranslations['meta.press.title'][lang]
         const rDesc = release.excerpt?.[lang] || release.excerpt?.en || release.excerpt || uiTranslations['meta.press.desc'][lang]
         const imageUrl = release.mainImage ? urlFor(release.mainImage).width(1200).height(630).url() : undefined
@@ -40,14 +42,21 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
           title: `${rTitle} | Shri Bhashyam Rama Krishna`,
           description: rDesc,
           alternates: {
-            canonical: `https://bramakrishna.mp.in/press-releases?id=${id}`,
+            canonical: `https://bhashyamramakrishna.in/press-releases/${slugOrId}`,
           },
           openGraph: {
             title: rTitle,
             description: rDesc,
-            url: `https://bramakrishna.mp.in/press-releases?id=${id}`,
+            url: `https://bhashyamramakrishna.in/press-releases/${slugOrId}`,
             locale: lang === 'te' ? 'te_IN' : 'en_IN',
             images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+          },
+          twitter: {
+            card: 'summary_large_image',
+            title: rTitle,
+            description: rDesc,
+            images: imageUrl ? [imageUrl] : ['https://bhashyamramakrishna.in/profile.jpg'],
+            creator: '@bhashyambrk',
           }
         }
       }
@@ -63,24 +72,32 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/press-releases',
+      canonical: 'https://bhashyamramakrishna.in/press-releases',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/press-releases',
+      url: 'https://bhashyamramakrishna.in/press-releases',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://bhashyamramakrishna.in/profile.jpg'],
+      creator: '@bhashyambrk',
     }
   }
 }
 
-export default async function PressReleasesPage() {
+export default async function PressReleasesPage({ params }: PageProps) {
   let releases: any[] = []
 
   try {
     releases = await sanityFetch<any[]>({
       query: `*[_type == "pressRelease"] | order(publishedAt desc) {
         _id,
+        slug,
         title,
         publishedAt,
         excerpt,
@@ -96,6 +113,8 @@ export default async function PressReleasesPage() {
 
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const resolvedParams = await params
+  const activeId = resolvedParams.id?.[0] || null
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -105,13 +124,13 @@ export default async function PressReleasesPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'పత్రికా ప్రకటనలు' : 'Press Releases',
-        'item': 'https://bramakrishna.mp.in/press-releases'
+        'item': 'https://bhashyamramakrishna.in/press-releases'
       }
     ]
   }
@@ -131,7 +150,7 @@ export default async function PressReleasesPage() {
   return (
     <>
       <JsonLd schema={[breadcrumbSchema, ...articleSchemas]} />
-      <PressReleasesClient releases={releases || []} />
+      <PressReleasesClient releases={releases || []} activeId={activeId} />
     </>
   )
 }

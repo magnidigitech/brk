@@ -933,11 +933,11 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
   },
   // SEO Meta values
   'meta.home.title': {
-    en: 'Shri Bhashyam Rama Krishna | Official Rajya Sabha Portal',
+    en: 'Bhashyam Ramakrishna | Official Website',
     te: 'శ్రీ భాష్యం రామకృష్ణ | అధికారిక రాజ్యసభ పోర్టల్',
   },
   'meta.home.desc': {
-    en: 'Official public portal of Shri Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Rajya Sabha representative from Andhra Pradesh.',
+    en: 'Official website of Bhashyam Ramakrishna. Get latest updates, profile information, public activities, press releases, and official social media links.',
     te: 'శ్రీ భాష్యం రామకృష్ణ అధికారిక ప్రజా సేవా పోర్టల్. విద్యా రంగ అభివృద్ధి, యువత సాధికారత మరియు ప్రజా సమస్యల పరిష్కార వేదిక.',
   },
   'meta.about.title': {
@@ -1027,6 +1027,14 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
   'meta.accessibility.desc': {
     en: 'Accessibility commitment and WCAG standards compliance description for the official Bhashyam Rama Krishna portal.',
     te: 'వెబ్‌సైట్ అందరికీ సులభంగా అందుబాటులో ఉండేలా మేము అనుసరిస్తున్న యాక్సెసిబిలిటీ విధానాలు మరియు ప్రమాణాలు.',
+  },
+  'meta.socials.title': {
+    en: 'Official Social Media Handles | Shri Bhashyam Rama Krishna',
+    te: 'అధికారిక సోషల్ మీడియా ఖాతాలు | శ్రీ భాష్యం రామకృష్ణ',
+  },
+  'meta.socials.desc': {
+    en: 'Connect with Shri Bhashyam Rama Krishna, Rajya Sabha MP from Andhra Pradesh, on official social media platforms like YouTube, Instagram, Facebook, and X.',
+    te: 'ఆంధ్రప్రదేశ్ నుండి ఎన్నికైన రాజ్యసభ సభ్యులు శ్రీ భాష్యం రామకృష్ణ గారి అధికారిక యూట్యూబ్, ఇన్‌స్టాగ్రామ్, ఫేస్‌బుక్ మరియు ఎక్స్ ఖాతాల ద్వారా సంప్రదించండి.',
   }
 }
 

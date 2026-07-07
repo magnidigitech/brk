@@ -10,19 +10,21 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
 interface PageProps {
-  searchParams: Promise<{ id?: string }>
+  params: Promise<{ id?: string[] }>
 }
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
-  const resolvedSearchParams = await searchParams
-  const id = resolvedSearchParams.id
+  const resolvedParams = await params
+  const id = resolvedParams.id?.[0]
 
   if (id) {
     try {
       const update = await sanityFetch<any>({
-        query: `*[_type == "dailyUpdate" && (_id == $id || _id match $id + "*")][0] {
+        query: `*[_type == "dailyUpdate" && (slug.current == $id || _id == $id || _id match $id + "*")][0] {
+          _id,
+          slug,
           title,
           summary,
           mainImage
@@ -31,6 +33,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       })
 
       if (update) {
+        const slugOrId = update.slug?.current || update._id
         const rTitle = update.title?.[lang] || update.title?.en || update.title || uiTranslations['meta.daily.title'][lang]
         const rDesc = update.summary?.[lang] || update.summary?.en || update.summary || uiTranslations['meta.daily.desc'][lang]
         const imageUrl = update.mainImage ? urlFor(update.mainImage).width(1200).height(630).url() : undefined
@@ -39,14 +42,21 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
           title: `${rTitle} | Shri Bhashyam Rama Krishna`,
           description: rDesc,
           alternates: {
-            canonical: `https://bramakrishna.mp.in/daily-updates?id=${id}`,
+            canonical: `https://bhashyamramakrishna.in/daily-updates/${slugOrId}`,
           },
           openGraph: {
             title: rTitle,
             description: rDesc,
-            url: `https://bramakrishna.mp.in/daily-updates?id=${id}`,
+            url: `https://bhashyamramakrishna.in/daily-updates/${slugOrId}`,
             locale: lang === 'te' ? 'te_IN' : 'en_IN',
             images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+          },
+          twitter: {
+            card: 'summary_large_image',
+            title: rTitle,
+            description: rDesc,
+            images: imageUrl ? [imageUrl] : ['https://bhashyamramakrishna.in/profile.jpg'],
+            creator: '@bhashyambrk',
           }
         }
       }
@@ -62,24 +72,32 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/daily-updates',
+      canonical: 'https://bhashyamramakrishna.in/daily-updates',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/daily-updates',
+      url: 'https://bhashyamramakrishna.in/daily-updates',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://bhashyamramakrishna.in/profile.jpg'],
+      creator: '@bhashyambrk',
     }
   }
 }
 
-export default async function DailyUpdatesPage() {
+export default async function DailyUpdatesPage({ params }: PageProps) {
   let dailyUpdates: any[] = []
 
   try {
     dailyUpdates = await sanityFetch<any[]>({
       query: `*[_type == "dailyUpdate"] | order(date desc) {
         _id,
+        slug,
         title,
         date,
         summary,
@@ -95,6 +113,8 @@ export default async function DailyUpdatesPage() {
 
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const resolvedParams = await params
+  const activeId = resolvedParams.id?.[0] || null
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -104,13 +124,13 @@ export default async function DailyUpdatesPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'రోజువారీ అప్‌డేట్స్' : 'Daily Updates',
-        'item': 'https://bramakrishna.mp.in/daily-updates'
+        'item': 'https://bhashyamramakrishna.in/daily-updates'
       }
     ]
   }
@@ -130,7 +150,7 @@ export default async function DailyUpdatesPage() {
   return (
     <>
       <JsonLd schema={[breadcrumbSchema, ...articleSchemas]} />
-      <DailyUpdatesClient dailyUpdates={dailyUpdates || []} />
+      <DailyUpdatesClient dailyUpdates={dailyUpdates || []} activeId={activeId} />
     </>
   )
 }

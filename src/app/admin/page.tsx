@@ -55,14 +55,29 @@ export default function MasterAdminPortal() {
     }
   }, [])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email === 'magnidigitech@gmail.com' && password === 'Magni@221299') {
-      localStorage.setItem('admin_authenticated_email', 'magnidigitech@gmail.com')
-      setIsAuthenticated(true)
-      fetchDashboardData()
-    } else {
-      setAuthError('Invalid email or password. Please try again.')
+    setAuthError('')
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          localStorage.setItem('admin_authenticated_email', data.email)
+          setIsAuthenticated(true)
+          fetchDashboardData()
+        } else {
+          setAuthError('Invalid email or password. Please try again.')
+        }
+      } else {
+        setAuthError('Invalid email or password. Please try again.')
+      }
+    } catch (err) {
+      setAuthError('An error occurred during login. Please try again.')
     }
   }
 

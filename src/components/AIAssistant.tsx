@@ -517,8 +517,8 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                   <a href={`tel:${siteSettings?.stateOffice?.phone || '+918662470000'}`} className="flex items-center hover:text-navy-900">
                                     <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'}
                                   </a>
-                                  <a href={`mailto:${siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'}`} className="flex items-center hover:text-navy-900 truncate">
-                                    <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'}
+                                  <a href={`mailto:${siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}`} className="flex items-center hover:text-navy-900 truncate">
+                                    <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}
                                   </a>
                                 </div>
                                 <button
@@ -540,8 +540,8 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                   <a href={`tel:${siteSettings?.delhiOffice?.phone || '+911123700000'}`} className="flex items-center hover:text-navy-900">
                                     <Phone className="w-3 h-3 mr-1 text-slate-400" /> {siteSettings?.delhiOffice?.phone || 'Delhi Office'}
                                   </a>
-                                  <a href={`mailto:${siteSettings?.delhiOffice?.email || 'delhi.office@bramakrishna.mp.in'}`} className="flex items-center hover:text-navy-900 truncate">
-                                    <Mail className="w-3 h-3 mr-1 text-slate-400" /> {siteSettings?.delhiOffice?.email || 'delhi.office@bramakrishna.mp.in'}
+                                  <a href={`mailto:${siteSettings?.delhiOffice?.email || 'delhi.office@bhashyamramakrishna.in'}`} className="flex items-center hover:text-navy-900 truncate">
+                                    <Mail className="w-3 h-3 mr-1 text-slate-400" /> {siteSettings?.delhiOffice?.email || 'delhi.office@bhashyamramakrishna.in'}
                                   </a>
                                 </div>
                                 <button

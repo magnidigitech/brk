@@ -154,7 +154,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
                   </svg>
                 </a>
                 <a
-                  href="https://www.youtube.com/@bhashyamramakrishnaofficial"
+                  href="https://www.youtube.com/@ramakrishnabhashyam"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center hover:scale-105 transition-all shadow-sm cursor-pointer"

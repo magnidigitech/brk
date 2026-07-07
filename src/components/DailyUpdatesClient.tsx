@@ -25,6 +25,7 @@ import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 
 interface DailyUpdateItem {
   _id: string
+  slug?: { current: string }
   title: any
   date: string
   summary?: any
@@ -113,7 +114,7 @@ function tokenizeText(text: string, globalOffset: number): WordToken[] {
   return words
 }
 
-export default function DailyUpdatesClient({ dailyUpdates }: DailyUpdatesClientProps) {
+export default function DailyUpdatesClient({ dailyUpdates, activeId }: DailyUpdatesClientProps & { activeId?: string | null }) {
   const { tContent, language } = useLanguage()
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
@@ -151,7 +152,8 @@ export default function DailyUpdatesClient({ dailyUpdates }: DailyUpdatesClientP
   const [showShareMenu, setShowShareMenu] = useState(false)
 
   const sharePath = '/daily-updates'
-  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
+  const currentSlugOrId = activeContent ? (dailyUpdates.find(r => r._id === activeContent._id)?.slug?.current || activeContent._id) : ''
+  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}/${currentSlugOrId}` : ''
   const siteUrl = isClient ? window.location.origin : ''
   const twitterUrl = 'https://x.com/bhashyambrk'
   const instagramUrl = 'https://www.instagram.com/ramakrishnabhashyam/'
@@ -197,9 +199,8 @@ ${siteUrl}
     }
 
     if (hasContent && !historyPushedRef.current.content) {
-      const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id.slice(0, 8))
-      window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
+      const slugOrId = dailyUpdates.find(r => r._id === activeContent._id)?.slug?.current || activeContent._id
+      window.history.pushState({ type: 'activeContent' }, '', `${sharePath}/${slugOrId}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
       historyPushedRef.current.content = false
@@ -209,12 +210,15 @@ ${siteUrl}
     }
   }, [activeMedia, activeContent])
 
-  // Check query parameter on mount and dailyUpdates load
+  // Check activeId or query parameters on mount and dailyUpdates load
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const id = params.get('id')
+    let id = activeId
+    if (!id && isClient) {
+      const params = new URLSearchParams(window.location.search)
+      id = params.get('id')
+    }
     if (id && dailyUpdates.length > 0) {
-      const item = dailyUpdates.find((r) => r._id === id || r._id.startsWith(id))
+      const item = dailyUpdates.find((r) => r.slug?.current === id || r._id === id || r._id.startsWith(id))
       if (item) {
         const ntitle = tContent(item.title)
         const nsummary = tContent(item.summary)
@@ -243,20 +247,16 @@ ${siteUrl}
         })
       }
     }
-  }, [dailyUpdates])
+  }, [dailyUpdates, activeId, isClient])
 
-  // Sync activeContent changes with URL query parameter
+  // Sync activeContent changes with URL path
   useEffect(() => {
-    if (!activeContent) {
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('id')) {
-        params.delete('id')
-        const searchStr = params.toString()
-        const newUrl = `${window.location.pathname}${searchStr ? '?' + searchStr : ''}`
-        window.history.replaceState({ ...window.history.state }, '', newUrl)
+    if (!activeContent && isClient) {
+      if (window.location.pathname !== sharePath) {
+        window.history.replaceState({ ...window.history.state }, '', sharePath)
       }
     }
-  }, [activeContent])
+  }, [activeContent, isClient])
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -766,7 +766,7 @@ ${siteUrl}
                               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                                 activeContent.title + ' - ' + (activeContent.excerpt || '').slice(0, 100) + '...'
                               )}&url=${encodeURIComponent(
-                                window.location.origin + '/daily-updates?id=' + activeContent._id.slice(0, 8)
+                                shareUrl
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"

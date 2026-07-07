@@ -14,12 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/grievance',
+      canonical: 'https://bhashyamramakrishna.in/grievance',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/grievance',
+      url: 'https://bhashyamramakrishna.in/grievance',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -37,13 +37,13 @@ export default async function Page() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'ప్రజా ఫిర్యాదుల పోర్టల్' : 'Grievance Portal',
-        'item': 'https://bramakrishna.mp.in/grievance'
+        'item': 'https://bhashyamramakrishna.in/grievance'
       }
     ]
   }
@@ -53,7 +53,7 @@ export default async function Page() {
     '@type': 'ContactPage',
     'name': lang === 'te' ? 'ప్రజా ఫిర్యాదుల పోర్టల్ | శ్రీ భాష్యం రామకృష్ణ' : 'Public Grievance Portal | Shri Bhashyam Rama Krishna',
     'description': lang === 'te' ? 'సమస్యలు, సలహాలను నేరుగా మా కార్యాలయానికి పంపండి.' : 'Submit local challenges, community requests, or suggestions directly to our office.',
-    'url': 'https://bramakrishna.mp.in/grievance',
+    'url': 'https://bhashyamramakrishna.in/grievance',
     'mainEntity': {
       '@type': 'GovernmentOffice',
       'name': 'Shri Bhashyam Rama Krishna Camp Office',

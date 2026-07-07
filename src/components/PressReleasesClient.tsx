@@ -27,6 +27,7 @@ import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 
 interface NewsItem {
   _id: string
+  slug?: { current: string }
   title: any
   publishedAt: string
   excerpt?: any
@@ -115,7 +116,7 @@ function tokenizeText(text: string, globalOffset: number): WordToken[] {
   return words
 }
 
-export default function PressReleasesClient({ releases }: PressReleasesClientProps) {
+export default function PressReleasesClient({ releases, activeId }: PressReleasesClientProps & { activeId?: string | null }) {
   const { t, tContent, language } = useLanguage()
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
@@ -154,7 +155,8 @@ export default function PressReleasesClient({ releases }: PressReleasesClientPro
   const [copied, setCopied] = useState(false)
 
   const sharePath = '/press-releases'
-  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
+  const currentSlugOrId = activeContent ? (releases.find(r => r._id === activeContent._id)?.slug?.current || activeContent._id) : ''
+  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}/${currentSlugOrId}` : ''
   const siteUrl = isClient ? window.location.origin : ''
   const twitterUrl = 'https://x.com/bhashyambrk'
   const instagramUrl = 'https://www.instagram.com/ramakrishnabhashyam/'
@@ -200,9 +202,8 @@ ${siteUrl}
     }
 
     if (hasContent && !historyPushedRef.current.content) {
-      const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id.slice(0, 8))
-      window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
+      const slugOrId = releases.find(r => r._id === activeContent._id)?.slug?.current || activeContent._id
+      window.history.pushState({ type: 'activeContent' }, '', `${sharePath}/${slugOrId}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
       historyPushedRef.current.content = false
@@ -212,12 +213,15 @@ ${siteUrl}
     }
   }, [activeMedia, activeContent])
 
-  // Check query parameter on mount and releases load
+  // Check activeId or query parameters on mount and releases load
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const id = params.get('id')
+    let id = activeId
+    if (!id && isClient) {
+      const params = new URLSearchParams(window.location.search)
+      id = params.get('id')
+    }
     if (id && releases.length > 0) {
-      const item = releases.find((r) => r._id === id || r._id.startsWith(id))
+      const item = releases.find((r) => r.slug?.current === id || r._id === id || r._id.startsWith(id))
       if (item) {
         const ntitle = tContent(item.title)
         const nexcerpt = tContent(item.excerpt)
@@ -246,20 +250,16 @@ ${siteUrl}
         })
       }
     }
-  }, [releases])
+  }, [releases, activeId, isClient])
 
-  // Sync activeContent changes with URL query parameter
+  // Sync activeContent changes with URL path
   useEffect(() => {
-    if (!activeContent) {
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('id')) {
-        params.delete('id')
-        const searchStr = params.toString()
-        const newUrl = `${window.location.pathname}${searchStr ? '?' + searchStr : ''}`
-        window.history.replaceState({ ...window.history.state }, '', newUrl)
+    if (!activeContent && isClient) {
+      if (window.location.pathname !== sharePath) {
+        window.history.replaceState({ ...window.history.state }, '', sharePath)
       }
     }
-  }, [activeContent])
+  }, [activeContent, isClient])
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
@@ -791,7 +791,7 @@ ${siteUrl}
                               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                                 activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
                               )}&url=${encodeURIComponent(
-                                window.location.origin + '/press-releases?id=' + activeContent._id.slice(0, 8)
+                                shareUrl
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -805,7 +805,6 @@ ${siteUrl}
                             </a>
                             <button
                               onClick={async () => {
-                                const shareUrl = `${window.location.origin}/press-releases?id=${activeContent._id.slice(0, 8)}`
                                 try {
                                   await navigator.clipboard.writeText(shareUrl)
                                   setCopied(true)

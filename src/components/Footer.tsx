@@ -13,6 +13,7 @@ interface FooterProps {
       instagram?: string
       youtube?: string
       twitter?: string
+      facebook?: string
     }
     delhiOffice?: {
       address?: any
@@ -35,12 +36,13 @@ export default function Footer({ siteSettings }: FooterProps) {
   const candidateName = tContent(siteSettings?.candidateName, 'Bhashyam Rama Krishna')
   const roleBadge = getRoleTitle(useLanguage().language)
   const instagram = siteSettings?.socialLinks?.instagram || 'https://www.instagram.com/ramakrishnabhashyam/'
-  const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@bhashyamramakrishnaofficial'
+  const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@ramakrishnabhashyam'
   const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
+  const facebook = siteSettings?.socialLinks?.facebook || 'https://www.facebook.com/ramakrishnabhashyam'
   const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
   const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Navabharath Nagar 4/3 Line, Guntur - 522006')
   const statePhone = siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'
-  const stateEmail = siteSettings?.stateOffice?.email || 'state.office@bramakrishna.mp.in'
+  const stateEmail = siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'
 
   return (
     <footer className="bg-[#5C0606] text-slate-200 border-t-2 border-saffron-500 w-full">
@@ -114,6 +116,19 @@ export default function Footer({ siteSettings }: FooterProps) {
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
                     <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+                  </svg>
+                </a>
+              )}
+              {facebook && (
+                <a
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#450308] flex items-center justify-center hover:bg-saffron-500 hover:text-navy-900 transition-all border border-[#7A0D15] shadow-sm text-red-100"
+                  aria-label="Facebook profile"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                   </svg>
                 </a>
               )}

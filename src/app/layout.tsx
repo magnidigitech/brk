@@ -31,6 +31,16 @@ export const metadata: Metadata = {
     apple: "/images/logo.png",
   },
   manifest: "/manifest.json",
+  verification: {
+    google: "S0ZBLecUD_EplEybKPsZ3-e6ZRnNg8-WkOtYsM3KBSM",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bhashyam Rama Krishna | Official Rajya Sabha Portal",
+    description: "Official public service portal of Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Telugu Desam Party (TDP) Rajya Sabha Candidate from Andhra Pradesh.",
+    images: ["/profile.jpg"],
+    creator: "@bhashyambrk",
+  },
 };
 
 export default async function RootLayout({
@@ -52,6 +62,72 @@ export default async function RootLayout({
         <link rel="preload" href="/images/header_lokesh.png?v=2" as="image" />
         <link rel="preload" href="/images/header_brk.png?v=2" as="image" />
         <link rel="preload" href="/images/brk.png" as="image" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Person",
+                "@id": "https://bhashyamramakrishna.in/#person",
+                "name": "Bhashyam Ramakrishna",
+                "alternateName": [
+                  "Bhashyam Rama Krishna",
+                  "Bhashyam Rama Krishna Garu",
+                  "Bhashyam BRK"
+                ],
+                "url": "https://bhashyamramakrishna.in/",
+                "image": "https://bhashyamramakrishna.in/profile.jpg",
+                "description": "Official profile of Bhashyam Ramakrishna.",
+                "jobTitle": "Member of Parliament (Rajya Sabha)",
+                "gender": "Male",
+                "nationality": {
+                  "@type": "Country",
+                  "name": "India"
+                },
+                "knowsAbout": [
+                  "Education",
+                  "Public Policy",
+                  "Social Welfare",
+                  "Andhra Pradesh Development"
+                ],
+                "worksFor": {
+                  "@type": "EducationalOrganization",
+                  "name": "Bhashyam Educational Institutions",
+                  "url": "https://www.bhashyamschools.com/"
+                },
+                "affiliation": {
+                  "@type": "PoliticalParty",
+                  "name": "Telugu Desam Party",
+                  "alternateName": "TDP",
+                  "sameAs": "https://en.wikipedia.org/wiki/Telugu_Desam_Party"
+                },
+                "memberOf": {
+                  "@type": "GovernmentOrganization",
+                  "name": "Parliament of India",
+                  "sameAs": "https://en.wikipedia.org/wiki/Parliament_of_India"
+                },
+                "sameAs": [
+                  "https://en.wikipedia.org/wiki/Bhashyam_Rama_Krishna",
+                  "https://www.youtube.com/@ramakrishnabhashyam",
+                  "https://www.instagram.com/ramakrishnabhashyam",
+                  "https://www.facebook.com/ramakrishnabhashyam",
+                  "https://x.com/bhashyambrk"
+                ]
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "@id": "https://bhashyamramakrishna.in/#website",
+                "name": "Bhashyam Ramakrishna",
+                "url": "https://bhashyamramakrishna.in/",
+                "publisher": {
+                  "@id": "https://bhashyamramakrishna.in/#person"
+                }
+              }
+            ])
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 pb-20 lg:pb-0 font-sans">
         <PullToRefresh />

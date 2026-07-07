@@ -39,6 +39,7 @@ export const siteSettings = defineType({
         { name: 'instagram', title: 'Instagram URL', type: 'url' },
         { name: 'youtube', title: 'YouTube URL', type: 'url' },
         { name: 'twitter', title: 'X / Twitter URL', type: 'url' },
+        { name: 'facebook', title: 'Facebook URL', type: 'url' },
       ],
     }),
     defineField({

@@ -2,9 +2,7 @@ import HomeDashboard from '@/components/HomeDashboard'
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import { cookies } from 'next/headers'
 import { Metadata } from 'next'
-import JsonLd from '@/components/JsonLd'
 import { uiTranslations } from '@/lib/translations'
-import { getRoleTitle } from '@/lib/roleHelper'
 
 // Always fetch live data from Sanity — no caching
 export const dynamic = 'force-dynamic'
@@ -20,13 +18,27 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in',
+      canonical: 'https://bhashyamramakrishna.in/',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in',
+      url: 'https://bhashyamramakrishna.in/',
+      type: 'website',
+      images: [
+        {
+          url: 'https://bhashyamramakrishna.in/profile.jpg',
+          alt: 'Bhashyam Ramakrishna'
+        }
+      ],
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://bhashyamramakrishna.in/profile.jpg'],
+      creator: '@bhashyambrk',
     }
   }
 }
@@ -120,44 +132,8 @@ export default async function Page() {
   const displayGallery = gallery || []
   const displaySettings = settings || {}
 
-  const cookieStore = await cookies()
-  const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
-
-  const personSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    'name': 'Shri Bhashyam Rama Krishna',
-    'url': 'https://bramakrishna.mp.in',
-    'image': 'https://bramakrishna.mp.in/images/brk.png',
-    'jobTitle': getRoleTitle(lang),
-    'memberOf': {
-      '@type': 'GovernmentOrganization',
-      'name': 'Parliament of India',
-      'sameAs': 'https://en.wikipedia.org/wiki/Parliament_of_India'
-    },
-    'affiliation': {
-      '@type': 'PoliticalParty',
-      'name': 'Telugu Desam Party',
-      'alternateName': 'TDP',
-      'sameAs': 'https://en.wikipedia.org/wiki/Telugu_Desam_Party'
-    },
-    'sameAs': [
-      'https://www.instagram.com/ramakrishnabhashyam/',
-      'https://www.youtube.com/@bhashyamramakrishnaofficial',
-      'https://x.com/bhashyambrk'
-    ]
-  }
-
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    'name': 'Bhashyam Rama Krishna | Official Rajya Sabha Portal',
-    'url': 'https://bramakrishna.mp.in'
-  }
-
   return (
     <>
-      <JsonLd schema={[personSchema, websiteSchema]} />
       <HomeDashboard
         dailyUpdates={displayDaily}
         updates={displayUpdates}

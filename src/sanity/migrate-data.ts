@@ -121,8 +121,9 @@ async function run() {
     },
     socialLinks: {
       instagram: 'https://www.instagram.com/ramakrishnabhashyam/',
-      youtube: 'https://www.youtube.com/@bhashyamrakakrishnaoffical',
-      twitter: 'https://x.com/bhashyambrk'
+      youtube: 'https://www.youtube.com/@ramakrishnabhashyam',
+      twitter: 'https://x.com/bhashyambrk',
+      facebook: 'https://www.facebook.com/ramakrishnabhashyam'
     },
     delhiOffice: {
       address: {
@@ -131,7 +132,7 @@ async function run() {
         ten: '12, Rajya Sabha Members Residences, New Delhi - 110001'
       },
       phone: '+91 11 2301 XXXX',
-      email: 'delhi.office@bramakrishna.mp.in'
+      email: 'delhi.office@bhashyamramakrishna.in'
     },
     stateOffice: {
       address: {
@@ -140,7 +141,7 @@ async function run() {
         ten: 'Navabharath Nagar 4/3 Line, Guntur - 522006'
       },
       phone: '+91 866 247 XXXX',
-      email: 'state.office@bramakrishna.mp.in'
+      email: 'state.office@bhashyamramakrishna.in'
     },
     introVideoUrl: 'https://www.youtube.com/watch?v=EMgeoUKZJQ4',
     introVideoTitle: {

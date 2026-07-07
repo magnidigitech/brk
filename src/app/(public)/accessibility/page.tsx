@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/accessibility',
+      canonical: 'https://bhashyamramakrishna.in/accessibility',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/accessibility',
+      url: 'https://bhashyamramakrishna.in/accessibility',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -36,13 +36,13 @@ export default async function AccessibilityPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'యాక్సెసిబిలిటీ ప్రకటన' : 'Accessibility',
-        'item': 'https://bramakrishna.mp.in/accessibility'
+        'item': 'https://bhashyamramakrishna.in/accessibility'
       }
     ]
   }

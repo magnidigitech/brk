@@ -18,12 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/state-focus',
+      canonical: 'https://bhashyamramakrishna.in/state-focus',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/state-focus',
+      url: 'https://bhashyamramakrishna.in/state-focus',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -59,13 +59,13 @@ export default async function StateFocusPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'రాష్ట్ర ప్రాధాన్యతలు' : 'State Focus',
-        'item': 'https://bramakrishna.mp.in/state-focus'
+        'item': 'https://bhashyamramakrishna.in/state-focus'
       }
     ]
   }

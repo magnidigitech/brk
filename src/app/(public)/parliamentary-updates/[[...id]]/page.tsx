@@ -10,19 +10,21 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0 // Always fetch fresh from Sanity
 
 interface PageProps {
-  searchParams: Promise<{ id?: string }>
+  params: Promise<{ id?: string[] }>
 }
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
-  const resolvedSearchParams = await searchParams
-  const id = resolvedSearchParams.id
+  const resolvedParams = await params
+  const id = resolvedParams.id?.[0]
 
   if (id) {
     try {
       const update = await sanityFetch<any>({
-        query: `*[_type == "parliamentaryUpdate" && (_id == $id || _id match $id + "*")][0] {
+        query: `*[_type == "parliamentaryUpdate" && (slug.current == $id || _id == $id || _id match $id + "*")][0] {
+          _id,
+          slug,
           title,
           summary,
           mainImage
@@ -31,7 +33,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       })
 
       if (update) {
-        // extract title, summary and main image for social share previews
+        const slugOrId = update.slug?.current || update._id
         const uTitle = update.title?.[lang] || update.title?.en || update.title || uiTranslations['meta.parliament.title'][lang]
         const uDesc = update.summary?.[lang] || update.summary?.en || update.summary || uiTranslations['meta.parliament.desc'][lang]
         const imageUrl = update.mainImage ? urlFor(update.mainImage).width(1200).height(630).url() : undefined
@@ -40,14 +42,21 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
           title: `${uTitle} | Shri Bhashyam Rama Krishna`,
           description: uDesc,
           alternates: {
-            canonical: `https://bramakrishna.mp.in/parliamentary-updates?id=${id}`,
+            canonical: `https://bhashyamramakrishna.in/parliamentary-updates/${slugOrId}`,
           },
           openGraph: {
             title: uTitle,
             description: uDesc,
-            url: `https://bramakrishna.mp.in/parliamentary-updates?id=${id}`,
+            url: `https://bhashyamramakrishna.in/parliamentary-updates/${slugOrId}`,
             locale: lang === 'te' ? 'te_IN' : 'en_IN',
             images: imageUrl ? [{ url: imageUrl, width: 1200, height: 630 }] : undefined,
+          },
+          twitter: {
+            card: 'summary_large_image',
+            title: uTitle,
+            description: uDesc,
+            images: imageUrl ? [imageUrl] : ['https://bhashyamramakrishna.in/profile.jpg'],
+            creator: '@bhashyambrk',
           }
         }
       }
@@ -63,13 +72,20 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/parliamentary-updates',
+      canonical: 'https://bhashyamramakrishna.in/parliamentary-updates',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/parliamentary-updates',
+      url: 'https://bhashyamramakrishna.in/parliamentary-updates',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['https://bhashyamramakrishna.in/profile.jpg'],
+      creator: '@bhashyambrk',
     }
   }
 }
@@ -81,13 +97,14 @@ function getYouTubeId(url: string): string | null {
   return (match && match[2].length === 11) ? match[2] : null
 }
 
-export default async function ParliamentaryUpdatesPage() {
+export default async function ParliamentaryUpdatesPage({ params }: PageProps) {
   let updates: any[] = []
 
   try {
     updates = await sanityFetch<any[]>({
       query: `*[_type == "parliamentaryUpdate"] | order(date desc) {
         _id,
+        slug,
         title,
         date,
         summary,
@@ -103,6 +120,8 @@ export default async function ParliamentaryUpdatesPage() {
 
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
+  const resolvedParams = await params
+  const activeId = resolvedParams.id?.[0] || null
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -112,13 +131,13 @@ export default async function ParliamentaryUpdatesPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'పార్లమెంటరీ అప్‌డేట్స్' : 'Parliamentary Updates',
-        'item': 'https://bramakrishna.mp.in/parliamentary-updates'
+        'item': 'https://bhashyamramakrishna.in/parliamentary-updates'
       }
     ]
   }
@@ -167,7 +186,7 @@ export default async function ParliamentaryUpdatesPage() {
   return (
     <>
       <JsonLd schema={[breadcrumbSchema, ...articleSchemas, ...videoSchemas]} />
-      <ParliamentaryUpdatesClient updates={updates || []} />
+      <ParliamentaryUpdatesClient updates={updates || []} activeId={activeId} />
     </>
   )
 }

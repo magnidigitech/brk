@@ -595,7 +595,7 @@ ${siteUrl}
               <div className="lg:col-span-5 h-[360px] sm:h-[420px] lg:h-auto min-h-[240px] relative overflow-hidden border-t sm:border border-navy-950/10 sm:rounded-2xl sm:shadow-md self-stretch shrink-0 bg-[#FFE600]">
                 <img
                   src="/images/brk.png"
-                  alt={candidateName}
+                  alt={`${candidateName} - Founder Chairman of Bhashyam Educational Institutions and Member of Parliament (Rajya Sabha)`}
                   className="absolute inset-0 w-full h-full object-cover object-top"
                   fetchPriority="high"
                   width={360}

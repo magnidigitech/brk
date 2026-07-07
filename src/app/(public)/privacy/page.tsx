@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/privacy',
+      canonical: 'https://bhashyamramakrishna.in/privacy',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/privacy',
+      url: 'https://bhashyamramakrishna.in/privacy',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -36,13 +36,13 @@ export default async function PrivacyPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'గోప్యతా విధానం' : 'Privacy Policy',
-        'item': 'https://bramakrishna.mp.in/privacy'
+        'item': 'https://bhashyamramakrishna.in/privacy'
       }
     ]
   }

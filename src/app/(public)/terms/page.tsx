@@ -13,12 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: 'https://bramakrishna.mp.in/terms',
+      canonical: 'https://bhashyamramakrishna.in/terms',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bramakrishna.mp.in/terms',
+      url: 'https://bhashyamramakrishna.in/terms',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
@@ -36,13 +36,13 @@ export default async function TermsPage() {
         '@type': 'ListItem',
         'position': 1,
         'name': lang === 'te' ? 'హోమ్' : 'Home',
-        'item': 'https://bramakrishna.mp.in'
+        'item': 'https://bhashyamramakrishna.in'
       },
       {
         '@type': 'ListItem',
         'position': 2,
         'name': lang === 'te' ? 'నిబంధనలు & షరతులు' : 'Terms of Use',
-        'item': 'https://bramakrishna.mp.in/terms'
+        'item': 'https://bhashyamramakrishna.in/terms'
       }
     ]
   }

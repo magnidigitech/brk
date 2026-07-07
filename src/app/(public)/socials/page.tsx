@@ -1,5 +1,5 @@
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
-import DevelopmentWorksClient from '@/components/DevelopmentWorksClient'
+import SocialsClient from '@/components/SocialsClient'
 import { cookies } from 'next/headers'
 import { Metadata } from 'next'
 import JsonLd from '@/components/JsonLd'
@@ -11,41 +11,38 @@ export const revalidate = 0 // Always fetch fresh from Sanity
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
-  const title = uiTranslations['meta.development.title'][lang] || uiTranslations['meta.development.title']['en']
-  const description = uiTranslations['meta.development.desc'][lang] || uiTranslations['meta.development.desc']['en']
+  const title = uiTranslations['meta.socials.title'][lang] || uiTranslations['meta.socials.title']['en']
+  const description = uiTranslations['meta.socials.desc'][lang] || uiTranslations['meta.socials.desc']['en']
   
   return {
     title,
     description,
     alternates: {
-      canonical: 'https://bhashyamramakrishna.in/development-works',
+      canonical: 'https://bhashyamramakrishna.in/socials',
     },
     openGraph: {
       title,
       description,
-      url: 'https://bhashyamramakrishna.in/development-works',
+      url: 'https://bhashyamramakrishna.in/socials',
       locale: lang === 'te' ? 'te_IN' : 'en_IN',
     }
   }
 }
 
-export default async function DevelopmentWorksPage() {
-  let projects: any[] = []
+export default async function SocialsPage() {
+  let settings = null
 
   try {
-    const fetchedProjects = await sanityFetch<any[]>({
-      query: `*[_type == "developmentProject"] | order(order asc) {
-        _id,
-        category,
-        title,
-        location,
-        desc,
-        progress
+    settings = await sanityFetch<any>({
+      query: `*[_type == "siteSettings"][0] {
+        candidateName,
+        roleBadge,
+        tagline,
+        socialLinks
       }`
     })
-    projects = fetchedProjects || []
   } catch (error) {
-    console.error('Failed to fetch development projects from Sanity:', error)
+    console.error('Failed to fetch site settings for socials page from Sanity:', error)
   }
 
   const cookieStore = await cookies()
@@ -64,16 +61,16 @@ export default async function DevelopmentWorksPage() {
       {
         '@type': 'ListItem',
         'position': 2,
-        'name': lang === 'te' ? 'అభివృద్ధి పనులు' : 'Development Works',
-        'item': 'https://bhashyamramakrishna.in/development-works'
+        'name': lang === 'te' ? 'సోషల్ మీడియా' : 'Socials',
+        'item': 'https://bhashyamramakrishna.in/socials'
       }
     ]
   }
 
   return (
     <>
-      <JsonLd schema={[breadcrumbSchema]} />
-      <DevelopmentWorksClient projects={projects} />
+      <JsonLd schema={breadcrumbSchema} />
+      <SocialsClient settings={settings} />
     </>
   )
 }
