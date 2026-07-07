@@ -24,6 +24,7 @@ interface SocialsClientProps {
 export default function SocialsClient({ settings }: SocialsClientProps) {
   const { t, tContent, language } = useLanguage()
   const [copied, setCopied] = useState(false)
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
   const candidateName = tContent(settings?.candidateName, 'Bhashyam Rama Krishna')
   const roleTitle = getRoleTitle(language)
@@ -200,18 +201,24 @@ export default function SocialsClient({ settings }: SocialsClientProps) {
               variants={cardVariants}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex items-center p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs transition-all cursor-pointer ${platform.color} group relative overflow-hidden`}
+              onMouseEnter={() => setHoveredCard(platform.name)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="flex items-center p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs transition-all duration-300 cursor-pointer group relative overflow-hidden"
+              style={{
+                backgroundColor: hoveredCard === platform.name ? platform.accentColor : '#ffffff',
+                color: hoveredCard === platform.name ? '#ffffff' : 'inherit'
+              }}
             >
               {/* Glow element on hover */}
               <div 
-                className="absolute inset-y-0 left-0 w-1 group-hover:w-1.5 transition-all duration-300"
-                style={{ backgroundColor: platform.accentColor }}
+                className="absolute inset-y-0 left-0 w-1 transition-all duration-300"
+                style={{ backgroundColor: hoveredCard === platform.name ? '#ffffff' : platform.accentColor }}
               />
 
               <div 
                 className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 mr-4 transition-all duration-300"
                 style={{ 
-                  backgroundColor: `${platform.accentColor}10`,
+                  backgroundColor: hoveredCard === platform.name ? '#ffffff' : `${platform.accentColor}10`,
                   color: platform.accentColor 
                 }}
               >
@@ -219,13 +226,22 @@ export default function SocialsClient({ settings }: SocialsClientProps) {
               </div>
 
               <div className="text-left flex-grow">
-                <span className="block font-black text-navy-950 text-base group-hover:text-inherit transition-colors">
+                <span 
+                  className="block font-black text-base transition-colors"
+                  style={{ color: hoveredCard === platform.name ? '#ffffff' : '#020617' }}
+                >
                   {platform.name}
                 </span>
-                <span className="block text-xs text-slate-400 font-medium group-hover:text-inherit/80 transition-colors mt-0.5">
+                <span 
+                  className="block text-xs font-medium transition-colors mt-0.5"
+                  style={{ color: hoveredCard === platform.name ? 'rgba(255, 255, 255, 0.75)' : '#94a3b8' }}
+                >
                   {platform.username}
                 </span>
-                <span className="block text-[11px] text-slate-500 font-normal group-hover:text-inherit/90 transition-colors mt-1">
+                <span 
+                  className="block text-[11px] font-normal transition-colors mt-1"
+                  style={{ color: hoveredCard === platform.name ? 'rgba(255, 255, 255, 0.9)' : '#64748b' }}
+                >
                   {platform.description}
                 </span>
               </div>
