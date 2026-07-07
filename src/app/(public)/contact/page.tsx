@@ -38,7 +38,7 @@ export default async function ContactPage() {
     },
     stateOffice: {
       address: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
-      phone: '+91 866 247 XXXX',
+      phone: '+91 99081 22239 / 40',
       email: 'state.office@bhashyamramakrishna.in'
     }
   }

@@ -514,15 +514,15 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                   {siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'}
                                 </p>
                                 <div className="space-y-1 font-bold text-slate-600">
-                                  <a href={`tel:${siteSettings?.stateOffice?.phone || '+918662470000'}`} className="flex items-center hover:text-navy-900">
-                                    <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 866 247 XXXX'}
+                                  <a href={`tel:${siteSettings?.stateOffice?.phone || '+919908122239'}`} className="flex items-center hover:text-navy-900">
+                                    <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'}
                                   </a>
                                   <a href={`mailto:${siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}`} className="flex items-center hover:text-navy-900 truncate">
                                     <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}
                                   </a>
                                 </div>
                                 <button
-                                  onClick={() => handleCopy(`${siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'} Phone: ${siteSettings?.stateOffice?.phone || '+918662470000'}`, 'state-office')}
+                                  onClick={() => handleCopy(`${siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'} Phone: ${siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'}`, 'state-office')}
                                   className="absolute top-2 right-2 text-slate-400 hover:text-navy-900"
                                 >
                                   {copiedIndex === 'state-office' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
