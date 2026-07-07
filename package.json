@@ -12,6 +12,7 @@
   "dependencies": {
     "@emnapi/core": "^1.11.0",
     "@emnapi/runtime": "^1.11.0",
+    "@next/swc-darwin-arm64": "^16.2.10",
     "@prisma/client": "^6.19.3",
     "@sanity/client": "^7.22.1",
     "@sanity/image-url": "^2.1.1",
