@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MapPin, Phone, Mail, Send, CheckCircle2, RefreshCw, AlertCircle, ShieldCheck, ExternalLink } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { parsePhoneNumbers } from '@/lib/roleHelper'
 
 interface ContactClientProps {
   settings: {
@@ -95,13 +96,21 @@ export default function ContactClient({ settings }: ContactClientProps) {
                   <MapPin className="w-4 h-4 mr-2.5 text-navy-900 shrink-0 mt-0.5" />
                   <span className="whitespace-pre-line text-left block">{tContent(settings.delhiOffice.address)}</span>
                 </li>
-                <li className="flex items-center">
-                  <Phone className="w-4 h-4 mr-2.5 text-navy-900 shrink-0" />
-                  <span>{settings.delhiOffice.phone}</span>
+                <li className="flex items-start">
+                  <Phone className="w-4 h-4 mr-2.5 text-navy-900 shrink-0 mt-0.5" />
+                  <div className="flex flex-col space-y-0.5">
+                    {parsePhoneNumbers(settings.delhiOffice.phone).map((phone, idx) => (
+                      <a key={idx} href={phone.href} className="hover:text-saffron-600 transition-colors">
+                        {phone.display}
+                      </a>
+                    ))}
+                  </div>
                 </li>
                 <li className="flex items-center">
                   <Mail className="w-4 h-4 mr-2.5 text-navy-900 shrink-0" />
-                  <span>{settings.delhiOffice.email}</span>
+                  <a href={`mailto:${settings.delhiOffice.email}`} className="hover:text-saffron-600 transition-colors">
+                    {settings.delhiOffice.email}
+                  </a>
                 </li>
               </ul>
             </div>
@@ -126,13 +135,21 @@ export default function ContactClient({ settings }: ContactClientProps) {
                     </a>
                   </div>
                 </li>
-                <li className="flex items-center">
-                  <Phone className="w-4 h-4 mr-2.5 text-navy-900 shrink-0" />
-                  <span>{settings.stateOffice.phone}</span>
+                <li className="flex items-start">
+                  <Phone className="w-4 h-4 mr-2.5 text-navy-900 shrink-0 mt-0.5" />
+                  <div className="flex flex-col space-y-0.5">
+                    {parsePhoneNumbers(settings.stateOffice.phone).map((phone, idx) => (
+                      <a key={idx} href={phone.href} className="hover:text-saffron-600 transition-colors">
+                        {phone.display}
+                      </a>
+                    ))}
+                  </div>
                 </li>
                 <li className="flex items-center">
                   <Mail className="w-4 h-4 mr-2.5 text-navy-900 shrink-0" />
-                  <span>{settings.stateOffice.email}</span>
+                  <a href={`mailto:${settings.stateOffice.email}`} className="hover:text-saffron-600 transition-colors">
+                    {settings.stateOffice.email}
+                  </a>
                 </li>
               </ul>
             </div>

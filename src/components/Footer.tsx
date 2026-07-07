@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { MapPin, Mail, Phone } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
-import { getRoleTitle } from '@/lib/roleHelper'
+import { getRoleTitle, parsePhoneNumbers } from '@/lib/roleHelper'
 
 interface FooterProps {
   siteSettings?: {
@@ -42,7 +42,7 @@ export default function Footer({ siteSettings }: FooterProps) {
   const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
   const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Navabharath Nagar 4/3 Line, Guntur - 522006')
   const statePhone = siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'
-  const stateEmail = siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'
+  const stateEmail = siteSettings?.stateOffice?.email || 'ramakrishna.bhashyammp@gmail.com'
 
   return (
     <footer className="bg-[#5C0606] text-slate-200 border-t-2 border-saffron-500 w-full">
@@ -204,13 +204,21 @@ export default function Footer({ siteSettings }: FooterProps) {
                   <span>{stateAddress}</span>
                 </div>
               </li>
-              <li className="flex items-center">
-                <Phone className="w-5 h-5 mr-3 text-saffron-300 shrink-0" />
-                <span>{statePhone}</span>
+              <li className="flex items-start">
+                <Phone className="w-5 h-5 mr-3 text-saffron-300 shrink-0 mt-1" />
+                <div className="flex flex-col space-y-1 leading-tight">
+                  {parsePhoneNumbers(statePhone).map((phone, idx) => (
+                    <a key={idx} href={phone.href} className="hover:text-yellow-300 transition-colors">
+                      {phone.display}
+                    </a>
+                  ))}
+                </div>
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-saffron-300 shrink-0" />
-                <span>{stateEmail}</span>
+                <a href={`mailto:${stateEmail}`} className="hover:text-yellow-300 transition-colors">
+                  {stateEmail}
+                </a>
               </li>
             </ul>
           </div>

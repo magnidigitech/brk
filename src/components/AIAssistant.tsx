@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
+import { parsePhoneNumbers } from '@/lib/roleHelper'
 
 interface AIAssistantProps {
   siteSettings?: {
@@ -514,11 +515,15 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                   {siteSettings?.stateOffice?.address || 'Navabharath Nagar 4/3 Line, Guntur - 522006'}
                                 </p>
                                 <div className="space-y-1 font-bold text-slate-600">
-                                  <a href={`tel:${siteSettings?.stateOffice?.phone || '+919908122239'}`} className="flex items-center hover:text-navy-900">
-                                    <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'}
-                                  </a>
-                                  <a href={`mailto:${siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}`} className="flex items-center hover:text-navy-900 truncate">
-                                    <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'state.office@bhashyamramakrishna.in'}
+                                  <div className="flex flex-col space-y-1">
+                                    {parsePhoneNumbers(siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40').map((phone, idx) => (
+                                      <a key={idx} href={phone.href} className="flex items-center hover:text-navy-900">
+                                        <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" /> {phone.display}
+                                      </a>
+                                    ))}
+                                  </div>
+                                  <a href={`mailto:${siteSettings?.stateOffice?.email || 'ramakrishna.bhashyammp@gmail.com'}`} className="flex items-center hover:text-navy-900 truncate">
+                                    <Mail className="w-3.5 h-3.5 mr-1 text-slate-400" /> {siteSettings?.stateOffice?.email || 'ramakrishna.bhashyammp@gmail.com'}
                                   </a>
                                 </div>
                                 <button
