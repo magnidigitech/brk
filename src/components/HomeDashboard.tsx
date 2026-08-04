@@ -744,7 +744,7 @@ ${siteUrl}
                         onClick={() => {
                           const imgSrc = item.image
                             ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                            : undefined
+                            : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
                           const combinedImages = []
                           if (item.image) {
                             combinedImages.push(item.image)
@@ -776,6 +776,21 @@ ${siteUrl}
                               Read more <ChevronRight className="w-3 h-3" />
                             </span>
                           </div>
+                          {(() => {
+                            const imgSrc = item.image
+                              ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                              : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
+                            return imgSrc ? (
+                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={imgSrc}
+                                  alt={utitle}
+                                  className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                                />
+                              </div>
+                            ) : null
+                          })()}
                           <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
                             {utitle}
                           </h4>
@@ -947,7 +962,7 @@ ${siteUrl}
                         onClick={() => {
                           const imgSrc = update.image
                             ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
-                            : undefined
+                            : (update.images && update.images[0] ? (typeof update.images[0] === 'string' ? update.images[0] : urlFor(update.images[0]).width(800).url()) : undefined)
                           const combinedImages = []
                           if (update.image) {
                             combinedImages.push(update.image)
@@ -980,6 +995,21 @@ ${siteUrl}
                               Read more <ChevronRight className="w-3 h-3" />
                             </span>
                           </div>
+                          {(() => {
+                            const imgSrc = update.image
+                              ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
+                              : (update.images && update.images[0] ? (typeof update.images[0] === 'string' ? update.images[0] : urlFor(update.images[0]).width(800).url()) : undefined)
+                            return imgSrc ? (
+                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={imgSrc}
+                                  alt={utitle}
+                                  className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                                />
+                              </div>
+                            ) : null
+                          })()}
                           <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
                             {utitle}
                           </h4>

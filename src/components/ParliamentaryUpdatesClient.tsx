@@ -393,7 +393,7 @@ ${siteUrl}
                                   onClick={() => {
                                     const imgSrc = item.image
                                       ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                                      : undefined
+                                      : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
                                     const combinedImages = []
                                     if (item.image) {
                                       combinedImages.push(item.image)
@@ -424,6 +424,16 @@ ${siteUrl}
                                         Read more <ChevronRight className="w-3 h-3" />
                                       </span>
                                     </div>
+                                    {((item.image) || (item.images && item.images[0])) && (
+                                      <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                          src={item.image ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url()) : (typeof item.images![0] === 'string' ? item.images![0] : urlFor(item.images![0]).width(800).url())}
+                                          alt={utitle}
+                                          className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                                        />
+                                      </div>
+                                    )}
                                     <h4 className="text-base font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2 line-clamp-2">
                                       {utitle}
                                     </h4>

@@ -417,7 +417,7 @@ ${siteUrl}
                               const nsummary = tContent(item.summary)
                               const imgSrc = item.image
                                 ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                                : undefined
+                                : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
 
                               return (
                                 <div
@@ -444,7 +444,7 @@ ${siteUrl}
                                     })
                                   }}
                                 >
-                                  {item.image && (
+                                  {imgSrc && (
                                     <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img
