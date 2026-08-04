@@ -39,7 +39,7 @@ export default function Footer({ siteSettings }: FooterProps) {
   const youtube = siteSettings?.socialLinks?.youtube || 'https://www.youtube.com/@ramakrishnabhashyam'
   const twitter = siteSettings?.socialLinks?.twitter || 'https://x.com/bhashyambrk'
   const facebook = siteSettings?.socialLinks?.facebook || 'https://www.facebook.com/ramakrishnabhashyam'
-  const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
+  const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '18, Meena Bagh, MP Flats, Moulana Azad Road, New Delhi - 110011')
   const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Navabharath Nagar 4/3 Line, Guntur - 522006')
   const statePhone = siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'
   const stateEmail = siteSettings?.stateOffice?.email || 'bhashyam.rk@mprs.sansad.in'

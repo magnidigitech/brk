@@ -127,12 +127,12 @@ async function run() {
     },
     delhiOffice: {
       address: {
-        en: '12, Rajya Sabha Members Residences, New Delhi - 110001',
-        te: '12, రాజ్యసభ సభ్యుల నివాసాలు, న్యూఢిల్లీ - 110001',
-        ten: '12, Rajya Sabha Members Residences, New Delhi - 110001'
+        en: '18, Meena Bagh, MP Flats, Moulana Azad Road, New Delhi - 110011',
+        te: '18, మీనా బాగ్, ఎంపీ ఫ్లాట్స్, మౌలానా ఆజాద్ రోడ్, న్యూఢిల్లీ - 110011',
+        ten: '18, Meena Bagh, MP Flats, Moulana Azad Road, New Delhi - 110011'
       },
-      phone: '+91 11 2301 XXXX',
-      email: 'delhi.office@bhashyamramakrishna.in'
+      phone: '+91 99667 74446',
+      email: 'bhashyam.rk@mprs.sansad.in'
     },
     stateOffice: {
       address: {

@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const lang = cookieStore.get('user-language')?.value === 'te' ? 'te' : 'en'
   const title = uiTranslations['meta.contact.title'][lang] || uiTranslations['meta.contact.title']['en']
   const description = uiTranslations['meta.contact.desc'][lang] || uiTranslations['meta.contact.desc']['en']
-  
+
   return {
     title,
     description,
@@ -32,14 +32,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   let settings = {
     delhiOffice: {
-      address: '12, Rajya Sabha Members Residences, New Delhi - 110001',
-      phone: '+91 11 2301 XXXX',
+      address: '18, Meena Bagh, MP Flats, Moulana Azad Road, New Delhi - 110011',
+      phone: '+91 99667 74446',
       email: 'bhashyam.rk@mprs.sansad.in'
     },
     stateOffice: {
       address: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
       phone: '+91 99081 22239 / 40',
-      email: 'bhashyam.rk@mprs.sansad.in'
+      email: 'ramakrishna.bhashyammp@gmail.com'
     }
   }
 
@@ -109,9 +109,9 @@ export default async function ContactPage() {
     'email': settings.delhiOffice.email,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': '12, Rajya Sabha Members Residences',
+      'streetAddress': '18, Meena Bagh, MP Flats, Moulana Azad Road',
       'addressLocality': 'New Delhi',
-      'postalCode': '110001',
+      'postalCode': '110011',
       'addressCountry': 'IN'
     },
     'geo': {
