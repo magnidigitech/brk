@@ -39,6 +39,7 @@ import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 import RichTextRenderer from '@/components/RichTextRenderer'
 import PdfPreviewModal from '@/components/PdfPreviewModal'
 import { cleanExcerpt } from '@/lib/cleanExcerpt'
+import SmartCardImage from '@/components/SmartCardImage'
 
 interface UpdateItem {
   _id: string
@@ -784,16 +785,7 @@ ${siteUrl}
                             const imgSrc = update.image
                               ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
                               : (update.images && update.images[0] ? (typeof update.images[0] === 'string' ? update.images[0] : urlFor(update.images[0]).width(800).url()) : undefined)
-                            return imgSrc ? (
-                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={imgSrc}
-                                  alt={utitle}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                />
-                              </div>
-                            ) : null
+                            return imgSrc ? <SmartCardImage src={imgSrc} alt={utitle} /> : null
                           })()}
                           <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
                             {utitle}
@@ -909,16 +901,7 @@ ${siteUrl}
                             const imgSrc = item.image
                               ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                               : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
-                            return imgSrc ? (
-                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={imgSrc}
-                                  alt={utitle}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                />
-                              </div>
-                            ) : null
+                            return imgSrc ? <SmartCardImage src={imgSrc} alt={utitle} /> : null
                           })()}
                           <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
                             {utitle}

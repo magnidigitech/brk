@@ -27,6 +27,7 @@ import MediaCarousel from '@/components/MediaCarousel'
 import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 import RichTextRenderer from '@/components/RichTextRenderer'
 import { cleanExcerpt } from '@/lib/cleanExcerpt'
+import SmartCardImage from '@/components/SmartCardImage'
 
 interface DailyUpdateItem {
   _id: string
@@ -444,16 +445,7 @@ ${siteUrl}
                                     })
                                   }}
                                 >
-                                  {imgSrc && (
-                                    <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
-                                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                                      <img
-                                        src={imgSrc}
-                                        alt={ntitle}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                      />
-                                    </div>
-                                  )}
+                                  {imgSrc && <SmartCardImage src={imgSrc} alt={ntitle} />}
                                   <span className="block text-xs text-slate-500 font-semibold mb-2">
                                     {new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
                                   </span>

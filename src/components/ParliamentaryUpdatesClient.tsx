@@ -30,6 +30,7 @@ import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 import RichTextRenderer from '@/components/RichTextRenderer'
 import PdfPreviewModal from '@/components/PdfPreviewModal'
 import { cleanExcerpt } from '@/lib/cleanExcerpt'
+import SmartCardImage from '@/components/SmartCardImage'
 
 interface UpdateItem {
   _id: string
@@ -385,15 +386,15 @@ ${siteUrl}
                             {group.items.map((item) => {
                               const utitle = tContent(item.title)
                               const usummary = tContent(item.summary)
+                              const imgSrc = item.image
+                                ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                                : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
 
                               return (
                                 <div
                                   key={item._id}
                                   className="group flex flex-col cursor-pointer bg-white hover:bg-saffron-50/10 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md justify-between"
                                   onClick={() => {
-                                    const imgSrc = item.image
-                                      ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                                      : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
                                     const combinedImages = []
                                     if (item.image) {
                                       combinedImages.push(item.image)
@@ -424,16 +425,7 @@ ${siteUrl}
                                         Read more <ChevronRight className="w-3 h-3" />
                                       </span>
                                     </div>
-                                    {((item.image) || (item.images && item.images[0])) && (
-                                      <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                          src={item.image ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url()) : (typeof item.images![0] === 'string' ? item.images![0] : urlFor(item.images![0]).width(800).url())}
-                                          alt={utitle}
-                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                        />
-                                      </div>
-                                    )}
+                                    {imgSrc && <SmartCardImage src={imgSrc} alt={utitle} />}
                                     <h4 className="text-base font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2 line-clamp-2">
                                       {utitle}
                                     </h4>
