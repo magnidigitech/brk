@@ -781,12 +781,12 @@ ${siteUrl}
                               ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
                               : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
                             return imgSrc ? (
-                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={imgSrc}
                                   alt={utitle}
-                                  className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                                 />
                               </div>
                             ) : null
@@ -883,12 +883,12 @@ ${siteUrl}
                         }}
                       >
                         {item.image && (
-                          <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                          <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={imgSrc}
                               alt={ntitle}
-                              className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                             />
                           </div>
                         )}
@@ -1000,12 +1000,12 @@ ${siteUrl}
                               ? (typeof update.image === 'string' ? update.image : urlFor(update.image).width(800).url())
                               : (update.images && update.images[0] ? (typeof update.images[0] === 'string' ? update.images[0] : urlFor(update.images[0]).width(800).url()) : undefined)
                             return imgSrc ? (
-                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={imgSrc}
                                   alt={utitle}
-                                  className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                                 />
                               </div>
                             ) : null
