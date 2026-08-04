@@ -589,37 +589,6 @@ ${siteUrl}
           </motion.div>
         )}
 
-        {/* Intro Video Player (Dynamic sanity field & toggle) */}
-        {settings.showIntroVideo && settings.introVideoUrl && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="mb-8 overflow-hidden rounded-3xl bg-white border border-slate-200 p-4 sm:p-6 shadow-md hover:border-saffron-300 transition-all duration-300 relative group"
-          >
-            <div className="flex items-center space-x-2.5 text-navy-900 font-extrabold text-xs uppercase tracking-widest mb-4">
-              <Video className="w-4 h-4 text-saffron-600 animate-pulse" />
-              <span>{introVideoTitle}</span>
-            </div>
-            {getYouTubeEmbedUrl(settings.introVideoUrl) ? (
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-inner bg-slate-900 border border-slate-100">
-                <iframe
-                  src={getYouTubeEmbedUrl(settings.introVideoUrl)!}
-                  title={introVideoTitle}
-                  className="absolute top-0 left-0 w-full h-full border-0 rounded-2xl"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <div className="w-full aspect-video rounded-2xl flex flex-col items-center justify-center bg-slate-100 border border-dashed border-slate-200 text-slate-500 p-4">
-                <Video className="w-8 h-8 text-slate-400 mb-2" />
-                <p className="text-sm font-medium">Invalid or empty YouTube URL provided</p>
-              </div>
-            )}
-          </motion.div>
-        )}
-
         {/* Bento Grid */}
         <motion.div
           variants={containerVariants}
@@ -708,6 +677,40 @@ ${siteUrl}
               </Link>
             </div>
           </motion.div>
+
+          {/* 3. Featured Video Bento Card */}
+          {settings.showIntroVideo && settings.introVideoUrl && (
+            <motion.div
+              variants={itemVariants}
+              className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-300 transition-all duration-300 relative overflow-hidden group"
+            >
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+                <div className="flex items-center space-x-2.5 text-navy-900 font-extrabold text-xs uppercase tracking-widest">
+                  <Video className="w-4 h-4 text-saffron-600 animate-pulse" />
+                  <span>{introVideoTitle}</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Featured Media</span>
+              </div>
+              {getYouTubeEmbedUrl(settings.introVideoUrl) ? (
+                <div className="max-w-4xl mx-auto">
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-slate-900 border border-slate-200">
+                    <iframe
+                      src={getYouTubeEmbedUrl(settings.introVideoUrl)!}
+                      title={introVideoTitle}
+                      className="absolute top-0 left-0 w-full h-full border-0 rounded-2xl"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="max-w-4xl mx-auto w-full aspect-video rounded-2xl flex flex-col items-center justify-center bg-slate-100 border border-dashed border-slate-200 text-slate-500 p-4">
+                  <Video className="w-8 h-8 text-slate-400 mb-2" />
+                  <p className="text-sm font-medium">Invalid or empty YouTube URL provided</p>
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {/* 3. Daily Updates Card */}
           <motion.div
