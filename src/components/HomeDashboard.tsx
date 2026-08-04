@@ -712,225 +712,7 @@ ${siteUrl}
             </motion.div>
           )}
 
-          {/* 3. Daily Updates Card */}
-          <motion.div
-            variants={itemVariants}
-            id="daily"
-            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
-          >
-            <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2.5">
-                <Calendar className="w-5 h-5 text-saffron-600" />
-                <h3 className="text-lg font-bold text-navy-900">{t('section.dailyUpdates')}</h3>
-              </div>
-              <div className="flex items-center space-x-3">
-                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Updates</span>
-                <Link
-                  href="/daily-updates"
-                  className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
-                >
-                  <span>View All</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {dailyUpdates && dailyUpdates.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                  {dailyUpdates.slice(0, 9).map((item) => {
-                    const utitle = tContent(item.title)
-                    const usummary = tContent(item.summary)
-                    return (
-                      <div
-                        key={item._id}
-                        onClick={() => {
-                          const imgSrc = item.image
-                            ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                            : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
-                          const combinedImages = []
-                          if (item.image) {
-                            combinedImages.push(item.image)
-                          }
-                          if (item.images && Array.isArray(item.images)) {
-                            combinedImages.push(...item.images)
-                          }
-
-                          setActiveContent({
-                            _id: item._id,
-                            type: 'daily',
-                            title: utitle,
-                            date: item.date,
-                            excerpt: usummary,
-                            speechUrl: item.speechUrl,
-                            images: combinedImages,
-                            imageSrc: imgSrc,
-                          })
-                        }}
-                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
-                              <Calendar className="w-3.5 h-3.5" />
-                              <span>{new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
-                            </div>
-                            <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              Read more <ChevronRight className="w-3 h-3" />
-                            </span>
-                          </div>
-                          {(() => {
-                            const imgSrc = item.image
-                              ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                              : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
-                            return imgSrc ? (
-                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={imgSrc}
-                                  alt={utitle}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                />
-                              </div>
-                            ) : null
-                          })()}
-                          <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
-                            {utitle}
-                          </h4>
-                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
-                            {cleanExcerpt(usummary)}
-                          </p>
-                        </div>
-
-                        {item.speechUrl && (
-                          <div className="mt-auto pt-3 border-t border-slate-200/50 flex flex-col gap-1.5">
-                            <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
-                              <Video className="w-3 h-3 mr-1" /> Speech available
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-                {dailyUpdates.length > 0 && (
-                  <div className="mt-8 flex justify-center">
-                    <Link
-                      href="/daily-updates"
-                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
-                    >
-                      <span>View All Updates</span>
-                      <ChevronRight className="w-4 h-4 text-navy-950" />
-                    </Link>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-slate-500 py-6 text-center">No updates logged yet.</p>
-            )}
-          </motion.div>
-
-          {/* 4. Press Releases Card */}
-          <motion.div
-            variants={itemVariants}
-            id="news"
-            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
-          >
-            <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2.5">
-                <FileText className="w-5 h-5 text-saffron-600" />
-                <h3 className="text-lg font-bold text-navy-900">{t('section.news')}</h3>
-              </div>
-              <Link
-                href="/press-releases"
-                className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
-              >
-                <span>View All</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {news && news.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-                  {news.slice(0, 9).map((item) => {
-                    const ntitle = tContent(item.title)
-                    const nexcerpt = tContent(item.excerpt)
-                    const imgSrc = item.image
-                      ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
-                      : undefined
-
-                    return (
-                      <div
-                        key={item._id}
-                        className="group flex flex-col cursor-pointer bg-slate-50 hover:bg-saffron-50/20 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md"
-                        onClick={() => {
-                          const combinedImages = []
-                          if (item.image) {
-                            combinedImages.push(item.image)
-                          }
-                          if (item.images && Array.isArray(item.images)) {
-                            combinedImages.push(...item.images)
-                          }
-                          setActiveContent({
-                            _id: item._id,
-                            type: 'news',
-                            title: ntitle,
-                            date: item.publishedAt,
-                            excerpt: nexcerpt,
-                            body: item.body,
-                            imageSrc: imgSrc,
-                            speechUrl: item.speechUrl,
-                            images: combinedImages,
-                          })
-                        }}
-                      >
-                        {item.image && (
-                          <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={imgSrc}
-                              alt={ntitle}
-                              className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
-                            />
-                          </div>
-                        )}
-                        <span className="block text-xs text-slate-500 font-semibold mb-2">
-                          {new Date(item.publishedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
-                        </span>
-                        <h4 className="text-base font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2 line-clamp-2">
-                          {ntitle}
-                        </h4>
-                        {nexcerpt && (
-                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4 flex-grow">
-                            {cleanExcerpt(nexcerpt)}
-                          </p>
-                        )}
-                        <span className="inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors mt-auto pt-2">
-                          <BookOpen className="w-3.5 h-3.5 mr-1" /> Read full article <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-                {news.length > 0 && (
-                  <div className="mt-8 flex justify-center">
-                    <Link
-                      href="/press-releases"
-                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
-                    >
-                      <span>View All Releases</span>
-                      <ChevronRight className="w-4 h-4 text-navy-950" />
-                    </Link>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-slate-500 py-6 text-center">No press releases published yet.</p>
-            )}
-          </motion.div>
-
-          {/* 5. Parliamentary Updates Card */}
+          {/* 3. Parliamentary Updates Card */}
           <motion.div
             variants={itemVariants}
             id="updates"
@@ -1053,6 +835,224 @@ ${siteUrl}
               </>
             ) : (
               <p className="text-sm text-slate-500 py-6 text-center">No updates logged yet.</p>
+            )}
+          </motion.div>
+
+          {/* 4. Daily Updates Card */}
+          <motion.div
+            variants={itemVariants}
+            id="daily"
+            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
+          >
+            <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2.5">
+                <Calendar className="w-5 h-5 text-saffron-600" />
+                <h3 className="text-lg font-bold text-navy-900">{t('section.dailyUpdates')}</h3>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-bold uppercase tracking-wider">Latest Updates</span>
+                <Link
+                  href="/daily-updates"
+                  className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
+                >
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {dailyUpdates && dailyUpdates.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {dailyUpdates.slice(0, 9).map((item) => {
+                    const utitle = tContent(item.title)
+                    const usummary = tContent(item.summary)
+                    return (
+                      <div
+                        key={item._id}
+                        onClick={() => {
+                          const imgSrc = item.image
+                            ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                            : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
+                          const combinedImages = []
+                          if (item.image) {
+                            combinedImages.push(item.image)
+                          }
+                          if (item.images && Array.isArray(item.images)) {
+                            combinedImages.push(...item.images)
+                          }
+
+                          setActiveContent({
+                            _id: item._id,
+                            type: 'daily',
+                            title: utitle,
+                            date: item.date,
+                            excerpt: usummary,
+                            speechUrl: item.speechUrl,
+                            images: combinedImages,
+                            imageSrc: imgSrc,
+                          })
+                        }}
+                        className="group cursor-pointer rounded-2xl border border-slate-100 hover:border-saffron-200 bg-slate-50 hover:bg-saffron-50/30 p-4 sm:p-5 transition-all duration-200 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center space-x-2 text-xs text-slate-500 font-semibold">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span>{new Date(item.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</span>
+                            </div>
+                            <span className="text-[10px] text-saffron-600 font-bold uppercase tracking-wider flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Read more <ChevronRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                          {(() => {
+                            const imgSrc = item.image
+                              ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                              : (item.images && item.images[0] ? (typeof item.images[0] === 'string' ? item.images[0] : urlFor(item.images[0]).width(800).url()) : undefined)
+                            return imgSrc ? (
+                              <div className="mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 bg-slate-100">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={imgSrc}
+                                  alt={utitle}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                                />
+                              </div>
+                            ) : null
+                          })()}
+                          <h4 className="text-base font-bold text-navy-900 mb-2 group-hover:text-saffron-700 transition-colors line-clamp-2">
+                            {utitle}
+                          </h4>
+                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
+                            {cleanExcerpt(usummary)}
+                          </p>
+                        </div>
+
+                        {item.speechUrl && (
+                          <div className="mt-auto pt-3 border-t border-slate-200/50 flex flex-col gap-1.5">
+                            <span className="inline-flex items-center text-[11px] font-bold text-saffron-600">
+                              <Video className="w-3 h-3 mr-1" /> Speech available
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                {dailyUpdates.length > 0 && (
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/daily-updates"
+                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                    >
+                      <span>View All Updates</span>
+                      <ChevronRight className="w-4 h-4 text-navy-950" />
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 py-6 text-center">No updates logged yet.</p>
+            )}
+          </motion.div>
+
+          {/* 5. Press Releases Card */}
+          <motion.div
+            variants={itemVariants}
+            id="news"
+            className="md:col-span-3 rounded-3xl bg-white border border-slate-200 p-4 sm:p-8 shadow-md hover:border-saffron-200/50 transition-all duration-300"
+          >
+            <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2.5">
+                <FileText className="w-5 h-5 text-saffron-600" />
+                <h3 className="text-lg font-bold text-navy-900">{t('section.news')}</h3>
+              </div>
+              <Link
+                href="/press-releases"
+                className="text-xs font-bold text-saffron-600 hover:text-saffron-700 transition-colors flex items-center space-x-1"
+              >
+                <span>View All</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {news && news.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {news.slice(0, 9).map((item) => {
+                    const ntitle = tContent(item.title)
+                    const nexcerpt = tContent(item.excerpt)
+                    const imgSrc = item.image
+                      ? (typeof item.image === 'string' ? item.image : urlFor(item.image).width(800).url())
+                      : undefined
+
+                    return (
+                      <div
+                        key={item._id}
+                        className="group flex flex-col cursor-pointer bg-slate-50 hover:bg-saffron-50/20 border border-slate-100 hover:border-saffron-200 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-md"
+                        onClick={() => {
+                          const combinedImages = []
+                          if (item.image) {
+                            combinedImages.push(item.image)
+                          }
+                          if (item.images && Array.isArray(item.images)) {
+                            combinedImages.push(...item.images)
+                          }
+                          setActiveContent({
+                            _id: item._id,
+                            type: 'news',
+                            title: ntitle,
+                            date: item.publishedAt,
+                            excerpt: nexcerpt,
+                            body: item.body,
+                            imageSrc: imgSrc,
+                            speechUrl: item.speechUrl,
+                            images: combinedImages,
+                          })
+                        }}
+                      >
+                        {item.image && (
+                          <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={imgSrc}
+                              alt={ntitle}
+                              className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
+                            />
+                          </div>
+                        )}
+                        <span className="block text-xs text-slate-500 font-semibold mb-2">
+                          {new Date(item.publishedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                        </span>
+                        <h4 className="text-base font-bold text-navy-900 group-hover:text-saffron-600 transition-colors leading-snug mb-2 line-clamp-2">
+                          {ntitle}
+                        </h4>
+                        {nexcerpt && (
+                          <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4 flex-grow">
+                            {cleanExcerpt(nexcerpt)}
+                          </p>
+                        )}
+                        <span className="inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors mt-auto pt-2">
+                          <BookOpen className="w-3.5 h-3.5 mr-1" /> Read full article <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+                {news.length > 0 && (
+                  <div className="mt-8 flex justify-center">
+                    <Link
+                      href="/press-releases"
+                      className="inline-flex items-center px-6 py-3 bg-saffron-400 hover:bg-saffron-500 text-navy-950 text-sm font-bold rounded-xl shadow-md transition-colors space-x-2"
+                    >
+                      <span>View All Releases</span>
+                      <ChevronRight className="w-4 h-4 text-navy-950" />
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 py-6 text-center">No press releases published yet.</p>
             )}
           </motion.div>
 
