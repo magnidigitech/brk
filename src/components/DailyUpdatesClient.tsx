@@ -295,12 +295,18 @@ ${siteUrl}
 
   // Sync activeContent changes with URL path
   useEffect(() => {
-    if (!activeContent && isClient) {
+    if (activeContent && isClient) {
+      const slugOrId = dailyUpdates.find(r => r._id === activeContent._id)?.slug?.current || activeContent._id
+      const targetPath = `${sharePath}/${slugOrId}`
+      if (window.location.pathname !== targetPath) {
+        window.history.replaceState({ ...window.history.state, type: 'activeContent' }, '', targetPath)
+      }
+    } else if (!activeContent && isClient) {
       if (window.location.pathname !== sharePath) {
         window.history.replaceState({ ...window.history.state }, '', sharePath)
       }
     }
-  }, [activeContent, isClient])
+  }, [activeContent, isClient, dailyUpdates])
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {

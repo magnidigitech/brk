@@ -56,6 +56,7 @@ export default async function Page() {
       sanityFetch<any[]>({
         query: `*[_type == "dailyUpdate"] | order(date desc)[0...10] {
           _id,
+          slug,
           title,
           date,
           summary,
@@ -68,6 +69,7 @@ export default async function Page() {
       sanityFetch<any[]>({
         query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...10] {
           _id,
+          slug,
           title,
           date,
           summary,
@@ -80,6 +82,7 @@ export default async function Page() {
       sanityFetch<any[]>({
         query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...10] {
           _id,
+          slug,
           title,
           publishedAt,
           excerpt,

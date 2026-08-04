@@ -43,6 +43,7 @@ import SmartCardImage from '@/components/SmartCardImage'
 
 interface UpdateItem {
   _id: string
+  slug?: { current: string }
   title: any
   date: string
   summary: any
@@ -54,6 +55,7 @@ interface UpdateItem {
 
 interface NewsItem {
   _id: string
+  slug?: { current: string }
   title: any
   publishedAt: string
   excerpt?: any
@@ -82,6 +84,7 @@ interface ActiveMedia {
 
 interface DailyUpdateItem {
   _id: string
+  slug?: { current: string }
   title: any
   date: string
   summary: any
@@ -93,11 +96,12 @@ interface DailyUpdateItem {
 
 interface ActiveContent {
   _id: string
-  type: 'update' | 'news' | 'daily'
+  slug?: string
+  type: 'daily' | 'update' | 'news'
   title: string
   date: string
   excerpt?: string
-  body?: any[]
+  body?: any
   imageSrc?: string
   speechUrl?: string
   documentUrl?: string
@@ -426,7 +430,7 @@ ${siteUrl}
         return
       }
       // Look in dailyUpdates first
-      const dailyItem = dailyUpdates?.find((d) => d._id === id || d._id.startsWith(id))
+      const dailyItem = dailyUpdates?.find((d) => (d.slug?.current && (d.slug.current === id || d.slug.current.toLowerCase() === id.toLowerCase())) || d._id === id || d._id.startsWith(id))
       if (dailyItem) {
         const combinedImages = []
         if (dailyItem.image) {
@@ -438,6 +442,7 @@ ${siteUrl}
 
         setActiveContent({
           _id: dailyItem._id,
+          slug: dailyItem.slug?.current,
           type: 'daily',
           title: tContent(dailyItem.title),
           date: dailyItem.date,
@@ -450,7 +455,7 @@ ${siteUrl}
       }
 
       // Look in updates next
-      const updateItem = updates?.find((u) => u._id === id || u._id.startsWith(id))
+      const updateItem = updates?.find((u) => (u.slug?.current && (u.slug.current === id || u.slug.current.toLowerCase() === id.toLowerCase())) || u._id === id || u._id.startsWith(id))
       if (updateItem) {
         const combinedImages = []
         if (updateItem.image) {
@@ -462,6 +467,7 @@ ${siteUrl}
 
         setActiveContent({
           _id: updateItem._id,
+          slug: updateItem.slug?.current,
           type: 'update',
           title: tContent(updateItem.title),
           date: updateItem.date,
@@ -475,7 +481,7 @@ ${siteUrl}
       }
 
       // Look in news/releases next
-      const newsItem = news?.find((n) => n._id === id || n._id.startsWith(id))
+      const newsItem = news?.find((n) => (n.slug?.current && (n.slug.current === id || n.slug.current.toLowerCase() === id.toLowerCase())) || n._id === id || n._id.startsWith(id))
       if (newsItem) {
         const ntitle = tContent(newsItem.title)
         const nexcerpt = tContent(newsItem.excerpt)
@@ -493,6 +499,7 @@ ${siteUrl}
 
         setActiveContent({
           _id: newsItem._id,
+          slug: newsItem.slug?.current,
           type: 'news',
           title: ntitle,
           date: newsItem.publishedAt,
@@ -508,8 +515,15 @@ ${siteUrl}
 
   // Sync activeContent changes with URL query parameter
   useEffect(() => {
-    if (!activeContent) {
-      const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(window.location.search)
+    if (activeContent) {
+      const slugOrId = activeContent.slug || activeContent._id
+      if (params.get('id') !== slugOrId) {
+        params.set('id', slugOrId)
+        const newUrl = `${window.location.pathname}?${params.toString()}`
+        window.history.replaceState({ ...window.history.state, type: 'activeContent' }, '', newUrl)
+      }
+    } else {
       if (params.has('id')) {
         params.delete('id')
         const searchStr = params.toString()
@@ -759,6 +773,7 @@ ${siteUrl}
 
                           setActiveContent({
                             _id: update._id,
+                            slug: update.slug?.current,
                             type: 'update',
                             title: utitle,
                             date: update.date,
@@ -876,6 +891,7 @@ ${siteUrl}
 
                           setActiveContent({
                             _id: item._id,
+                            slug: item.slug?.current,
                             type: 'daily',
                             title: utitle,
                             date: item.date,
@@ -983,6 +999,7 @@ ${siteUrl}
                           }
                           setActiveContent({
                             _id: item._id,
+                            slug: item.slug?.current,
                             type: 'news',
                             title: ntitle,
                             date: item.publishedAt,
