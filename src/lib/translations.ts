@@ -263,9 +263,9 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     ten: 'New Delhi Office'
   },
   'contact.stateTitle': {
-    en: 'State Camp Office',
-    te: 'రాష్ట్ర క్యాంప్ కార్యాలయం',
-    ten: 'State Camp Office'
+    en: 'State Office',
+    te: 'రాష్ట్ర కార్యాలయం',
+    ten: 'State Office'
   },
   'contact.sendMessage': {
     en: 'Send a Message',
