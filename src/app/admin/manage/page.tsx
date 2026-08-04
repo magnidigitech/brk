@@ -91,6 +91,69 @@ function resolveLocale(field: any): string {
   return field.en || field.te || field.ten || ''
 }
 
+/**
+ * autoFormatText — converts raw AI-pasted text (ChatGPT / Gemini output)
+ * into the app's custom markdown format understood by RichTextRenderer:
+ *   - ### Heading          — section header with saffron left border
+ *   - - item               — bullet list item
+ *   - normal paragraph     — plain text
+ *   - **bold**             — inline bold
+ */
+function autoFormatText(raw: string): string {
+  if (!raw || !raw.trim()) return raw
+
+  let text = raw
+
+  // 1. Normalize Windows line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  // 2. Convert markdown headings (#, ##, ###) → ### Heading (all levels map to ###)
+  text = text.replace(/^#{1,3}\s+(.+)$/gm, '### $1')
+
+  // 3. **Bold text on its own line** → ### Heading (common AI pattern for section titles)
+  //    e.g.  "**Key Highlights**"  or  "**Key Highlights:**"
+  text = text.replace(/^\s*\*\*([^*\n]{3,80}?)\*\*\s*:?\s*$/gm, '### $1:')
+
+  // 4. **Bold text followed by colon + content on same line** → heading + rest as paragraph
+  //    e.g.  "**Purpose:** This scheme aims to..."
+  text = text.replace(/^\s*\*\*([^*\n]{3,60}?):\*\*\s*(.*)$/gm, (_, heading, rest) => {
+    return rest.trim() ? `### ${heading}:\n${rest.trim()}` : `### ${heading}:`
+  })
+
+  // 5. All-caps or Title-case line ending with colon on its own → ### Heading
+  //    e.g.  "KEY HIGHLIGHTS:"  or  "Budget Allocation:"
+  text = text.replace(/^([A-Z][A-Z0-9\s&/\-–—"']{2,59}:)\s*$/gm, '### $1')
+
+  // 6. Convert numbered lists (1. 2. 3.) and emoji bullets → "- item"
+  text = text.replace(/^\s*(\d+)\.\s+(.*)$/gm, '- $2')
+
+  // 7. Convert bullet variations: •, *, ➤, ▸, ► → "-"
+  text = text.replace(/^\s*[•\*➤▸►✔✓→]\s+(.*)$/gm, '- $1')
+
+  // 8. Convert honorific-prefixed lines (Dr., Mr., Ms., Shri) as bullets if not heading
+  text = text.replace(/^(Dr\.|Mr\.|Ms\.|Shri|Smt\.)\s+(.*)$/gm, '- $1 $2')
+
+  // 9. Remove leftover bold markers that remain in regular paragraphs (keep ** for inline)
+  //    But only remove *isolated* wrapping around short phrases that are already headings
+  //    (We leave **word** inside paragraphs intact so RichTextRenderer can render inline bold)
+
+  // 10. Merge lines that ran together without a blank line between them
+  //     (AI sometimes puts two different paragraphs on adjacent lines with no blank line)
+  //     Strategy: if a line ends without punctuation and next line starts uppercase → split
+  text = text.replace(/([a-z,;])(\n)([A-Z])/g, '$1\n\n$3')
+
+  // 11. Ensure there's a blank line before every ### heading
+  text = text.replace(/([^\n])\n(### )/g, '$1\n\n$2')
+
+  // 12. Ensure there's a blank line after every ### heading
+  text = text.replace(/(### [^\n]+)\n([^#\n-])/g, '$1\n\n$2')
+
+  // 13. Collapse 3+ consecutive blank lines to 2
+  text = text.replace(/\n{3,}/g, '\n\n')
+
+  return text.trim()
+}
+
 export default function ContentManager() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [email, setEmail] = useState('')
@@ -1232,12 +1295,12 @@ export default function ContentManager() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      {formType === 'pressRelease' ? 'Publication Date *' : formType === 'dailyUpdate' ? 'Date of Update *' : 'Session Date *'}
+                      {formType === 'pressRelease' ? 'Publication Date (Date Only) *' : formType === 'dailyUpdate' ? 'Date of Update *' : 'Session Date *'}
                     </label>
                     <input
-                      type={formType === 'pressRelease' ? 'datetime-local' : 'date'}
+                      type="date"
                       required
-                      value={dateField}
+                      value={dateField ? dateField.substring(0, 10) : ''}
                       onChange={(e) => setDateField(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none font-semibold text-navy-950"
                     />
@@ -1260,31 +1323,71 @@ export default function ContentManager() {
 
                 {/* Excerpt / Summary */}
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    {formType === 'pressRelease' ? 'Short Excerpt / Intro (Plain Text)' : formType === 'dailyUpdate' ? 'Summary / Intro (Plain Text) *' : 'Summary Description *'}
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {formType === 'pressRelease' ? 'Short Excerpt / Intro (Plain Text)' : formType === 'dailyUpdate' ? 'Summary / Intro *' : 'Summary Description *'}
+                    </label>
+                    {(formType === 'parliamentaryUpdate' || formType === 'pressRelease' || formType === 'dailyUpdate') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExcerptOrSummary(prev => autoFormatText(prev))
+                        }}
+                        className="text-[10px] font-bold text-saffron-700 bg-saffron-50 hover:bg-saffron-100 border border-saffron-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                      >
+                        ✨ Auto-Format Headings & Lists
+                      </button>
+                    )}
+                  </div>
                   <textarea
-                    rows={formType === 'pressRelease' ? 2 : 4}
+                    rows={formType === 'pressRelease' ? 2 : 5}
                     required={formType === 'parliamentaryUpdate' || formType === 'dailyUpdate'}
                     value={excerptOrSummary}
                     onChange={(e) => setExcerptOrSummary(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800 leading-relaxed"
-                    placeholder={formType === 'pressRelease' ? 'Provide a brief summary for lists pages...' : formType === 'dailyUpdate' ? 'Enter a brief summary of the daily update...' : 'Enter the complete update summary...'}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800 leading-relaxed font-sans"
+                    placeholder={formType === 'pressRelease' ? 'Provide a brief summary for lists pages...' : formType === 'dailyUpdate' ? 'Enter a brief summary of the daily update...' : 'Enter the complete update summary... Use ### Heading for section titles.'}
                   />
                 </div>
 
                 {/* Body Content (Press Release & Daily Updates only) */}
                 {(formType === 'pressRelease' || formType === 'dailyUpdate') && (
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      Main Body Content
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Main Body Content
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => setBodyContent((prev) => prev + '\n\n### Heading Title\n')}
+                          className="text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg border border-slate-200 cursor-pointer"
+                        >
+                          + Heading
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBodyContent((prev) => prev + '\n- Bullet item')}
+                          className="text-[10px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg border border-slate-200 cursor-pointer"
+                        >
+                          + Bullet
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBodyContent(prev => autoFormatText(prev))
+                          }}
+                          className="text-[10px] font-bold text-saffron-700 bg-saffron-50 hover:bg-saffron-100 border border-saffron-200 px-2 py-0.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                        >
+                          ✨ Auto-Format Headings & Lists
+                        </button>
+                      </div>
+                    </div>
                     <textarea
                       rows={8}
                       value={bodyContent}
                       onChange={(e) => setBodyContent(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-slate-800 leading-relaxed font-sans"
-                      placeholder={formType === 'dailyUpdate' ? "Enter the main body of the daily update. Separate paragraphs with double newlines." : "Enter the main body of the press release. Separate paragraphs with double newlines."}
+                      placeholder="Enter main body text. Use '### Heading Title:' for section headers and '- Item' for bullet points. Click '✨ Auto-Format' to automatically format pasted text."
                     />
                   </div>
                 )}

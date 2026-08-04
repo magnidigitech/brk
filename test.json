@@ -1,0 +1,167 @@
+{
+    "name": "Instagram to Website Import System",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "minutes",
+                            "minutesInterval": 15
+                        }
+                    ]
+                }
+            },
+            "id": "e2a3922f-d890-4824-a4f6-76ed45824ab4",
+            "name": "Schedule Trigger",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                100,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "userMedia",
+                "operation": "getAll",
+                "limit": 10,
+                "additionalFields": {
+                    "fields": [
+                        "id",
+                        "caption",
+                        "media_type",
+                        "media_url",
+                        "thumbnail_url",
+                        "permalink",
+                        "timestamp"
+                    ]
+                }
+            },
+            "id": "551eea39-63fb-4ee0-9faf-cb2bf58c4bf7",
+            "name": "Fetch Latest Instagram Media",
+            "type": "n8n-nodes-base.instagram",
+            "typeVersion": 1,
+            "position": [
+                320,
+                300
+            ],
+            "credentials": {
+                "instagramOAuth2Api": {
+                    "id": "instagram-oauth2-credentials-id",
+                    "name": "Instagram Business/Creator Account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "id": "058ea179-8f1c-4e9a-1fb4-26524ab445a6",
+            "name": "Split into Individual Posts",
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [
+                540,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://bhashyamramakrishna.in/api/instagram-posts",
+                "sendHeaders": true,
+                "headersUi": {
+                    "parameter": [
+                        {
+                            "name": "X-Import-Key",
+                            "value": "your_secure_instagram_import_secret_here"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "contentType": "json",
+                "bodyParametersUi": {
+                    "parameter": [
+                        {
+                            "name": "source",
+                            "value": "instagram"
+                        },
+                        {
+                            "name": "sourceId",
+                            "value": "={{ $json.id }}"
+                        },
+                        {
+                            "name": "content",
+                            "value": "={{ $json.caption }}"
+                        },
+                        {
+                            "name": "mediaType",
+                            "value": "={{ $json.media_type }}"
+                        },
+                        {
+                            "name": "mediaUrl",
+                            "value": "={{ $json.media_url }}"
+                        },
+                        {
+                            "name": "thumbnailUrl",
+                            "value": "={{ $json.thumbnail_url }}"
+                        },
+                        {
+                            "name": "permalink",
+                            "value": "={{ $json.permalink }}"
+                        },
+                        {
+                            "name": "publishedAt",
+                            "value": "={{ $json.timestamp }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "9eeb32f4-f049-87a7-38f0-c24974385fd1",
+            "name": "Post to Website API",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                780,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Schedule Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Latest Instagram Media",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch Latest Instagram Media": {
+            "main": [
+                [
+                    {
+                        "node": "Split into Individual Posts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Split into Individual Posts": {
+            "main": [
+                [
+                    {
+                        "node": "Post to Website API",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -7,7 +7,7 @@ import { urlFor } from '@/sanity/lib/image'
 interface MediaCarouselProps {
   images: any[]
   title?: string
-  onImageClick?: (src: string) => void
+  onImageClick?: (src: string, index: number, allSrcs: string[]) => void
 }
 
 export default function MediaCarousel({ images, title, onImageClick }: MediaCarouselProps) {
@@ -83,7 +83,7 @@ export default function MediaCarousel({ images, title, onImageClick }: MediaCaro
           <div
             key={idx}
             className={`relative h-full w-full flex-shrink-0 select-none ${onImageClick ? 'cursor-zoom-in group/slide' : ''}`}
-            onClick={() => onImageClick?.(resolvedUrl)}
+            onClick={() => onImageClick?.(resolvedUrl, idx, resolvedImages)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

@@ -3,6 +3,13 @@ import { writeClient } from '@/sanity/lib/writeClient'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.SANITY_WRITE_TOKEN) {
+      return NextResponse.json(
+        { error: 'SANITY_WRITE_TOKEN is missing in the production server environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const type = formData.get('type') as 'image' | 'file' | null

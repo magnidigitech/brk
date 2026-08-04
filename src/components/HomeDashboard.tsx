@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -17,13 +17,17 @@ import {
   ExternalLink,
   Download,
   ChevronRight,
+  ChevronLeft,
   BookOpen,
   Share2,
   Copy,
   Check,
   Volume2,
   VolumeX,
-  Code
+  Code,
+  Eye,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react'
 import { urlFor } from '@/sanity/lib/image'
 import { useLanguage } from '@/components/LanguageContext'
@@ -32,6 +36,8 @@ import { getRoleTitle } from '@/lib/roleHelper'
 import { useTextToSpeech } from '@/hooks/useTextToSpeech'
 import MediaCarousel from '@/components/MediaCarousel'
 import NativeMediaPlayer from '@/components/NativeMediaPlayer'
+import RichTextRenderer from '@/components/RichTextRenderer'
+import PdfPreviewModal from '@/components/PdfPreviewModal'
 
 interface UpdateItem {
   _id: string
@@ -68,6 +74,8 @@ interface ActiveMedia {
   title: string
   caption?: string
   date?: string
+  allImages?: string[]   // full list for arrow navigation
+  currentIndex?: number  // position of `src` in allImages
 }
 
 interface DailyUpdateItem {
@@ -248,7 +256,10 @@ function getYouTubeEmbedUrl(url?: string): string | null {
 
 export default function HomeDashboard({ dailyUpdates, updates, news, gallery, settings }: HomeDashboardProps) {
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
+  const [lightboxZoom, setLightboxZoom] = useState(1)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null)
   const { t, tContent, language } = useLanguage()
   const dragControls = useDragControls()
   const [showShareMenu, setShowShareMenu] = useState(false)
@@ -346,6 +357,44 @@ ${siteUrl}
       }
     }
   }, [activeMedia, activeContent])
+
+  // Reset zoom when lightbox opens/changes image
+  useEffect(() => {
+    if (activeMedia) {
+      setLightboxZoom(1)
+      setLightboxIndex(activeMedia.currentIndex ?? 0)
+    }
+  }, [activeMedia])
+
+  // ESC to close lightbox + arrow keys to navigate
+  useEffect(() => {
+    if (!activeMedia) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveMedia(null)
+      } else if (e.key === 'ArrowRight') {
+        const imgs = activeMedia.allImages
+        if (imgs && imgs.length > 1) {
+          setLightboxIndex(prev => {
+            const next = (prev + 1) % imgs.length
+            setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+            return next
+          })
+        }
+      } else if (e.key === 'ArrowLeft') {
+        const imgs = activeMedia.allImages
+        if (imgs && imgs.length > 1) {
+          setLightboxIndex(prev => {
+            const next = (prev - 1 + imgs.length) % imgs.length
+            setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+            return next
+          })
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [activeMedia])
 
   // Check query parameter on mount and data load
   useEffect(() => {
@@ -970,13 +1019,41 @@ ${siteUrl}
             onClick={() => setActiveMedia(null)}
             className="fixed inset-0 z-[60] flex flex-col items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
           >
-            {/* Top bar: close + download */}
+            {/* Top bar: title + zoom controls + download + close */}
             <div
               className="w-full max-w-5xl flex items-center justify-between mb-3 px-1"
               onClick={(e) => e.stopPropagation()}
             >
               <span className="text-white/70 text-xs font-semibold truncate max-w-xs">{activeMedia.title}</span>
               <div className="flex items-center gap-2">
+                {/* Zoom controls */}
+                <div className="flex items-center gap-1 bg-white/10 rounded-xl px-1 py-0.5">
+                  <button
+                    onClick={() => setLightboxZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2))))}
+                    className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                    title="Zoom out"
+                    aria-label="Zoom out"
+                  >
+                    <ZoomOut className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setLightboxZoom(1)}
+                    className="text-white/80 text-[11px] font-bold min-w-[36px] text-center hover:text-white transition-colors cursor-pointer"
+                    title="Reset zoom"
+                    aria-label="Reset zoom"
+                  >
+                    {Math.round(lightboxZoom * 100)}%
+                  </button>
+                  <button
+                    onClick={() => setLightboxZoom(z => Math.min(4, parseFloat((z + 0.25).toFixed(2))))}
+                    className="w-7 h-7 flex items-center justify-center text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+                    title="Zoom in"
+                    aria-label="Zoom in"
+                  >
+                    <ZoomIn className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <button
                   onClick={() => downloadImage(activeMedia.src, `${activeMedia.title.replace(/\s+/g, '-')}.jpg`)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-saffron-500 hover:bg-saffron-400 text-navy-900 text-xs font-bold transition-colors shadow-lg cursor-pointer"
@@ -988,20 +1065,57 @@ ${siteUrl}
                 <button
                   onClick={() => setActiveMedia(null)}
                   className="w-9 h-9 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
-                  aria-label="Close"
+                  aria-label="Close (Esc)"
+                  title="Close (Esc)"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* Full image */}
+            {/* Left arrow */}
+            {activeMedia.allImages && activeMedia.allImages.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const imgs = activeMedia.allImages!
+                  const next = (lightboxIndex - 1 + imgs.length) % imgs.length
+                  setLightboxIndex(next)
+                  setLightboxZoom(1)
+                  setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+                }}
+                className="fixed left-3 top-1/2 -translate-y-1/2 z-[70] w-11 h-11 bg-white/10 hover:bg-white/25 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-xl border border-white/10"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Right arrow */}
+            {activeMedia.allImages && activeMedia.allImages.length > 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const imgs = activeMedia.allImages!
+                  const next = (lightboxIndex + 1) % imgs.length
+                  setLightboxIndex(next)
+                  setLightboxZoom(1)
+                  setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+                }}
+                className="fixed right-3 top-1/2 -translate-y-1/2 z-[70] w-11 h-11 bg-white/10 hover:bg-white/25 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-xl border border-white/10"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Full image with zoom */}
             <motion.div
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={0.8}
               onDragEnd={(event, info) => {
-                if (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600) {
+                if (lightboxZoom <= 1 && (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600)) {
                   setActiveMedia(null)
                 }
               }}
@@ -1010,32 +1124,47 @@ ${siteUrl}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 cursor-grab active:cursor-grabbing select-none touch-none"
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none touch-none overflow-auto"
+              style={{ cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activeMedia.src}
                 alt={activeMedia.title}
-                className="max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
+                onDoubleClick={() => setLightboxZoom(1)}
+                style={{
+                  transform: `scale(${lightboxZoom})`,
+                  transition: 'transform 0.2s ease',
+                  transformOrigin: 'center center',
+                  maxHeight: lightboxZoom <= 1 ? '75vh' : undefined,
+                }}
+                className="max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
               />
             </motion.div>
 
-            {/* Caption / date below image */}
-            {(activeMedia.caption || activeMedia.date) && (
-              <div
-                className="mt-4 text-center max-w-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {activeMedia.date && (
-                  <span className="block text-saffron-400 text-[11px] font-bold uppercase tracking-wider mb-1">
-                    {new Date(activeMedia.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
-                  </span>
-                )}
-                {activeMedia.caption && (
-                  <p className="text-white/75 text-sm leading-relaxed">{activeMedia.caption}</p>
-                )}
-              </div>
-            )}
+            {/* Caption / date below image + image counter */}
+            <div
+              className="mt-3 flex flex-col items-center gap-1 max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {activeMedia.allImages && activeMedia.allImages.length > 1 && (
+                <span className="text-white/50 text-[11px] font-bold">
+                  {lightboxIndex + 1} / {activeMedia.allImages.length}
+                </span>
+              )}
+              {(activeMedia.caption || activeMedia.date) && (
+                <div className="text-center">
+                  {activeMedia.date && (
+                    <span className="block text-saffron-400 text-[11px] font-bold uppercase tracking-wider mb-1">
+                      {new Date(activeMedia.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                    </span>
+                  )}
+                  {activeMedia.caption && (
+                    <p className="text-white/75 text-sm leading-relaxed">{activeMedia.caption}</p>
+                  )}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1139,11 +1268,13 @@ ${siteUrl}
                     <MediaCarousel
                       images={activeContent.images}
                       title={activeContent.title}
-                      onImageClick={(src) => {
+                      onImageClick={(src, idx, allSrcs) => {
                         setActiveMedia({
                           src,
                           title: activeContent.title,
                           date: activeContent.date,
+                          allImages: allSrcs,
+                          currentIndex: idx,
                         })
                       }}
                     />
@@ -1156,6 +1287,8 @@ ${siteUrl}
                           src: activeContent.imageSrc!,
                           title: activeContent.title,
                           date: activeContent.date,
+                          allImages: [activeContent.imageSrc!],
+                          currentIndex: 0,
                         })
                       }}
                     >
@@ -1177,69 +1310,49 @@ ${siteUrl}
 
                 {/* Excerpt */}
                 {activeContent.excerpt && (
-                  <p className="text-base text-slate-700 leading-relaxed font-medium mb-5 pb-5 border-b border-slate-100">
-                    {ttsState !== 'idle' ? (
-                      excerptTokens.map((t, i) => {
-                        const isHighlighted = currentCharIndex >= t.start && currentCharIndex < t.end
-                        return (
-                          <span
-                            key={i}
-                            className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
-                          >
-                            {t.text}{' '}
-                          </span>
-                        )
-                      })
-                    ) : (
-                      activeContent.excerpt
-                    )}
-                  </p>
+                  <div className="mb-5 pb-5 border-b border-slate-100">
+                    <RichTextRenderer
+                      content={activeContent.excerpt}
+                      ttsState={ttsState}
+                      currentCharIndex={currentCharIndex}
+                    />
+                  </div>
                 )}
 
                 {/* Full Body Content */}
                 {activeContent.body && activeContent.body.length > 0 ? (
-                  <div className="space-y-4">
-                    {paragraphs.map((para, paraIdx) => {
-                      const tokens = tokenizedParagraphs[paraIdx] || []
-                      return (
-                        <p key={paraIdx} className="text-slate-700 text-sm leading-relaxed">
-                          {ttsState !== 'idle' ? (
-                            tokens.map((t, i) => {
-                              const isHighlighted = currentCharIndex >= t.start && currentCharIndex < t.end
-                              return (
-                                <span
-                                  key={i}
-                                  className={isHighlighted ? 'bg-saffron-100 text-saffron-800 px-0.5 rounded transition-all' : ''}
-                                >
-                                  {t.text}{' '}
-                                </span>
-                              )
-                            })
-                          ) : (
-                            para
-                          )}
-                        </p>
-                      )
-                    })}
-                  </div>
+                  <RichTextRenderer
+                    content={activeContent.body}
+                    ttsState={ttsState}
+                    currentCharIndex={currentCharIndex}
+                  />
                 ) : (
                   !activeContent.excerpt && (
                     <p className="text-slate-400 text-sm italic">No additional content available.</p>
                   )
                 )}
 
-                {/* Inline Document Download Button (moved from footer for a cleaner 3-column layout) */}
+                {/* Inline Document Preview & Download Buttons */}
                 {activeContent.documentUrl && (
-                  <div className="mt-5 pt-4 border-t border-slate-100">
+                  <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewPdfUrl(activeContent.documentUrl || null)}
+                      className="inline-flex items-center px-4 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-850 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <Eye className="w-4 h-4 mr-2 text-saffron-400" />
+                      Preview Official Document
+                    </button>
+
                     <a
                       href={activeContent.documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200/50 shadow-sm transition-colors"
+                      download
+                      className="inline-flex items-center px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200/60 transition-colors"
                       onPointerDown={(e) => e.stopPropagation()}
                     >
                       <Download className="w-3.5 h-3.5 mr-2 text-slate-600" />
-                      Download Attached Document
+                      Download PDF
                     </a>
                   </div>
                 )}
@@ -1367,6 +1480,13 @@ ${siteUrl}
         )}
       </AnimatePresence>
 
+      {/* PDF Document Preview Modal */}
+      <PdfPreviewModal
+        isOpen={!!previewPdfUrl}
+        onClose={() => setPreviewPdfUrl(null)}
+        documentUrl={previewPdfUrl || ''}
+        title={activeContent?.title || 'Document Preview'}
+      />
     </div>
   )
 }

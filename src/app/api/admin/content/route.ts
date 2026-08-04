@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { client } from '@/sanity/lib/client'
 import { writeClient } from '@/sanity/lib/writeClient'
 
 // Helper: Slugify string
@@ -13,29 +14,109 @@ const slugify = (text: string) => {
     .replace(/\-\-+/g, '-');    // Replace multiple - with single -
 }
 
-// Helper: Convert plain text paragraphs (double newlines) to Sanity blocks
+// Helper: Convert formatted text into rich PortableText blocks for Sanity
 function convertTextToBlocks(text: string) {
   if (!text) return []
-  return text.split('\n\n').filter(p => p.trim()).map(p => ({
-    _type: 'block',
-    _key: Math.random().toString(36).substring(2, 9),
-    style: 'normal',
-    markDefs: [],
-    children: [
-      {
-        _type: 'span',
-        _key: Math.random().toString(36).substring(2, 9),
-        text: p.trim(),
-        marks: []
+  
+  const blocks: any[] = []
+  const rawParagraphs = text
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/)
+    .filter(p => p.trim())
+
+  for (const rawPara of rawParagraphs) {
+    const lines = rawPara.split('\n').filter(l => l.trim())
+    
+    for (const line of lines) {
+      const trimmed = line.trim()
+      
+      // Check for Markdown Headings (e.g. ### Heading or ## Heading)
+      const mdHeadingMatch = trimmed.match(/^(#{1,4})\s+(.*)$/)
+      if (mdHeadingMatch) {
+        const level = mdHeadingMatch[1].length
+        blocks.push({
+          _type: 'block',
+          _key: Math.random().toString(36).substring(2, 9),
+          style: level <= 2 ? 'h2' : 'h3',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: Math.random().toString(36).substring(2, 9),
+              text: mdHeadingMatch[2].trim(),
+              marks: []
+            }
+          ]
+        })
+        continue
       }
-    ]
-  }))
+
+      // Check for Colon Headings (e.g. "Key Highlights & Details:")
+      const colonMatch = trimmed.match(/^([A-Z0-9\s&/\-–—"']{3,60}:)$/)
+      if (colonMatch) {
+        blocks.push({
+          _type: 'block',
+          _key: Math.random().toString(36).substring(2, 9),
+          style: 'h3',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: Math.random().toString(36).substring(2, 9),
+              text: colonMatch[1].trim(),
+              marks: ['strong']
+            }
+          ]
+        })
+        continue
+      }
+
+      // Check for Bullet Lists (e.g. - Item or • Item or * Item)
+      const bulletMatch = trimmed.match(/^([\-•*]|\d+\.)\s+(.*)$/)
+      if (bulletMatch) {
+        blocks.push({
+          _type: 'block',
+          _key: Math.random().toString(36).substring(2, 9),
+          style: 'normal',
+          listItem: 'bullet',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: Math.random().toString(36).substring(2, 9),
+              text: bulletMatch[2].trim(),
+              marks: []
+            }
+          ]
+        })
+        continue
+      }
+
+      // Normal Paragraph Block
+      blocks.push({
+        _type: 'block',
+        _key: Math.random().toString(36).substring(2, 9),
+        style: 'normal',
+        markDefs: [],
+        children: [
+          {
+            _type: 'span',
+            _key: Math.random().toString(36).substring(2, 9),
+            text: trimmed,
+            marks: []
+          }
+        ]
+      })
+    }
+  }
+
+  return blocks
 }
 
 // GET: Fetch all Press Releases, Parliamentary Updates, and Daily Updates from Sanity
 export async function GET(request: NextRequest) {
   try {
-    const pressReleases = await writeClient.fetch(`
+    const pressReleases = await client.fetch(`
       *[_type == "pressRelease"] | order(publishedAt desc) {
         _id,
         _type,
@@ -53,7 +134,7 @@ export async function GET(request: NextRequest) {
       }
     `)
 
-    const parliamentaryUpdates = await writeClient.fetch(`
+    const parliamentaryUpdates = await client.fetch(`
       *[_type == "parliamentaryUpdate"] | order(date desc) {
         _id,
         _type,
@@ -73,7 +154,7 @@ export async function GET(request: NextRequest) {
       }
     `)
 
-    const dailyUpdates = await writeClient.fetch(`
+    const dailyUpdates = await client.fetch(`
       *[_type == "dailyUpdate"] | order(date desc) {
         _id,
         _type,
@@ -91,7 +172,7 @@ export async function GET(request: NextRequest) {
       }
     `)
 
-    const siteSettings = await writeClient.fetch(`
+    const siteSettings = await client.fetch(`
       *[_type == "siteSettings"][0] {
         _id,
         _type,
@@ -122,6 +203,13 @@ export async function GET(request: NextRequest) {
 // POST: Create a new Press Release or Parliamentary Update
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.SANITY_WRITE_TOKEN) {
+      return NextResponse.json(
+        { error: 'SANITY_WRITE_TOKEN is missing in the production server environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const bodyData = await request.json()
     const { type, title, speechUrl, mainImageAssetId, slideshowAssetIds } = bodyData
 
@@ -215,6 +303,13 @@ export async function POST(request: NextRequest) {
 // PATCH: Edit an existing Press Release or Parliamentary Update
 export async function PATCH(request: NextRequest) {
   try {
+    if (!process.env.SANITY_WRITE_TOKEN) {
+      return NextResponse.json(
+        { error: 'SANITY_WRITE_TOKEN is missing in the production server environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const bodyData = await request.json()
     const { id, type, title, speechUrl, mainImageAssetId, removeMainImage, slideshowAssetIds, removeSlideshowImages } = bodyData
 
@@ -348,6 +443,13 @@ export async function PATCH(request: NextRequest) {
 // DELETE: Delete a document from Sanity
 export async function DELETE(request: NextRequest) {
   try {
+    if (!process.env.SANITY_WRITE_TOKEN) {
+      return NextResponse.json(
+        { error: 'SANITY_WRITE_TOKEN is missing in the production server environment variables.' },
+        { status: 500 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
