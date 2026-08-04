@@ -44,7 +44,8 @@ export async function GET(request: Request) {
         date,
         excerpt,
         summary,
-        speechUrl
+        speechUrl,
+        slug
       }
     `
 

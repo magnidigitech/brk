@@ -269,6 +269,21 @@ export default function HomeDashboard({ dailyUpdates, updates, news, gallery, se
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null)
   const { t, tContent, language } = useLanguage()
   const dragControls = useDragControls()
+  const lightboxContainerRef = useRef<HTMLDivElement>(null)
+  const lightboxImageRef = useRef<HTMLImageElement>(null)
+
+  const getDragConstraints = () => {
+    if (!lightboxContainerRef.current || !lightboxImageRef.current) {
+      return { left: 0, right: 0, top: 0, bottom: 0 }
+    }
+    const Cw = lightboxContainerRef.current.clientWidth
+    const Ch = lightboxContainerRef.current.clientHeight
+    const W = lightboxImageRef.current.clientWidth
+    const H = lightboxImageRef.current.clientHeight
+    const maxDragX = Math.max(0, (W * lightboxZoom - Cw) / 2)
+    const maxDragY = Math.max(0, (H * lightboxZoom - Ch) / 2)
+    return { left: -maxDragX, right: maxDragX, top: -maxDragY, bottom: maxDragY }
+  }
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [copied, setCopied] = useState(false)
   const [isClient, setIsClient] = useState(false)
@@ -301,7 +316,7 @@ export default function HomeDashboard({ dailyUpdates, updates, news, gallery, se
     : activeContent?.type === 'update'
       ? '/parliamentary-updates'
       : '/press-releases'
-  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}?id=${activeContent._id.slice(0, 8)}` : ''
+  const shareUrl = activeContent ? `${isClient ? window.location.origin : ''}${sharePath}/${activeContent.slug || activeContent._id}` : ''
   const siteUrl = isClient ? window.location.origin : ''
   const twitterUrl = 'https://x.com/bhashyambrk'
   const instagramUrl = 'https://www.instagram.com/ramakrishnabhashyam/'
@@ -354,7 +369,7 @@ ${siteUrl}
 
     if (hasContent && !historyPushedRef.current.content) {
       const params = new URLSearchParams(window.location.search)
-      params.set('id', activeContent._id.slice(0, 8))
+      params.set('id', activeContent.slug || activeContent._id)
       window.history.pushState({ type: 'activeContent' }, '', `${window.location.pathname}?${params.toString()}`)
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
@@ -1167,9 +1182,9 @@ ${siteUrl}
 
             {/* Full image with zoom */}
             <motion.div
-              drag={lightboxZoom > 1 ? true : 'y'}
-              dragConstraints={lightboxZoom > 1 ? false : { top: 0, bottom: 0 }}
-              dragElastic={lightboxZoom > 1 ? 0.2 : 0.8}
+              drag={lightboxZoom > 1 ? false : 'y'}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.8}
               onDragEnd={(event, info) => {
                 if (lightboxZoom <= 1 && (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600)) {
                   setActiveMedia(null)
@@ -1180,19 +1195,28 @@ ${siteUrl}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none overflow-auto"
-              style={{ cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }}
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none overflow-hidden relative"
+              ref={lightboxContainerRef}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <motion.img
+                ref={lightboxImageRef}
                 src={activeMedia.src}
                 alt={activeMedia.title}
+                drag={lightboxZoom > 1}
+                dragConstraints={getDragConstraints()}
+                dragElastic={0.15}
+                animate={{
+                  scale: lightboxZoom,
+                  x: lightboxZoom > 1 ? undefined : 0,
+                  y: lightboxZoom > 1 ? undefined : 0,
+                }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 onDoubleClick={() => setLightboxZoom(z => z > 1 ? 1 : 2.25)}
                 style={{
-                  transform: `scale(${lightboxZoom})`,
-                  transition: 'transform 0.2s ease',
+                  cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in',
+                  maxHeight: '75vh',
                   transformOrigin: 'center center',
-                  maxHeight: lightboxZoom <= 1 ? '75vh' : undefined,
                 }}
                 className="max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
               />
@@ -1486,7 +1510,7 @@ ${siteUrl}
                               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
                                 activeContent.title + ' - ' + (activeContent.excerpt || (activeContent.body ? renderBody(activeContent.body).join('\n\n') : '')).slice(0, 100) + '...'
                               )}&url=${encodeURIComponent(
-                                window.location.origin + sharePath + '?id=' + activeContent._id.slice(0, 8)
+                                window.location.origin + sharePath + '/' + (activeContent.slug || activeContent._id)
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -1500,7 +1524,7 @@ ${siteUrl}
                             </a>
                             <button
                               onClick={async () => {
-                                const shareUrl = `${window.location.origin}${sharePath}?id=${activeContent._id.slice(0, 8)}`
+                                const shareUrl = `${window.location.origin}${sharePath}/${activeContent.slug || activeContent._id}`
                                 try {
                                   await navigator.clipboard.writeText(shareUrl)
                                   setCopied(true)

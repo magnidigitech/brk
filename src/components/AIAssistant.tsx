@@ -622,10 +622,10 @@ export default function AIAssistant({ siteSettings }: AIAssistantProps) {
                                 const isPress = item._type === 'pressRelease'
                                 const isDaily = item._type === 'dailyUpdate'
                                 const linkUrl = isDaily
-                                  ? `/daily-updates?id=${item._id}`
+                                  ? `/daily-updates/${item.slug?.current || item._id}`
                                   : isPress 
-                                    ? `/press-releases?id=${item._id}`
-                                    : `/parliamentary-updates?id=${item._id}`
+                                    ? `/press-releases/${item.slug?.current || item._id}`
+                                    : `/parliamentary-updates/${item.slug?.current || item._id}`
                                 const localizedTitle = item.title?.[language] || item.title?.en || item.title
                                 
                                 return (

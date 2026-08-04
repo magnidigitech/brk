@@ -908,7 +908,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                         {searchResults.map((item) => {
                           const isPress = item._type === 'pressRelease'
                           const path = isPress ? '/press-releases' : '/parliamentary-updates'
-                          const linkHref = `${path}?id=${item._id.slice(0, 8)}`
+                          const linkHref = `${path}/${item.slug?.current || item._id}`
                           const displayDate = isPress ? item.publishedAt : item.date
 
                           return (

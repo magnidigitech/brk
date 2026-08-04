@@ -128,6 +128,21 @@ export default function PressReleasesClient({ releases, activeId }: PressRelease
   const [activeMedia, setActiveMedia] = useState<ActiveMedia | null>(null)
   const [lightboxZoom, setLightboxZoom] = useState(1)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+  const lightboxContainerRef = useRef<HTMLDivElement>(null)
+  const lightboxImageRef = useRef<HTMLImageElement>(null)
+
+  const getDragConstraints = () => {
+    if (!lightboxContainerRef.current || !lightboxImageRef.current) {
+      return { left: 0, right: 0, top: 0, bottom: 0 }
+    }
+    const Cw = lightboxContainerRef.current.clientWidth
+    const Ch = lightboxContainerRef.current.clientHeight
+    const W = lightboxImageRef.current.clientWidth
+    const H = lightboxImageRef.current.clientHeight
+    const maxDragX = Math.max(0, (W * lightboxZoom - Cw) / 2)
+    const maxDragY = Math.max(0, (H * lightboxZoom - Ch) / 2)
+    return { left: -maxDragX, right: maxDragX, top: -maxDragY, bottom: maxDragY }
+  }
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
   const [dismissedId, setDismissedId] = useState<string | null>(null)
   const [isClient, setIsClient] = useState(false)
@@ -557,9 +572,9 @@ ${siteUrl}
             )}
 
             <motion.div
-              drag={lightboxZoom > 1 ? true : 'y'}
-              dragConstraints={lightboxZoom > 1 ? false : { top: 0, bottom: 0 }}
-              dragElastic={lightboxZoom > 1 ? 0.2 : 0.8}
+              drag={lightboxZoom > 1 ? false : 'y'}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.8}
               onDragEnd={(event, info) => {
                 if (lightboxZoom <= 1 && (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600)) {
                   setActiveMedia(null)
@@ -570,15 +585,29 @@ ${siteUrl}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none overflow-auto"
-              style={{ cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }}
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none overflow-hidden relative"
+              ref={lightboxContainerRef}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <motion.img
+                ref={lightboxImageRef}
                 src={activeMedia.src}
                 alt={activeMedia.title}
+                drag={lightboxZoom > 1}
+                dragConstraints={getDragConstraints()}
+                dragElastic={0.15}
+                animate={{
+                  scale: lightboxZoom,
+                  x: lightboxZoom > 1 ? undefined : 0,
+                  y: lightboxZoom > 1 ? undefined : 0,
+                }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 onDoubleClick={() => setLightboxZoom(z => z > 1 ? 1 : 2.25)}
-                style={{ transform: `scale(${lightboxZoom})`, transition: 'transform 0.2s ease', transformOrigin: 'center center', maxHeight: lightboxZoom <= 1 ? '75vh' : undefined }}
+                style={{
+                  cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in',
+                  maxHeight: '75vh',
+                  transformOrigin: 'center center',
+                }}
                 className="max-w-full object-contain rounded-2xl shadow-2xl border border-white/10"
               />
             </motion.div>
