@@ -50,6 +50,22 @@ function tokenizeString(text: string, globalOffset: number): TextToken[] {
   return tokens
 }
 
+// Render inline **bold** markers within a string as <strong> elements
+function renderInlineBold(text: string): React.ReactNode {
+  if (!text.includes('**')) return text
+  const parts = text.split(/(\*\*.*?\*\*)/g)
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+          return <strong key={i} className="font-bold text-navy-950">{part.slice(2, -2)}</strong>
+        }
+        return part
+      })}
+    </>
+  )
+}
+
 // Format bold text markdown (**bold**) or heading titles (Title:)
 function renderFormattedLine(
   text: string, 
@@ -130,7 +146,7 @@ function renderFormattedLine(
               )
             })
           ) : (
-            itemText
+            renderInlineBold(itemText)
           )}
         </div>
       </li>
@@ -169,20 +185,10 @@ function renderFormattedLine(
   globalOffsetRef.current += text.length + 1
 
   // Handle inline **bold** text replacement if not TTS
-  if (!ttsActive && text.includes('**')) {
-    const parts = text.split(/(\*\*.*?\*\*)/g)
+  if (!ttsActive) {
     return (
       <p className="text-slate-800 text-sm sm:text-base leading-relaxed my-3">
-        {parts.map((part, pIdx) => {
-          if (part.startsWith('**') && part.endsWith('**')) {
-            return (
-              <strong key={pIdx} className="font-bold text-navy-950">
-                {part.slice(2, -2)}
-              </strong>
-            )
-          }
-          return part
-        })}
+        {renderInlineBold(text)}
       </p>
     )
   }
