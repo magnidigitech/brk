@@ -52,18 +52,32 @@ function tokenizeString(text: string, globalOffset: number): TextToken[] {
 
 // Render inline **bold** markers within a string as <strong> elements
 function renderInlineBold(text: string): React.ReactNode {
-  if (!text.includes('**')) return text
-  const parts = text.split(/(\*\*.*?\*\*)/g)
+  if (!text) return text
+  if (!text.includes('**') && !text.includes('__')) return text
+
+  const parts = text.split(/(\*\*.*?\*\*|__.*?__)/g)
   return (
     <>
       {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
-          return <strong key={i} className="font-bold text-navy-950">{part.slice(2, -2)}</strong>
+        if (
+          (part.startsWith('**') && part.endsWith('**') && part.length >= 4) ||
+          (part.startsWith('__') && part.endsWith('__') && part.length >= 4)
+        ) {
+          const innerText = part.slice(2, -2).trim()
+          return <strong key={i} className="font-bold text-navy-950">{innerText}</strong>
         }
-        return part
+        return part.replace(/\*\*/g, '').replace(/__/g, '')
       })}
     </>
   )
+}
+
+function cleanHeadingText(text: string): string {
+  return text
+    .replace(/^[\#\s]+/, '')
+    .replace(/^(\*\*|__)+/, '')
+    .replace(/(\*\*|__)+:?$/, '')
+    .trim()
 }
 
 // Format bold text markdown (**bold**) or heading titles (Title:)
@@ -73,11 +87,39 @@ function renderFormattedLine(
   currentCharIndex: number, 
   globalOffsetRef: { current: number }
 ) {
+  // Check if line is a standalone bold header: **Overview** or **Summary** or **Heading:**
+  const standaloneBoldMatch = text.match(/^\s*(\*\*|__)\s*(.*?)\s*\1\s*:?\s*$/)
+  if (standaloneBoldMatch) {
+    const rawTitle = standaloneBoldMatch[2].trim()
+    if (rawTitle) {
+      const offset = globalOffsetRef.current
+      const tokens = tokenizeString(rawTitle, offset)
+      globalOffsetRef.current += text.length
+
+      return (
+        <h3 className="text-base sm:text-lg font-black text-navy-950 border-l-4 border-saffron-500 pl-3 py-1 my-4 tracking-tight">
+          {ttsActive ? (
+            tokens.map((t, i) => {
+              const isH = currentCharIndex >= t.start && currentCharIndex < t.end
+              return (
+                <span key={i} className={isH ? 'bg-saffron-200 text-saffron-950 px-0.5 rounded' : ''}>
+                  {t.text}{' '}
+                </span>
+              )
+            })
+          ) : (
+            rawTitle
+          )}
+        </h3>
+      )
+    }
+  }
+
   // Check if line matches sub-heading pattern: "Heading Title: rest of paragraph"
-  const colonHeadingMatch = text.match(/^([A-Z0-9\s&/\-–—"']{3,60}:)([\s\S]*)$/)
+  const colonHeadingMatch = text.match(/^([A-Z0-9\s&/\-–—"'\*]{3,60}:)([\s\S]*)$/)
 
   if (colonHeadingMatch) {
-    const headingText = colonHeadingMatch[1]
+    const headingText = colonHeadingMatch[1].replace(/\*\*/g, '').replace(/__/g, '').trim()
     const bodyText = colonHeadingMatch[2]
 
     const hOffset = globalOffsetRef.current
@@ -116,7 +158,7 @@ function renderFormattedLine(
                 )
               })
             ) : (
-              bodyText.trim()
+              renderInlineBold(bodyText.trim())
             )}
           </p>
         )}
@@ -156,7 +198,7 @@ function renderFormattedLine(
   // Check if line starts with ### or ## or # Markdown Heading
   const markdownHeadingMatch = text.match(/^(#{1,3})\s+(.*)$/)
   if (markdownHeadingMatch) {
-    const headingText = markdownHeadingMatch[2]
+    const headingText = cleanHeadingText(markdownHeadingMatch[2])
     const offset = globalOffsetRef.current
     const tokens = tokenizeString(headingText, offset)
     globalOffsetRef.current += text.length
@@ -205,7 +247,7 @@ function renderFormattedLine(
           )
         })
       ) : (
-        text
+        renderInlineBold(text)
       )}
     </p>
   )
@@ -249,8 +291,9 @@ export default function RichTextRenderer({
 
             // Block Headings
             if (blockStyle === 'h1' || blockStyle === 'h2' || blockStyle === 'h3' || blockStyle === 'h4') {
+              const cleanText = cleanHeadingText(blockText)
               const offset = globalOffsetRef.current
-              const tokens = tokenizeString(blockText, offset)
+              const tokens = tokenizeString(cleanText, offset)
               globalOffsetRef.current += blockText.length + 1
 
               return (
@@ -265,7 +308,7 @@ export default function RichTextRenderer({
                       )
                     })
                   ) : (
-                    blockText
+                    cleanText
                   )}
                 </h3>
               )

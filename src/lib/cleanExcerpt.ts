@@ -23,6 +23,9 @@ export function cleanExcerpt(text: any): string {
     // Remove bold/italic markdown delimiters: **bold** -> bold, *italic* -> italic, __bold__ -> bold
     .replace(/\*{1,3}(.*?)\*{1,3}/g, '$1')
     .replace(/_{1,3}(.*?)_{1,3}/g, '$1')
+    // Remove leftover stray asterisks or underscores
+    .replace(/\*{2,}/g, '')
+    .replace(/_{2,}/g, '')
     // Remove list bullet markers: - item, * item, • item, or ' - '
     .replace(/(^|\n)\s*[\-•*]\s+/g, ' ')
     .replace(/\s+[\-•*]\s+/g, ' ')
