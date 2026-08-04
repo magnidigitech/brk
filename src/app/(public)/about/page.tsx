@@ -83,6 +83,14 @@ export default async function AboutPage() {
       '@type': 'Person',
       'name': 'Shri Bhashyam Rama Krishna',
       'jobTitle': getRoleTitle(lang),
+      'url': 'https://bhashyamramakrishna.in',
+      'sameAs': [
+        'https://x.com/bhashyambrk',
+        'https://www.facebook.com/bhashyamramakrishna',
+        'https://www.instagram.com/bhashyamramakrishna',
+        'https://www.youtube.com/@bhashyamramakrishna',
+        'https://sansad.in/rs'
+      ],
       'affiliation': {
         '@type': 'PoliticalParty',
         'name': 'Telugu Desam Party',

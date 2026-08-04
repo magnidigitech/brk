@@ -3,6 +3,7 @@ import { sanityFetch } from '@/sanity/lib/sanityFetch'
 import { cookies } from 'next/headers'
 import { Metadata } from 'next'
 import { uiTranslations } from '@/lib/translations'
+import JsonLd from '@/components/JsonLd'
 
 // Always fetch live data from Sanity — no caching
 export const dynamic = 'force-dynamic'
@@ -135,8 +136,30 @@ export default async function Page() {
   const displayGallery = gallery || []
   const displaySettings = settings || {}
 
+  const personSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    'name': 'Shri Bhashyam Rama Krishna',
+    'jobTitle': 'Member of Parliament (Rajya Sabha)',
+    'url': 'https://bhashyamramakrishna.in',
+    'image': 'https://bhashyamramakrishna.in/profile.jpg',
+    'sameAs': [
+      'https://x.com/bhashyambrk',
+      'https://www.facebook.com/bhashyamramakrishna',
+      'https://www.instagram.com/bhashyamramakrishna',
+      'https://www.youtube.com/@bhashyamramakrishna',
+      'https://sansad.in/rs'
+    ],
+    'affiliation': {
+      '@type': 'PoliticalParty',
+      'name': 'Telugu Desam Party',
+      'alternateName': 'TDP'
+    }
+  }
+
   return (
     <>
+      <JsonLd schema={personSchema} />
       <HomeDashboard
         dailyUpdates={displayDaily}
         updates={displayUpdates}
