@@ -142,6 +142,95 @@ export default function DailyUpdatesClient({ dailyUpdates, activeId }: DailyUpda
     const maxDragY = Math.max(0, (H * lightboxZoom - Ch) / 2)
     return { left: -maxDragX, right: maxDragX, top: -maxDragY, bottom: maxDragY }
   }
+
+  const touchStartRef = useRef({ x: 0, y: 0, dist: 0, scale: 1, isPinching: false })
+  const lightboxStateRef = useRef({ zoom: lightboxZoom, index: lightboxIndex, media: activeMedia })
+
+  useEffect(() => {
+    lightboxStateRef.current = { zoom: lightboxZoom, index: lightboxIndex, media: activeMedia }
+  }, [lightboxZoom, lightboxIndex, activeMedia])
+
+  useEffect(() => {
+    const container = lightboxContainerRef.current
+    if (!container) return
+
+    const handleTouchStartRaw = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          dist: 0,
+          scale: lightboxStateRef.current.zoom,
+          isPinching: false
+        }
+      } else if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        touchStartRef.current = {
+          x: 0,
+          y: 0,
+          dist,
+          scale: lightboxStateRef.current.zoom,
+          isPinching: true
+        }
+      }
+    }
+
+    const handleTouchMoveRaw = (e: TouchEvent) => {
+      if (e.touches.length === 2 && touchStartRef.current.isPinching) {
+        if (e.cancelable) e.preventDefault()
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        )
+        const ratio = currentDist / touchStartRef.current.dist
+        const newScale = Math.max(1, Math.min(4, touchStartRef.current.scale * ratio))
+        setLightboxZoom(parseFloat(newScale.toFixed(2)))
+      }
+    }
+
+    const handleTouchEndRaw = (e: TouchEvent) => {
+      if (touchStartRef.current.isPinching) {
+        touchStartRef.current.isPinching = false
+        return
+      }
+
+      const { zoom, index, media } = lightboxStateRef.current
+      if (zoom <= 1 && e.changedTouches.length === 1) {
+        const diffX = e.changedTouches[0].clientX - touchStartRef.current.x
+        const diffY = e.changedTouches[0].clientY - touchStartRef.current.y
+        if (Math.abs(diffX) > 70 && Math.abs(diffY) < 50) {
+          const imgs = media?.allImages
+          if (imgs && imgs.length > 1) {
+            if (diffX > 0) {
+              const next = (index - 1 + imgs.length) % imgs.length
+              setLightboxIndex(next)
+              setLightboxZoom(1)
+              setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+            } else {
+              const next = (index + 1) % imgs.length
+              setLightboxIndex(next)
+              setLightboxZoom(1)
+              setActiveMedia(m => m ? { ...m, src: imgs[next], currentIndex: next } : m)
+            }
+          }
+        }
+      }
+    }
+
+    container.addEventListener('touchstart', handleTouchStartRaw, { passive: true })
+    container.addEventListener('touchmove', handleTouchMoveRaw, { passive: false })
+    container.addEventListener('touchend', handleTouchEndRaw, { passive: true })
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStartRaw)
+      container.removeEventListener('touchmove', handleTouchMoveRaw)
+      container.removeEventListener('touchend', handleTouchEndRaw)
+    }
+  }, [activeMedia])
+
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
   const [dismissedId, setDismissedId] = useState<string | null>(null)
   const [isClient, setIsClient] = useState(false)
