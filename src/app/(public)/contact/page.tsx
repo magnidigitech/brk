@@ -34,12 +34,12 @@ export default async function ContactPage() {
     delhiOffice: {
       address: '12, Rajya Sabha Members Residences, New Delhi - 110001',
       phone: '+91 11 2301 XXXX',
-      email: 'delhi.office@bhashyamramakrishna.in'
+      email: 'bhashyam.rk@mprs.sansad.in'
     },
     stateOffice: {
       address: 'Navabharath Nagar 4/3 Line, Guntur - 522006',
       phone: '+91 99081 22239 / 40',
-      email: 'ramakrishna.bhashyammp@gmail.com'
+      email: 'bhashyam.rk@mprs.sansad.in'
     }
   }
 

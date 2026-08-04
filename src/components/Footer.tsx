@@ -42,7 +42,7 @@ export default function Footer({ siteSettings }: FooterProps) {
   const delhiAddress = tContent(siteSettings?.delhiOffice?.address, '12, Rajya Sabha Members Residences, New Delhi - 110001')
   const stateAddress = tContent(siteSettings?.stateOffice?.address, 'Navabharath Nagar 4/3 Line, Guntur - 522006')
   const statePhone = siteSettings?.stateOffice?.phone || '+91 99081 22239 / 40'
-  const stateEmail = siteSettings?.stateOffice?.email || 'ramakrishna.bhashyammp@gmail.com'
+  const stateEmail = siteSettings?.stateOffice?.email || 'bhashyam.rk@mprs.sansad.in'
 
   return (
     <footer className="bg-[#5C0606] text-slate-200 border-t-2 border-saffron-500 w-full">
