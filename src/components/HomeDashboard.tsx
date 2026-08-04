@@ -38,6 +38,7 @@ import MediaCarousel from '@/components/MediaCarousel'
 import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 import RichTextRenderer from '@/components/RichTextRenderer'
 import PdfPreviewModal from '@/components/PdfPreviewModal'
+import { cleanExcerpt } from '@/lib/cleanExcerpt'
 
 interface UpdateItem {
   _id: string
@@ -259,6 +260,7 @@ export default function HomeDashboard({ dailyUpdates, updates, news, gallery, se
   const [lightboxZoom, setLightboxZoom] = useState(1)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const [dismissedId, setDismissedId] = useState<string | null>(null)
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null)
   const { t, tContent, language } = useLanguage()
   const dragControls = useDragControls()
@@ -352,11 +354,30 @@ ${siteUrl}
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
       historyPushedRef.current.content = false
-      if (window.history.state?.type === 'activeContent') {
-        window.history.back()
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('id')) {
+        params.delete('id')
+        const searchStr = params.toString()
+        const newUrl = `${window.location.pathname}${searchStr ? '?' + searchStr : ''}`
+        window.history.replaceState({}, '', newUrl)
       }
     }
   }, [activeMedia, activeContent])
+
+  const closeModal = useCallback(() => {
+    if (activeContent) {
+      setDismissedId(activeContent._id)
+    }
+    setActiveContent(null)
+    setActiveMedia(null)
+    if (typeof window !== 'undefined' && window.location.search) {
+      const params = new URLSearchParams(window.location.search)
+      params.delete('id')
+      const searchStr = params.toString()
+      const newUrl = `${window.location.pathname}${searchStr ? '?' + searchStr : ''}`
+      window.history.pushState({}, '', newUrl)
+    }
+  }, [activeContent])
 
   // Reset zoom when lightbox opens/changes image
   useEffect(() => {
@@ -396,11 +417,13 @@ ${siteUrl}
     return () => window.removeEventListener('keydown', handleKey)
   }, [activeMedia])
 
-  // Check query parameter on mount and data load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const id = params.get('id')
     if (id) {
+      if (dismissedId && (dismissedId === id || dismissedId.startsWith(id) || id.startsWith(dismissedId))) {
+        return
+      }
       // Look in dailyUpdates first
       const dailyItem = dailyUpdates?.find((d) => d._id === id || d._id.startsWith(id))
       if (dailyItem) {
@@ -480,7 +503,7 @@ ${siteUrl}
         })
       }
     }
-  }, [dailyUpdates, updates, news])
+  }, [dailyUpdates, updates, news, dismissedId])
 
   // Sync activeContent changes with URL query parameter
   useEffect(() => {
@@ -757,7 +780,7 @@ ${siteUrl}
                             {utitle}
                           </h4>
                           <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
-                            {usummary}
+                            {cleanExcerpt(usummary)}
                           </p>
                         </div>
 
@@ -862,7 +885,7 @@ ${siteUrl}
                         </h4>
                         {nexcerpt && (
                           <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4 flex-grow">
-                            {nexcerpt}
+                            {cleanExcerpt(nexcerpt)}
                           </p>
                         )}
                         <span className="inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors mt-auto pt-2">
@@ -961,7 +984,7 @@ ${siteUrl}
                             {utitle}
                           </h4>
                           <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
-                            {usummary}
+                            {cleanExcerpt(usummary)}
                           </p>
                         </div>
 
@@ -1177,7 +1200,7 @@ ${siteUrl}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveContent(null)}
+            onClick={closeModal}
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/70 backdrop-blur-sm"
           >
             <motion.div
@@ -1188,7 +1211,7 @@ ${siteUrl}
               dragElastic={{ top: 0, bottom: 0.85 }}
               onDragEnd={(event, info) => {
                 if (info.offset.y > 120 || info.velocity.y > 600) {
-                  setActiveContent(null)
+                  closeModal()
                 }
               }}
               initial={{ y: 60, opacity: 0 }}
@@ -1224,7 +1247,7 @@ ${siteUrl}
                   </span>
                 </div>
                 <button
-                  onClick={() => setActiveContent(null)}
+                  onClick={closeModal}
                   onPointerDown={(e) => e.stopPropagation()}
                   className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close"

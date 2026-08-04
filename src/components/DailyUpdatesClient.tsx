@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import {
   Calendar,
@@ -26,6 +26,7 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech'
 import MediaCarousel from '@/components/MediaCarousel'
 import NativeMediaPlayer from '@/components/NativeMediaPlayer'
 import RichTextRenderer from '@/components/RichTextRenderer'
+import { cleanExcerpt } from '@/lib/cleanExcerpt'
 
 interface DailyUpdateItem {
   _id: string
@@ -126,6 +127,7 @@ export default function DailyUpdatesClient({ dailyUpdates, activeId }: DailyUpda
   const [lightboxZoom, setLightboxZoom] = useState(1)
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [activeContent, setActiveContent] = useState<ActiveContent | null>(null)
+  const [dismissedId, setDismissedId] = useState<string | null>(null)
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -212,11 +214,22 @@ ${siteUrl}
       historyPushedRef.current.content = true
     } else if (!hasContent && historyPushedRef.current.content) {
       historyPushedRef.current.content = false
-      if (window.history.state?.type === 'activeContent') {
-        window.history.back()
+      if (window.location.pathname !== sharePath) {
+        window.history.replaceState({}, '', sharePath)
       }
     }
-  }, [activeMedia, activeContent])
+  }, [activeMedia, activeContent, sharePath])
+
+  const closeModal = useCallback(() => {
+    if (activeContent) {
+      setDismissedId(activeContent._id)
+    }
+    setActiveContent(null)
+    setActiveMedia(null)
+    if (typeof window !== 'undefined' && window.location.pathname !== sharePath) {
+      window.history.pushState({}, '', sharePath)
+    }
+  }, [activeContent, sharePath])
 
   useEffect(() => {
     if (activeMedia) { setLightboxZoom(1); setLightboxIndex(activeMedia.currentIndex ?? 0) }
@@ -245,6 +258,8 @@ ${siteUrl}
       const params = new URLSearchParams(window.location.search)
       id = params.get('id')
     }
+    if (id && id === dismissedId) return
+
     if (id && dailyUpdates.length > 0) {
       const item = dailyUpdates.find((r) => r.slug?.current === id || r._id === id || r._id.startsWith(id))
       if (item) {
@@ -269,13 +284,13 @@ ${siteUrl}
           date: item.date,
           excerpt: nsummary,
           body: item.body,
-          imageSrc: imgSrc,
           speechUrl: item.speechUrl,
           images: combinedImages,
+          imageSrc: imgSrc,
         })
       }
     }
-  }, [dailyUpdates, activeId, isClient])
+  }, [dailyUpdates, activeId, isClient, dismissedId])
 
   // Sync activeContent changes with URL path
   useEffect(() => {
@@ -447,7 +462,7 @@ ${siteUrl}
                                   </h4>
                                   {nsummary && (
                                     <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4 flex-grow">
-                                      {nsummary}
+                                      {cleanExcerpt(nsummary)}
                                     </p>
                                   )}
                                   <span className="inline-flex items-center text-xs font-bold text-saffron-600 group-hover:text-saffron-700 transition-colors mt-auto pt-2">
@@ -512,7 +527,7 @@ ${siteUrl}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setActiveContent(null)}
+            onClick={closeModal}
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/70 backdrop-blur-sm"
           >
             <motion.div
@@ -523,7 +538,7 @@ ${siteUrl}
               dragElastic={{ top: 0, bottom: 0.85 }}
               onDragEnd={(event, info) => {
                 if (info.offset.y > 120 || info.velocity.y > 600) {
-                  setActiveContent(null)
+                  closeModal()
                 }
               }}
               initial={{ y: 60, opacity: 0 }}
@@ -552,7 +567,7 @@ ${siteUrl}
                   </span>
                 </div>
                 <button
-                  onClick={() => setActiveContent(null)}
+                  onClick={closeModal}
                   onPointerDown={(e) => e.stopPropagation()}
                   className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close"

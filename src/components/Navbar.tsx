@@ -8,6 +8,7 @@ import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
 import { getRoleTitle } from '@/lib/roleHelper'
 import { motion, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion'
+import { cleanExcerpt } from '@/lib/cleanExcerpt'
 
 interface NavbarProps {
   siteSettings?: {
@@ -927,7 +928,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                                     {item.title}
                                   </h5>
                                   <p className="text-xs text-slate-500 line-clamp-2">
-                                    {item.excerpt || item.summary || ''}
+                                    {cleanExcerpt(item.excerpt || item.summary)}
                                   </p>
                                 </div>
                                 {displayDate && (
