@@ -1167,9 +1167,9 @@ ${siteUrl}
 
             {/* Full image with zoom */}
             <motion.div
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.8}
+              drag={lightboxZoom > 1 ? true : 'y'}
+              dragConstraints={lightboxZoom > 1 ? false : { top: 0, bottom: 0 }}
+              dragElastic={lightboxZoom > 1 ? 0.2 : 0.8}
               onDragEnd={(event, info) => {
                 if (lightboxZoom <= 1 && (Math.abs(info.offset.y) > 120 || Math.abs(info.velocity.y) > 600)) {
                   setActiveMedia(null)
@@ -1180,14 +1180,14 @@ ${siteUrl}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none touch-none overflow-auto"
+              className="flex-1 flex items-center justify-center w-full max-w-5xl min-h-0 select-none overflow-auto"
               style={{ cursor: lightboxZoom > 1 ? 'grab' : 'zoom-in' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activeMedia.src}
                 alt={activeMedia.title}
-                onDoubleClick={() => setLightboxZoom(1)}
+                onDoubleClick={() => setLightboxZoom(z => z > 1 ? 1 : 2.25)}
                 style={{
                   transform: `scale(${lightboxZoom})`,
                   transition: 'transform 0.2s ease',

@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Shri Bhashyam Rama Krishna, MP',
-    short_name: 'Bhashyam RK MP',
+    short_name: 'BRK MP',
     description: 'Official Portal of Shri Bhashyam Rama Krishna, Member of Parliament (Rajya Sabha)',
     start_url: '/',
     display: 'standalone',
