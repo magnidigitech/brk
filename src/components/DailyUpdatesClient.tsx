@@ -445,12 +445,12 @@ ${siteUrl}
                                   }}
                                 >
                                   {item.image && (
-                                    <div className="mb-4 rounded-xl overflow-hidden h-44 relative bg-slate-100 border border-slate-200/60 shadow-sm shrink-0">
+                                    <div className="mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center">
                                       {/* eslint-disable-next-line @next/next/no-img-element */}
                                       <img
                                         src={imgSrc}
                                         alt={ntitle}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[700ms] ease-out"
+                                        className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out"
                                       />
                                     </div>
                                   )}
@@ -614,14 +614,14 @@ ${siteUrl}
                   </div>
                 ) : (
                   activeContent.imageSrc && (
-                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in bg-white p-2 flex items-center justify-center"
                       onClick={() => { setActiveMedia({ src: activeContent.imageSrc!, title: activeContent.title, date: activeContent.date, allImages: [activeContent.imageSrc!], currentIndex: 0 }) }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={activeContent.imageSrc}
                         alt={activeContent.title}
-                        className="w-full object-contain max-h-72 bg-slate-100 group-hover/img:brightness-90 transition-all duration-300"
+                        className="w-full object-contain max-h-80 bg-white group-hover/img:brightness-95 transition-all duration-300"
                       />
                     </div>
                   )

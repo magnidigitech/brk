@@ -562,14 +562,14 @@ ${siteUrl}
                   </div>
                 ) : (
                   activeContent.imageSrc && (
-                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in"
+                    <div className="mb-6 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group/img cursor-zoom-in bg-white p-2 flex items-center justify-center"
                       onClick={() => { setActiveMedia({ src: activeContent.imageSrc!, title: activeContent.title, date: activeContent.date, allImages: [activeContent.imageSrc!], currentIndex: 0 }) }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={activeContent.imageSrc}
                         alt={activeContent.title}
-                        className="w-full object-contain max-h-72 bg-slate-100 group-hover/img:brightness-90 transition-all duration-300"
+                        className="w-full object-contain max-h-80 bg-white group-hover/img:brightness-95 transition-all duration-300"
                       />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
                         <span className="bg-black/70 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">

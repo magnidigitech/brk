@@ -66,7 +66,7 @@ export default function MediaCarousel({ images, title, onImageClick }: MediaCaro
 
   return (
     <div
-      className="relative w-full aspect-video md:aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 group"
+      className="relative w-full aspect-video md:aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-sm group"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
