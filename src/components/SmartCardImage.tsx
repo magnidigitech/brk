@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 interface SmartCardImageProps {
   src: string
   alt: string
@@ -15,27 +13,15 @@ export default function SmartCardImage({
   className = '',
   containerClassName = ''
 }: SmartCardImageProps) {
-  const [isPortrait, setIsPortrait] = useState(false)
-
   return (
     <div
-      className={`mb-4 rounded-xl overflow-hidden h-48 relative border border-slate-200/80 shadow-sm shrink-0 flex items-center justify-center transition-all duration-300 ${
-        isPortrait ? 'bg-white p-1.5' : 'bg-slate-100'
-      } ${containerClassName}`}
+      className={`mb-4 rounded-xl overflow-hidden h-48 relative bg-white border border-slate-200 p-1.5 shadow-sm shrink-0 flex items-center justify-center transition-all duration-300 ${containerClassName}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
-        onLoad={(e) => {
-          const img = e.currentTarget
-          if (img.naturalHeight > img.naturalWidth) {
-            setIsPortrait(true)
-          }
-        }}
-        className={`w-full h-full transition-transform duration-500 ease-out group-hover:scale-105 ${
-          isPortrait ? 'object-contain' : 'object-cover'
-        } ${className}`}
+        className={`w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300 ease-out ${className}`}
       />
     </div>
   )
