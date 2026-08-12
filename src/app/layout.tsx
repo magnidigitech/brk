@@ -23,9 +23,36 @@ import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://bhashyamramakrishna.in"),
-  title: "Bhashyam Rama Krishna | Official Rajya Sabha Portal",
-  description: "Official public service portal of Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Telugu Desam Party (TDP) Rajya Sabha Candidate from Andhra Pradesh.",
-  keywords: ["Bhashyam Rama Krishna", "Rajya Sabha MP AP", "Andhra Pradesh Rajya Sabha", "Telugu Desam Party", "Bhashyam Chairman", "Grievance Portal AP", "State Focus Andhra Pradesh"],
+  title: {
+    default: "Bhashyam Rama Krishna | Official TDP Rajya Sabha MP Portal | Andhra Pradesh",
+    template: "%s | Shri Bhashyam Rama Krishna, MP"
+  },
+  description: "Official portal of Shri Bhashyam Rama Krishna – Telugu Desam Party (TDP) Rajya Sabha MP from Andhra Pradesh. Latest Rajya Sabha speeches, parliamentary questions, Guntur political news, AP development updates, and education debates.",
+  keywords: [
+    "Bhashyam Rama Krishna",
+    "Rajya Sabha MP Andhra Pradesh",
+    "Andhra Pradesh Rajya Sabha members",
+    "TDP Rajya Sabha MP",
+    "TDP Rajya Sabha members",
+    "Andhra Pradesh Parliament news",
+    "Rajya Sabha news Andhra Pradesh",
+    "Rajya Sabha speech Andhra Pradesh",
+    "TDP Parliament speech",
+    "Andhra Pradesh MP latest news",
+    "Rajya Sabha MP latest news",
+    "Guntur political news",
+    "Guntur TDP news",
+    "Guntur development news",
+    "Guntur political leaders",
+    "Andhra Pradesh political news",
+    "TDP latest news Andhra Pradesh",
+    "Rajya Sabha education debate",
+    "Parliament education debate India",
+    "Public Examinations Bill 2026",
+    "Andhra Pradesh development programmes",
+    "Bhashyam Chairman",
+    "Grievance Portal AP"
+  ],
   icons: {
     icon: "/images/logo.png",
     shortcut: "/images/logo.png",
@@ -37,8 +64,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bhashyam Rama Krishna | Official Rajya Sabha Portal",
-    description: "Official public service portal of Bhashyam Rama Krishna, educationist, Founder Chairman of Bhashyam Educational Institutions, and Telugu Desam Party (TDP) Rajya Sabha Candidate from Andhra Pradesh.",
+    title: "Bhashyam Rama Krishna | TDP Rajya Sabha MP Andhra Pradesh",
+    description: "Official portal of Shri Bhashyam Rama Krishna – TDP Rajya Sabha MP from Andhra Pradesh. Latest Rajya Sabha speeches, Guntur political news, and AP development updates.",
     images: ["/profile.jpg"],
     creator: "@bhashyambrk",
   },
@@ -79,7 +106,7 @@ export default async function RootLayout({
                 ],
                 "url": "https://bhashyamramakrishna.in/",
                 "image": "https://bhashyamramakrishna.in/profile.jpg",
-                "description": "Official profile of Bhashyam Ramakrishna.",
+                "description": "Official profile of Shri Bhashyam Ramakrishna, Member of Parliament (Rajya Sabha) representing Andhra Pradesh and Telugu Desam Party (TDP).",
                 "jobTitle": "Member of Parliament (Rajya Sabha)",
                 "gender": "Male",
                 "nationality": {
@@ -87,10 +114,11 @@ export default async function RootLayout({
                   "name": "India"
                 },
                 "knowsAbout": [
-                  "Education",
-                  "Public Policy",
-                  "Social Welfare",
-                  "Andhra Pradesh Development"
+                  "Rajya Sabha MP Andhra Pradesh",
+                  "Parliament Education Debates",
+                  "TDP Political Affairs",
+                  "Guntur Infrastructure & Development",
+                  "Public Policy & Legislation"
                 ],
                 "worksFor": {
                   "@type": "EducationalOrganization",
@@ -105,8 +133,8 @@ export default async function RootLayout({
                 },
                 "memberOf": {
                   "@type": "GovernmentOrganization",
-                  "name": "Parliament of India",
-                  "sameAs": "https://en.wikipedia.org/wiki/Parliament_of_India"
+                  "name": "Parliament of India (Rajya Sabha)",
+                  "sameAs": "https://en.wikipedia.org/wiki/Rajya_Sabha"
                 },
                 "sameAs": [
                   "https://en.wikipedia.org/wiki/Bhashyam_Rama_Krishna",
@@ -120,10 +148,15 @@ export default async function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "WebSite",
                 "@id": "https://bhashyamramakrishna.in/#website",
-                "name": "Bhashyam Ramakrishna",
+                "name": "Shri Bhashyam Rama Krishna MP Portal",
                 "url": "https://bhashyamramakrishna.in/",
                 "publisher": {
                   "@id": "https://bhashyamramakrishna.in/#person"
+                },
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://bhashyamramakrishna.in/api/search?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
                 }
               }
             ])

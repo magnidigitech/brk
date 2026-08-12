@@ -25,6 +25,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    keywords: [
+      'Rajya Sabha speech Andhra Pradesh',
+      'TDP Parliament speech',
+      'Rajya Sabha education debate',
+      'Parliament education debate India',
+      'TDP Rajya Sabha MP',
+      'Andhra Pradesh Parliament news',
+      'Public Examinations Bill 2026',
+      'Bhashyam Rama Krishna speech'
+    ],
     alternates: { canonical: 'https://bhashyamramakrishna.in/parliamentary-speeches' },
     openGraph: {
       title,
