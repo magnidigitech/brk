@@ -192,7 +192,7 @@ export default function MasterAdminPortal() {
     <div className="min-h-screen bg-slate-50">
       {/* Header Banner */}
       <header className="sticky top-0 z-40 bg-[#FFD200] text-slate-950 border-b border-[#e0b900] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div className="flex items-center space-x-3 w-full md:w-auto">
             <div className="w-10 h-10 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-yellow-600/20 shadow-sm shrink-0">
               <img src="/images/logo.png" alt="TDP Logo" className="w-full h-full object-cover" />
@@ -233,7 +233,7 @@ export default function MasterAdminPortal() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Bento Grid Analytics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, X, LifeBuoy, Globe, Bell, Search, Accessibility, Calendar } from 'lucide-react'
+import { Menu, X, LifeBuoy, Globe, Bell, Search, Accessibility, Calendar, Mic2, HelpCircle, FileText } from 'lucide-react'
 import { useLanguage } from '@/components/LanguageContext'
 import { Language } from '@/lib/translations'
 import { useRouter, usePathname } from 'next/navigation'
 import { getRoleTitle } from '@/lib/roleHelper'
-import { motion, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useSpring, useVelocity, useTransform } from 'framer-motion'
 import { cleanExcerpt } from '@/lib/cleanExcerpt'
 
 interface NavbarProps {
@@ -22,6 +22,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
   const { language, setLanguage, t, tContent } = useLanguage()
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
   const [notifyDropdownOpen, setNotifyDropdownOpen] = useState(false)
+  const [parliamentDrawerOpen, setParliamentDrawerOpen] = useState(false)
 
   // Search states
   const [searchOpen, setSearchOpen] = useState(false)
@@ -281,7 +282,7 @@ export default function Navbar({ siteSettings }: NavbarProps) {
     if (path.startsWith('/daily-updates')) return 1
     if (path.startsWith('/grievance')) return 2
     if (path.startsWith('/press-releases')) return 3
-    if (path.startsWith('/parliamentary-updates')) return 4
+    if (path.startsWith('/parliamentary-updates') || path.startsWith('/parliamentary-speeches') || path.startsWith('/parliamentary-questions')) return 4
     return 0
   }
   const activeIndex = getActiveIndex(pathname)
@@ -470,6 +471,18 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                     {t('section.news')}
                   </Link>
                   <Link
+                    href="/parliamentary-speeches"
+                    className="block px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-saffron-600 transition-colors"
+                  >
+                    {t('parliament.tab.speeches')}
+                  </Link>
+                  <Link
+                    href="/parliamentary-questions"
+                    className="block px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-saffron-600 transition-colors"
+                  >
+                    {t('parliament.tab.questions')}
+                  </Link>
+                  <Link
                     href="/parliamentary-updates"
                     className="block px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-saffron-600 transition-colors"
                   >
@@ -584,6 +597,20 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
               >
                 {t('section.news')}
+              </Link>
+              <Link
+                href="/parliamentary-speeches"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
+              >
+                {t('parliament.tab.speeches')}
+              </Link>
+              <Link
+                href="/parliamentary-questions"
+                onClick={() => setIsOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
+              >
+                {t('parliament.tab.questions')}
               </Link>
               <Link
                 href="/parliamentary-updates"
@@ -754,9 +781,10 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 <svg className={`w-5.5 h-5.5 mb-1 transition-colors ${isActive ? 'text-navy-900' : 'text-slate-500'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-              )
+              ),
+              isParliament: true
             }
-          ].map((tab, idx) => {
+          ].map((tab: any, idx) => {
             const isTabActive = localActiveIndex === idx
             return (
               <div
@@ -764,8 +792,14 @@ export default function Navbar({ siteSettings }: NavbarProps) {
                 role="button"
                 tabIndex={0}
                 onClick={() => {
-                  setLocalActiveIndex(idx)
-                  router.push(tab.path)
+                  if (tab.isParliament) {
+                    setParliamentDrawerOpen(true)
+                    setLocalActiveIndex(idx)
+                  } else {
+                    setParliamentDrawerOpen(false)
+                    setLocalActiveIndex(idx)
+                    router.push(tab.path)
+                  }
                 }}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
@@ -982,6 +1016,113 @@ export default function Navbar({ siteSettings }: NavbarProps) {
           </div>
         </div>
       )}
+      {/* ── Parliament Sub-Drawer Popup ────────────────────────────────────── */}
+      <AnimatePresence>
+        {parliamentDrawerOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+              onClick={() => setParliamentDrawerOpen(false)}
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="lg:hidden fixed bottom-16 left-0 right-0 z-[61] bg-white rounded-t-3xl shadow-2xl border-t-2 border-saffron-400 px-4 pt-4 pb-6"
+            >
+              {/* Handle */}
+              <div className="flex justify-center mb-4">
+                <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+              </div>
+
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-4">
+                {language === 'te' ? 'పార్లమెంట్ — విభాగం ఎంచుకోండి' : 'Parliament — Select Section'}
+              </p>
+
+              <div className="space-y-2.5">
+                {/* Speeches */}
+                <button
+                  onClick={() => {
+                    setParliamentDrawerOpen(false)
+                    router.push('/parliamentary-speeches')
+                  }}
+                  className="w-full flex items-center gap-4 px-4 py-4 bg-gradient-to-r from-saffron-50 to-white border border-saffron-200 rounded-2xl hover:border-saffron-400 hover:shadow-md transition-all text-left cursor-pointer group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-saffron-100 flex items-center justify-center shrink-0 group-hover:bg-saffron-200 transition-colors">
+                    <Mic2 className="w-5 h-5 text-saffron-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-navy-900">
+                      {language === 'te' ? 'ప్రసంగాలు' : 'Speeches'}
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {language === 'te' ? 'రాజ్యసభ ప్రసంగ వీడియోలు' : 'Rajya Sabha speech videos'}
+                    </p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-300 ml-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+
+                {/* Questions */}
+                <button
+                  onClick={() => {
+                    setParliamentDrawerOpen(false)
+                    router.push('/parliamentary-questions')
+                  }}
+                  className="w-full flex items-center gap-4 px-4 py-4 bg-gradient-to-r from-blue-50 to-white border border-blue-200 rounded-2xl hover:border-blue-400 hover:shadow-md transition-all text-left cursor-pointer group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 group-hover:bg-blue-200 transition-colors">
+                    <HelpCircle className="w-5 h-5 text-blue-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-navy-900">
+                      {language === 'te' ? 'ప్రశ్నలు' : 'Questions'}
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {language === 'te' ? 'నక్షత్ర/అనక్షత్ర ప్రశ్నలు' : 'Starred & unstarred questions'}
+                    </p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-300 ml-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+
+                {/* Updates */}
+                <button
+                  onClick={() => {
+                    setParliamentDrawerOpen(false)
+                    router.push('/parliamentary-updates')
+                  }}
+                  className="w-full flex items-center gap-4 px-4 py-4 bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-2xl hover:border-navy-300 hover:shadow-md transition-all text-left cursor-pointer group"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-slate-200 transition-colors">
+                    <FileText className="w-5 h-5 text-slate-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-navy-900">
+                      {language === 'te' ? 'అప్‌డేట్స్' : 'Updates'}
+                    </p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {language === 'te' ? 'సమావేశ నివేదికలు' : 'Session reports & activity'}
+                    </p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-300 ml-auto" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setParliamentDrawerOpen(false)}
+                className="w-full mt-4 py-3 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }

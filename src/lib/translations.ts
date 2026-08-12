@@ -42,6 +42,56 @@ export const uiTranslations: Record<string, Record<Language, string> & { ten?: s
     te: 'రోజువారీ అప్‌డేట్స్',
     ten: 'Daily Updates'
   },
+  'parliament.tab.speeches': {
+    en: 'Speeches',
+    te: 'ప్రసంగాలు',
+    ten: 'Speeches'
+  },
+  'parliament.tab.questions': {
+    en: 'Questions',
+    te: 'ప్రశ్నలు',
+    ten: 'Questions'
+  },
+  'parliament.tab.updates': {
+    en: 'Updates',
+    te: 'అప్‌డేట్స్',
+    ten: 'Updates'
+  },
+  'parliament.questions.session': {
+    en: 'Session',
+    te: 'సమావేశం',
+    ten: 'Session'
+  },
+  'parliament.questions.ministry': {
+    en: 'Ministry',
+    te: 'మంత్రిత్వ శాఖ',
+    ten: 'Ministry'
+  },
+  'parliament.questions.officialAnswer': {
+    en: 'Official Response',
+    te: 'అధికారిక సమాధానం',
+    ten: 'Official Response'
+  },
+  'parliament.speeches.watch': {
+    en: 'Watch Speech',
+    te: 'ప్రసంగం చూడండి',
+    ten: 'Watch Speech'
+  },
+  'parliament.speeches.duration': {
+    en: 'Duration',
+    te: 'వ్యవధి',
+    ten: 'Duration'
+  },
+  'parliament.empty.speeches': {
+    en: 'No speeches added yet.',
+    te: 'ఇంకా ప్రసంగాలు చేర్చబడలేదు.',
+    ten: 'No speeches added yet.'
+  },
+  'parliament.empty.questions': {
+    en: 'No questions added yet.',
+    te: 'ఇంకా ప్రశ్నలు చేర్చబడలేదు.',
+    ten: 'No questions added yet.'
+  },
 
   // Titles & Headings
   'site.title': {

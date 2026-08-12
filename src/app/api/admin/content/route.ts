@@ -113,7 +113,7 @@ function convertTextToBlocks(text: string) {
   return blocks
 }
 
-// GET: Fetch all Press Releases, Parliamentary Updates, and Daily Updates from Sanity
+// GET: Fetch all Press Releases, Parliamentary Updates, Daily Updates, Questions, and Speeches from Sanity
 export async function GET(request: NextRequest) {
   try {
     const pressReleases = await client.fetch(`
@@ -154,6 +154,43 @@ export async function GET(request: NextRequest) {
       }
     `)
 
+    const parliamentaryQuestions = await client.fetch(`
+      *[_type == "parliamentaryQuestion"] | order(date desc) {
+        _id,
+        _type,
+        title,
+        slug,
+        date,
+        questionNumber,
+        sessionInfo,
+        category,
+        ministry,
+        summary,
+        officialAnswer,
+        "documentUrl": document.asset->url,
+        "documentAssetId": document.asset._ref,
+        "documentOriginalName": document.asset->originalFilename
+      }
+    `)
+
+    const parliamentarySpeeches = await client.fetch(`
+      *[_type == "parliamentarySpeech"] | order(date desc) {
+        _id,
+        _type,
+        title,
+        slug,
+        date,
+        sessionInfo,
+        speechUrl,
+        duration,
+        summary,
+        topic,
+        "documentUrl": document.asset->url,
+        "documentAssetId": document.asset._ref,
+        "documentOriginalName": document.asset->originalFilename
+      }
+    `)
+
     const dailyUpdates = await client.fetch(`
       *[_type == "dailyUpdate"] | order(date desc) {
         _id,
@@ -188,6 +225,8 @@ export async function GET(request: NextRequest) {
       success: true,
       pressReleases,
       parliamentaryUpdates,
+      parliamentaryQuestions,
+      parliamentarySpeeches,
       dailyUpdates,
       siteSettings
     })
@@ -213,7 +252,8 @@ export async function POST(request: NextRequest) {
     const bodyData = await request.json()
     const { type, title, speechUrl, mainImageAssetId, slideshowAssetIds } = bodyData
 
-    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate' && type !== 'dailyUpdate')) {
+    const validTypes = ['pressRelease', 'parliamentaryUpdate', 'dailyUpdate', 'parliamentaryQuestion', 'parliamentarySpeech']
+    if (!type || !validTypes.includes(type)) {
       return NextResponse.json({ error: 'Invalid document type.' }, { status: 400 })
     }
 
@@ -267,6 +307,33 @@ export async function POST(request: NextRequest) {
       doc.date = date
       doc.summary = summary.trim()
       doc.body = convertTextToBlocks(bodyContent || '')
+    } else if (type === 'parliamentaryQuestion') {
+      const { date, summary, officialAnswer, questionNumber, sessionInfo, category, ministry, documentAssetId } = bodyData
+      if (!date) return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      if (!summary?.trim()) return NextResponse.json({ error: 'Question text (summary) is required.' }, { status: 400 })
+      doc.date = date
+      doc.summary = summary.trim()
+      doc.officialAnswer = officialAnswer?.trim() || undefined
+      doc.questionNumber = questionNumber?.trim() || undefined
+      doc.sessionInfo = sessionInfo?.trim() || undefined
+      doc.category = category || undefined
+      doc.ministry = ministry?.trim() || undefined
+      if (documentAssetId) {
+        doc.document = { _type: 'file', asset: { _type: 'reference', _ref: documentAssetId } }
+      }
+    } else if (type === 'parliamentarySpeech') {
+      const { date, summary, sessionInfo, duration, topic, documentAssetId } = bodyData
+      if (!date) return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      if (!speechUrl?.trim()) return NextResponse.json({ error: 'YouTube URL is required.' }, { status: 400 })
+      if (!summary?.trim()) return NextResponse.json({ error: 'Description is required.' }, { status: 400 })
+      doc.date = date
+      doc.summary = summary.trim()
+      doc.sessionInfo = sessionInfo?.trim() || undefined
+      doc.duration = duration?.trim() || undefined
+      doc.topic = topic?.trim() || undefined
+      if (documentAssetId) {
+        doc.document = { _type: 'file', asset: { _type: 'reference', _ref: documentAssetId } }
+      }
     } else {
       const { date, summary, documentAssetId } = bodyData
       if (!date) {
@@ -285,6 +352,7 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+
 
     console.log(`Creating new ${type} document in Sanity...`)
     const result = await writeClient.create(doc)
@@ -334,7 +402,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Document ID is required.' }, { status: 400 })
     }
 
-    if (!type || (type !== 'pressRelease' && type !== 'parliamentaryUpdate' && type !== 'dailyUpdate')) {
+    const validTypes = ['pressRelease', 'parliamentaryUpdate', 'dailyUpdate', 'parliamentaryQuestion', 'parliamentarySpeech']
+    if (!type || !validTypes.includes(type)) {
       return NextResponse.json({ error: 'Invalid document type.' }, { status: 400 })
     }
 
@@ -401,6 +470,40 @@ export async function PATCH(request: NextRequest) {
         summary: summary.trim(),
         body: convertTextToBlocks(bodyContent || '')
       })
+    } else if (type === 'parliamentaryQuestion') {
+      const { date, summary, officialAnswer, questionNumber, sessionInfo, category, ministry, documentAssetId, removeDocument } = bodyData
+      if (!date) return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      if (!summary?.trim()) return NextResponse.json({ error: 'Question text is required.' }, { status: 400 })
+      patch = patch.set({
+        date,
+        summary: summary.trim(),
+        officialAnswer: officialAnswer?.trim() || '',
+        questionNumber: questionNumber?.trim() || '',
+        sessionInfo: sessionInfo?.trim() || '',
+        category: category || '',
+        ministry: ministry?.trim() || ''
+      })
+      if (documentAssetId) {
+        patch = patch.set({ document: { _type: 'file', asset: { _type: 'reference', _ref: documentAssetId } } })
+      } else if (removeDocument) {
+        patch = patch.unset(['document'])
+      }
+    } else if (type === 'parliamentarySpeech') {
+      const { date, summary, sessionInfo, duration, topic, documentAssetId, removeDocument } = bodyData
+      if (!date) return NextResponse.json({ error: 'Date is required.' }, { status: 400 })
+      if (!summary?.trim()) return NextResponse.json({ error: 'Description is required.' }, { status: 400 })
+      patch = patch.set({
+        date,
+        summary: summary.trim(),
+        sessionInfo: sessionInfo?.trim() || '',
+        duration: duration?.trim() || '',
+        topic: topic?.trim() || ''
+      })
+      if (documentAssetId) {
+        patch = patch.set({ document: { _type: 'file', asset: { _type: 'reference', _ref: documentAssetId } } })
+      } else if (removeDocument) {
+        patch = patch.unset(['document'])
+      }
     } else {
       const { date, summary, documentAssetId, removeDocument } = bodyData
       if (!date) {

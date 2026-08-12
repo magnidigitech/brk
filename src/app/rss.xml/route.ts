@@ -6,7 +6,7 @@ export async function GET() {
   const baseUrl = 'https://bhashyamramakrishna.in'
 
   try {
-    const [releases, updates] = await Promise.all([
+    const [releases, updates, daily] = await Promise.all([
       sanityFetch<any[]>({
         query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...20] {
           _id,
@@ -18,6 +18,15 @@ export async function GET() {
       }),
       sanityFetch<any[]>({
         query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...20] {
+          _id,
+          slug,
+          title,
+          summary,
+          date
+        }`
+      }),
+      sanityFetch<any[]>({
+        query: `*[_type == "dailyUpdate"] | order(date desc)[0...20] {
           _id,
           slug,
           title,
@@ -52,6 +61,20 @@ export async function GET() {
       <title><![CDATA[${title}]]></title>
       <link>${baseUrl}/parliamentary-updates/${slug}</link>
       <guid isPermaLink="true">${baseUrl}/parliamentary-updates/${slug}</guid>
+      <description><![CDATA[${desc}]]></description>
+      <pubDate>${pubDate}</pubDate>
+    </item>`
+      }),
+      ...(daily || []).map((d) => {
+        const slug = d.slug?.current || d._id
+        const title = typeof d.title === 'string' ? d.title : d.title?.en || d.title?.te || 'Daily Update'
+        const desc = typeof d.summary === 'string' ? d.summary : d.summary?.en || d.summary?.te || ''
+        const pubDate = d.date ? new Date(d.date).toUTCString() : new Date().toUTCString()
+        return `
+    <item>
+      <title><![CDATA[${title}]]></title>
+      <link>${baseUrl}/daily-updates/${slug}</link>
+      <guid isPermaLink="true">${baseUrl}/daily-updates/${slug}</guid>
       <description><![CDATA[${desc}]]></description>
       <pubDate>${pubDate}</pubDate>
     </item>`

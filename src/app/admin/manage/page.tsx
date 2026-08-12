@@ -164,8 +164,10 @@ export default function ContentManager() {
   const [dailyUpdates, setDailyUpdates] = useState<DailyUpdate[]>([])
   const [pressReleases, setPressReleases] = useState<PressRelease[]>([])
   const [parliamentaryUpdates, setParliamentaryUpdates] = useState<ParliamentaryUpdate[]>([])
+  const [parliamentaryQuestions, setParliamentaryQuestions] = useState<any[]>([])
+  const [parliamentarySpeeches, setParliamentarySpeeches] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'daily' | 'press' | 'parliament' | 'video'>('daily')
+  const [activeTab, setActiveTab] = useState<'daily' | 'press' | 'parliament' | 'questions' | 'speeches' | 'video'>('daily')
 
   // Video Settings States
   const [videoUrl, setVideoUrl] = useState('')
@@ -179,12 +181,21 @@ export default function ContentManager() {
   const [videoSaveError, setVideoSaveError] = useState('')
   const [videoSaveSuccess, setVideoSaveSuccess] = useState(false)
   
+  // Extra fields for question/speech forms
+  const [questionNumber, setQuestionNumber] = useState('')
+  const [sessionInfo, setSessionInfo] = useState('')
+  const [category, setCategory] = useState('')
+  const [ministry, setMinistry] = useState('')
+  const [officialAnswer, setOfficialAnswer] = useState('')
+  const [duration, setDuration] = useState('')
+  const [topic, setTopic] = useState('')
+
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState('')
 
   // Form Modals
   const [isOpenFormModal, setIsOpenFormModal] = useState(false)
-  const [formType, setFormType] = useState<'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate'>('dailyUpdate')
+  const [formType, setFormType] = useState<'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate' | 'parliamentaryQuestion' | 'parliamentarySpeech'>('dailyUpdate')
   const [editingDocId, setEditingDocId] = useState<string | null>(null) // null = Creating, string = Editing
 
   // Form Fields State
@@ -256,6 +267,8 @@ export default function ContentManager() {
         setDailyUpdates(data.dailyUpdates || [])
         setPressReleases(data.pressReleases || [])
         setParliamentaryUpdates(data.parliamentaryUpdates || [])
+        setParliamentaryQuestions(data.parliamentaryQuestions || [])
+        setParliamentarySpeeches(data.parliamentarySpeeches || [])
         if (data.siteSettings) {
           const settings = data.siteSettings
           setVideoUrl(settings.introVideoUrl || '')
@@ -275,7 +288,7 @@ export default function ContentManager() {
   }
 
   // Handle Opening Form Modal for Creation
-  const handleOpenCreate = (type: 'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate') => {
+  const handleOpenCreate = (type: 'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate' | 'parliamentaryQuestion' | 'parliamentarySpeech') => {
     setFormType(type)
     setEditingDocId(null)
     
@@ -285,6 +298,13 @@ export default function ContentManager() {
     setExcerptOrSummary('')
     setBodyContent('')
     setSpeechUrl('')
+    setQuestionNumber('')
+    setSessionInfo('')
+    setCategory('')
+    setMinistry('')
+    setOfficialAnswer('')
+    setDuration('')
+    setTopic('')
     
     setMainImageAssetId('')
     setMainImageUrl('')
@@ -304,7 +324,7 @@ export default function ContentManager() {
   }
 
   // Handle Opening Form Modal for Editing
-  const handleOpenEdit = (item: any, type: 'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate') => {
+  const handleOpenEdit = (item: any, type: 'pressRelease' | 'parliamentaryUpdate' | 'dailyUpdate' | 'parliamentaryQuestion' | 'parliamentarySpeech') => {
     setFormType(type)
     setEditingDocId(item._id)
 
@@ -332,6 +352,29 @@ export default function ContentManager() {
       setDocumentAssetId('')
       setDocumentUrl('')
       setDocumentOriginalName('')
+      setRemoveDocument(false)
+    } else if (type === 'parliamentaryQuestion') {
+      setDateField(item.date || '')
+      setExcerptOrSummary(resolveLocale(item.summary))
+      setQuestionNumber(item.questionNumber || '')
+      setSessionInfo(item.sessionInfo || '')
+      setCategory(item.category || '')
+      setMinistry(item.ministry || '')
+      setOfficialAnswer(resolveLocale(item.officialAnswer))
+      setDocumentAssetId(item.documentAssetId || '')
+      setDocumentUrl(item.documentUrl || '')
+      setDocumentOriginalName(item.documentOriginalName || '')
+      setRemoveDocument(false)
+    } else if (type === 'parliamentarySpeech') {
+      setDateField(item.date || '')
+      setSpeechUrl(item.speechUrl || '')
+      setExcerptOrSummary(resolveLocale(item.summary))
+      setSessionInfo(item.sessionInfo || '')
+      setDuration(item.duration || '')
+      setTopic(item.topic || '')
+      setDocumentAssetId(item.documentAssetId || '')
+      setDocumentUrl(item.documentUrl || '')
+      setDocumentOriginalName(item.documentOriginalName || '')
       setRemoveDocument(false)
     } else {
       setDateField(item.date || '')
@@ -500,6 +543,24 @@ export default function ContentManager() {
       payload.date = dateField
       payload.summary = excerptOrSummary
       payload.bodyContent = bodyContent
+    } else if (formType === 'parliamentaryQuestion') {
+      payload.date = dateField
+      payload.summary = excerptOrSummary
+      payload.questionNumber = questionNumber
+      payload.sessionInfo = sessionInfo
+      payload.category = category
+      payload.ministry = ministry
+      payload.officialAnswer = officialAnswer
+      payload.documentAssetId = documentAssetId || undefined
+      payload.removeDocument = removeDocument
+    } else if (formType === 'parliamentarySpeech') {
+      payload.date = dateField
+      payload.summary = excerptOrSummary
+      payload.sessionInfo = sessionInfo
+      payload.duration = duration
+      payload.topic = topic
+      payload.documentAssetId = documentAssetId || undefined
+      payload.removeDocument = removeDocument
     } else {
       payload.date = dateField
       payload.summary = excerptOrSummary
@@ -607,6 +668,16 @@ export default function ContentManager() {
     resolveLocale(item.summary).toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const filteredQuestions = parliamentaryQuestions.filter(item =>
+    resolveLocale(item.title).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resolveLocale(item.summary).toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredSpeeches = parliamentarySpeeches.filter(item =>
+    resolveLocale(item.title).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resolveLocale(item.summary).toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   // Render Login Screen if not authenticated
   if (!isAuthenticated) {
     return (
@@ -674,7 +745,7 @@ export default function ContentManager() {
     <div className="min-h-screen bg-slate-50">
       {/* Header Banner */}
       <header className="sticky top-0 z-40 bg-[#FFD200] text-slate-950 border-b border-[#e0b900] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <Link 
               href="/admin"
@@ -716,60 +787,46 @@ export default function ContentManager() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Navigation Tabs and Create Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div className="flex bg-slate-200/60 p-1.5 rounded-2xl border border-slate-200 shrink-0">
-            <button
-              onClick={() => { setActiveTab('daily'); setSearchQuery(''); }}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                activeTab === 'daily' 
-                  ? 'bg-navy-900 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-navy-900'
-              }`}
-            >
-              Daily Updates
-            </button>
-            <button
-              onClick={() => { setActiveTab('press'); setSearchQuery(''); }}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                activeTab === 'press' 
-                  ? 'bg-navy-900 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-navy-900'
-              }`}
-            >
-              Press Releases
-            </button>
-            <button
-              onClick={() => { setActiveTab('parliament'); setSearchQuery(''); }}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                activeTab === 'parliament' 
-                  ? 'bg-navy-900 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-navy-900'
-              }`}
-            >
-              Parliamentary Updates
-            </button>
-            <button
-              onClick={() => { setActiveTab('video'); setSearchQuery(''); }}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                activeTab === 'video' 
-                  ? 'bg-navy-900 text-white shadow-md' 
-                  : 'text-slate-600 hover:text-navy-900'
-              }`}
-            >
-              Video Settings
-            </button>
+          <div className="w-full sm:w-auto overflow-x-auto bg-slate-200/60 p-1.5 rounded-2xl border border-slate-200 shrink-0 flex gap-1.5 scrollbar-none">
+            {([
+              { id: 'daily', label: 'Daily Updates' },
+              { id: 'press', label: 'Press Releases' },
+              { id: 'parliament', label: 'Parl. Updates' },
+              { id: 'questions', label: 'Questions' },
+              { id: 'speeches', label: 'Speeches' },
+              { id: 'video', label: 'Video Settings' },
+            ] as const).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setSearchQuery(''); }}
+                className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  activeTab === tab.id
+                    ? 'bg-navy-900 text-white shadow-md'
+                    : 'text-slate-600 hover:text-navy-900'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {activeTab !== 'video' && (
             <button
-              onClick={() => handleOpenCreate(activeTab === 'daily' ? 'dailyUpdate' : activeTab === 'press' ? 'pressRelease' : 'parliamentaryUpdate')}
+              onClick={() => handleOpenCreate(
+                activeTab === 'daily' ? 'dailyUpdate'
+                : activeTab === 'press' ? 'pressRelease'
+                : activeTab === 'questions' ? 'parliamentaryQuestion'
+                : activeTab === 'speeches' ? 'parliamentarySpeech'
+                : 'parliamentaryUpdate'
+              )}
               className="flex items-center space-x-2 px-5 py-3.5 bg-saffron-500 hover:bg-saffron-600 text-slate-950 font-bold text-xs tracking-wider uppercase rounded-2xl shadow-md transition-all cursor-pointer w-full sm:w-auto justify-center"
             >
               <Plus className="w-4 h-4" />
-              <span>Create {activeTab === 'daily' ? 'Daily Update' : activeTab === 'press' ? 'Press Release' : 'Parliamentary Update'}</span>
+              <span>Add {activeTab === 'daily' ? 'Daily Update' : activeTab === 'press' ? 'Press Release' : activeTab === 'questions' ? 'Question' : activeTab === 'speeches' ? 'Speech' : 'Parliamentary Update'}</span>
             </button>
           )}
         </div>
@@ -806,77 +863,129 @@ export default function ContentManager() {
                 <p className="text-slate-400 text-xs">Create one to get started, or refine your search filter.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-slate-50/80">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cover</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Summary</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Players</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
-                      <th className="px-6 py-4 text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-slate-100">
-                    {filteredDaily.map((item) => (
-                      <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.mainImageUrl ? (
-                            <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
-                          ) : (
-                            <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
+              <>
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {filteredDaily.map((item) => (
+                    <div key={item._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex items-start gap-3">
+                        {item.mainImageUrl ? (
+                          <img src={item.mainImageUrl} alt="" className="w-16 h-16 object-cover bg-slate-100 rounded-xl border border-slate-200 shrink-0" />
+                        ) : (
+                          <div className="w-16 h-16 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}</span>
+                          <h4 className="text-xs font-bold text-navy-950 leading-snug line-clamp-2">{resolveLocale(item.title)}</h4>
+                        </div>
+                      </div>
+                      {resolveLocale(item.summary) && (
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{resolveLocale(item.summary)}</p>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div className="flex items-center space-x-2">
+                          {item.speechUrl && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">Video</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary) || 'No summary provided.'}</p>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
-                          {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.speechUrl ? (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
-                              <Video className="w-3 h-3" />
-                              <span>Player Enabled</span>
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">None</span>
+                          {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">{item.slideshowImageUrls.length} Slides</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
-                            <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
-                              {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">No slide</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                        </div>
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleOpenEdit(item, 'dailyUpdate')}
-                            className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Edit"
+                            className="flex items-center space-x-1 px-3 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-950 font-bold text-xs rounded-xl border border-navy-100 cursor-pointer"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
                           </button>
                           <button
                             onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'dailyUpdate' })}
-                            className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Delete"
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-100 cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </td>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cover</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Summary</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Players</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
+                        <th className="px-6 py-4 text-right"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {filteredDaily.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.mainImageUrl ? (
+                              <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
+                            ) : (
+                              <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 max-w-sm">
+                            <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary) || 'No summary provided.'}</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
+                            {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.speechUrl ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
+                                <Video className="w-3 h-3" />
+                                <span>Player Enabled</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">None</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
+                              <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
+                                {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No slide</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                            <button
+                              onClick={() => handleOpenEdit(item, 'dailyUpdate')}
+                              className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'dailyUpdate' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )
           ) : activeTab === 'press' ? (
             /* Press Releases Table */
@@ -887,77 +996,129 @@ export default function ContentManager() {
                 <p className="text-slate-400 text-xs">Create one to get started, or refine your search filter.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-slate-50/80">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cover</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Excerpt</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Players</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
-                      <th className="px-6 py-4 text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-slate-100">
-                    {filteredPress.map((item) => (
-                      <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.mainImageUrl ? (
-                            <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
-                          ) : (
-                            <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
+              <>
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {filteredPress.map((item) => (
+                    <div key={item._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex items-start gap-3">
+                        {item.mainImageUrl ? (
+                          <img src={item.mainImageUrl} alt="" className="w-16 h-16 object-cover bg-slate-100 rounded-xl border border-slate-200 shrink-0" />
+                        ) : (
+                          <div className="w-16 h-16 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'Draft'}</span>
+                          <h4 className="text-xs font-bold text-navy-950 leading-snug line-clamp-2">{resolveLocale(item.title)}</h4>
+                        </div>
+                      </div>
+                      {resolveLocale(item.excerpt) && (
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{resolveLocale(item.excerpt)}</p>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div className="flex items-center space-x-2">
+                          {item.speechUrl && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">Video</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.excerpt) || 'No excerpt summary provided.'}</p>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
-                          {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'Draft'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.speechUrl ? (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
-                              <Video className="w-3 h-3" />
-                              <span>Player Enabled</span>
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">None</span>
+                          {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">{item.slideshowImageUrls.length} Slides</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
-                            <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
-                              {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">No slide</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                        </div>
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleOpenEdit(item, 'pressRelease')}
-                            className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Edit"
+                            className="flex items-center space-x-1 px-3 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-950 font-bold text-xs rounded-xl border border-navy-100 cursor-pointer"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
                           </button>
                           <button
                             onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'pressRelease' })}
-                            className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Delete"
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-100 cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </td>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cover</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Excerpt</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Players</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
+                        <th className="px-6 py-4 text-right"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {filteredPress.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.mainImageUrl ? (
+                              <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
+                            ) : (
+                              <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 max-w-sm">
+                            <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.excerpt) || 'No excerpt summary provided.'}</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
+                            {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : 'Draft'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.speechUrl ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
+                                <Video className="w-3 h-3" />
+                                <span>Player Enabled</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">None</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
+                              <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
+                                {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No slide</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                            <button
+                              onClick={() => handleOpenEdit(item, 'pressRelease')}
+                              className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'pressRelease' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )
           ) : activeTab === 'parliament' ? (
             /* Parliamentary Updates Table */
@@ -968,93 +1129,377 @@ export default function ContentManager() {
                 <p className="text-slate-400 text-xs">Create one to get started, or refine your search filter.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-slate-50/80">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Preview</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Summary</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">PDF File</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Player</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
-                      <th className="px-6 py-4 text-right"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-slate-100">
-                    {filteredUpdates.map((item) => (
-                      <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.mainImageUrl ? (
-                            <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
-                          ) : (
-                            <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
-                              <ImageIcon className="w-5 h-5" />
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 max-w-sm">
-                          <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary)}</p>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
-                          {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.documentUrl ? (
+              <>
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {filteredUpdates.map((item) => (
+                    <div key={item._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex items-start gap-3">
+                        {item.mainImageUrl ? (
+                          <img src={item.mainImageUrl} alt="" className="w-16 h-16 object-cover bg-slate-100 rounded-xl border border-slate-200 shrink-0" />
+                        ) : (
+                          <div className="w-16 h-16 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-bold text-slate-400 block mb-0.5">{item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}</span>
+                          <h4 className="text-xs font-bold text-navy-950 leading-snug line-clamp-2">{resolveLocale(item.title)}</h4>
+                        </div>
+                      </div>
+                      {resolveLocale(item.summary) && (
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{resolveLocale(item.summary)}</p>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div className="flex items-center space-x-2">
+                          {item.documentUrl && (
                             <a 
                               href={item.documentUrl} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase hover:underline"
+                              className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase flex items-center gap-1"
                             >
-                              <Paperclip className="w-3 h-3" />
-                              <span className="max-w-[100px] truncate">{item.documentOriginalName || 'Download PDF'}</span>
+                              <Paperclip className="w-3 h-3" /> PDF
                             </a>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">No PDF attached</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.speechUrl ? (
-                            <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
-                              <Video className="w-3 h-3" />
-                              <span>Player Enabled</span>
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">None</span>
+                          {item.speechUrl && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">Video</span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
-                            <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
-                              {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 italic">No slide</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                        </div>
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleOpenEdit(item, 'parliamentaryUpdate')}
-                            className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Edit"
+                            className="flex items-center space-x-1 px-3 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-950 font-bold text-xs rounded-xl border border-navy-100 cursor-pointer"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
                           </button>
                           <button
                             onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentaryUpdate' })}
-                            className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                            title="Delete"
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-100 cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </td>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Preview</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Summary</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">PDF File</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Media Player</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Slideshow</th>
+                        <th className="px-6 py-4 text-right"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {filteredUpdates.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.mainImageUrl ? (
+                              <img src={item.mainImageUrl} alt="" className="w-12 h-12 object-contain bg-slate-100 rounded-xl border border-slate-200 shadow-sm" />
+                            ) : (
+                              <div className="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 max-w-sm">
+                            <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary)}</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-semibold">
+                            {item.date ? new Date(item.date).toLocaleDateString() : 'Draft'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.documentUrl ? (
+                              <a 
+                                href={item.documentUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase hover:underline"
+                              >
+                                <Paperclip className="w-3 h-3" />
+                                <span className="max-w-[100px] truncate">{item.documentOriginalName || 'Download PDF'}</span>
+                              </a>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No PDF attached</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.speechUrl ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-50 text-blue-700 border border-blue-100 uppercase">
+                                <Video className="w-3 h-3" />
+                                <span>Player Enabled</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">None</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.slideshowImageUrls && item.slideshowImageUrls.length > 0 ? (
+                              <span className="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded-lg">
+                                {item.slideshowImageUrls.length} image{item.slideshowImageUrls.length > 1 ? 's' : ''}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No slide</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                            <button
+                              onClick={() => handleOpenEdit(item, 'parliamentaryUpdate')}
+                              className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentaryUpdate' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )
+          ) : activeTab === 'questions' ? (
+            /* Parliamentary Questions Table */
+            filteredQuestions.length === 0 ? (
+              <div className="text-center py-20">
+                <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-sm font-bold text-slate-600 mb-1">No Parliamentary Questions Found</h3>
+                <p className="text-slate-400 text-xs">Click "Add Question" to create one, or refine your search filter.</p>
               </div>
+            ) : (
+              <>
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {filteredQuestions.map((item) => (
+                    <div key={item._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="text-xs font-bold text-navy-900 block">{item.questionNumber || 'Q.No. --'}</span>
+                          <span className="inline-block mt-0.5 px-2 py-0.5 text-[9px] font-extrabold uppercase rounded bg-blue-50 text-blue-700 border border-blue-100">
+                            {item.category || 'Starred'}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-semibold">{item.date ? new Date(item.date).toLocaleDateString() : ''}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-navy-950 leading-snug line-clamp-2">{resolveLocale(item.title)}</h4>
+                        {item.ministry && <span className="text-[10px] text-slate-500 font-medium block mt-1">Ministry: {item.ministry}</span>}
+                        {resolveLocale(item.summary) && <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{resolveLocale(item.summary)}</p>}
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        {item.officialAnswer ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            Answer Included
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">No Answer</span>
+                        )}
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleOpenEdit(item, 'parliamentaryQuestion')}
+                            className="flex items-center space-x-1 px-3 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-950 font-bold text-xs rounded-xl border border-navy-100 cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentaryQuestion' })}
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-100 cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Q. No & Category</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Question</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ministry</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Session & Date</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Answer Status</th>
+                        <th className="px-6 py-4 text-right"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {filteredQuestions.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="block text-xs font-bold text-navy-900">{item.questionNumber || 'Q.No. --'}</span>
+                            <span className="inline-block mt-1 px-2 py-0.5 text-[9px] font-extrabold uppercase rounded bg-blue-50 text-blue-700 border border-blue-100">
+                              {item.category || 'Starred'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 max-w-xs">
+                            <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{resolveLocale(item.summary) || 'No summary provided.'}</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-600 font-medium">
+                            {item.ministry || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="block text-xs text-slate-700 font-semibold">{item.sessionInfo || 'Rajya Sabha'}</span>
+                            <span className="block text-[10px] text-slate-400">{item.date ? new Date(item.date).toLocaleDateString() : ''}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.officialAnswer ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Answer Included
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No Answer</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                            <button
+                              onClick={() => handleOpenEdit(item, 'parliamentaryQuestion')}
+                              className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentaryQuestion' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )
+          ) : activeTab === 'speeches' ? (
+            /* Parliamentary Speeches Table */
+            filteredSpeeches.length === 0 ? (
+              <div className="text-center py-20">
+                <Video className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-sm font-bold text-slate-600 mb-1">No Speeches Found</h3>
+                <p className="text-slate-400 text-xs">Click "Add Speech" to link YouTube speech videos.</p>
+              </div>
+            ) : (
+              <>
+                {/* Mobile Cards View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {filteredSpeeches.map((item) => (
+                    <div key={item._id} className="p-4 space-y-3 bg-white">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-saffron-50 text-saffron-800 border border-saffron-200">
+                          <Video className="w-3 h-3 text-saffron-600" />
+                          <span>YouTube Video</span>
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-semibold">{item.date ? new Date(item.date).toLocaleDateString() : ''}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-navy-950 leading-snug line-clamp-2">{resolveLocale(item.title)}</h4>
+                        {item.topic && <span className="text-[10px] text-slate-500 font-medium block mt-1">Topic: {item.topic}</span>}
+                        {item.duration && <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Duration: {item.duration}</span>}
+                      </div>
+                      <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                        <button
+                          onClick={() => handleOpenEdit(item, 'parliamentarySpeech')}
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-navy-50 hover:bg-navy-100 text-navy-955 font-bold text-xs rounded-xl border border-navy-100 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentarySpeech' })}
+                          className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl border border-rose-100 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-100">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Video</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title / Topic</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Session & Date</th>
+                        <th className="px-6 py-4 text-right"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {filteredSpeeches.map((item) => (
+                        <tr key={item._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {item.speechUrl ? (
+                              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-saffron-50 text-saffron-800 border border-saffron-200">
+                                <Video className="w-3.5 h-3.5 text-saffron-600" />
+                                <span>YouTube Link</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">No link</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 max-w-xs">
+                            <h4 className="text-xs font-bold text-navy-900 line-clamp-1">{resolveLocale(item.title)}</h4>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 mt-1">{item.topic || resolveLocale(item.summary) || ''}</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-600 font-semibold">
+                            {item.duration || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="block text-xs text-slate-700 font-semibold">{item.sessionInfo || 'Rajya Sabha'}</span>
+                            <span className="block text-[10px] text-slate-400">{item.date ? new Date(item.date).toLocaleDateString() : ''}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2.5">
+                            <button
+                              onClick={() => handleOpenEdit(item, 'parliamentarySpeech')}
+                              className="p-2 bg-slate-100 hover:bg-navy-50 text-slate-600 hover:text-navy-955 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingDoc({ id: item._id, title: resolveLocale(item.title), type: 'parliamentarySpeech' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 rounded-xl transition-all cursor-pointer inline-flex items-center"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )
           ) : (
             /* activeTab === 'video' -> Video Settings Form */
@@ -1253,7 +1698,15 @@ export default function ContentManager() {
               <div className="px-6 py-5 bg-navy-900 text-white flex justify-between items-center sticky top-0 z-10 border-b border-navy-950">
                 <div>
                   <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-widest">
-                    {formType === 'dailyUpdate' ? 'Daily Update Document' : formType === 'pressRelease' ? 'Press Release Document' : 'Parliamentary Update Document'}
+                    {formType === 'dailyUpdate'
+                      ? 'Daily Update Document'
+                      : formType === 'pressRelease'
+                      ? 'Press Release Document'
+                      : formType === 'parliamentaryQuestion'
+                      ? 'Parliamentary Question'
+                      : formType === 'parliamentarySpeech'
+                      ? 'Parliamentary Speech Video'
+                      : 'Parliamentary Update Document'}
                   </span>
                   <h3 className="text-base font-black text-white tracking-wide">
                     {editingDocId ? 'Edit Existing Document' : 'Create New Document'}
@@ -1291,35 +1744,156 @@ export default function ContentManager() {
                   />
                 </div>
 
-                {/* Date and Speech URL */}
+                {/* Date and Speech/Media URL */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      {formType === 'pressRelease' ? 'Publication Date (Date Only) *' : formType === 'dailyUpdate' ? 'Date of Update *' : 'Session Date *'}
+                      {formType === 'pressRelease' ? 'Publication Date *' : formType === 'dailyUpdate' ? 'Date of Update *' : formType === 'parliamentaryQuestion' ? 'Question Date *' : formType === 'parliamentarySpeech' ? 'Speech Date *' : 'Session Date *'}
                     </label>
                     <input
                       type="date"
                       required
                       value={dateField ? dateField.substring(0, 10) : ''}
                       onChange={(e) => setDateField(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none font-semibold text-navy-950"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none font-semibold text-navy-955"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-                      <span>YouTube or Instagram Link</span>
-                      <span className="text-[9px] text-slate-400 font-medium italic lowercase">Supports native embedding</span>
+                      <span>YouTube / Video Link {formType === 'parliamentarySpeech' ? '*' : ''}</span>
+                      <span className="text-[9px] text-slate-400 font-medium italic lowercase">Supports native embed</span>
                     </label>
                     <input
                       type="url"
+                      required={formType === 'parliamentarySpeech'}
                       value={speechUrl}
                       onChange={(e) => setSpeechUrl(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 focus:border-navy-900 focus:bg-white text-xs outline-none text-navy-950"
-                      placeholder="e.g., https://youtube.com/shorts/... or instagram.com/reel/..."
+                      placeholder={formType === 'parliamentarySpeech' ? 'https://www.youtube.com/watch?v=...' : 'e.g., https://youtube.com/shorts/...'}
                     />
                   </div>
                 </div>
+
+                {/* Additional Question-specific fields */}
+                {formType === 'parliamentaryQuestion' && (
+                  <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Question Number (Q.No.)
+                        </label>
+                        <input
+                          type="text"
+                          value={questionNumber}
+                          onChange={(e) => setQuestionNumber(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., Q.No. 234"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Category
+                        </label>
+                        <select
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                        >
+                          <option value="Starred">Starred (Oral Answer)</option>
+                          <option value="Unstarred">Unstarred (Written Answer)</option>
+                          <option value="Short Notice">Short Notice Question</option>
+                          <option value="Zero Hour">Zero Hour Submission</option>
+                          <option value="Private Member">Private Member Bill / Notice</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Ministry Addressed
+                        </label>
+                        <input
+                          type="text"
+                          value={ministry}
+                          onChange={(e) => setMinistry(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., Ministry of Road Transport"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Session Info
+                        </label>
+                        <input
+                          type="text"
+                          value={sessionInfo}
+                          onChange={(e) => setSessionInfo(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., 265th Session"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        Official Government Answer
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={officialAnswer}
+                        onChange={(e) => setOfficialAnswer(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-sans"
+                        placeholder="Paste the official response text provided by the Ministry..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Speech-specific fields */}
+                {formType === 'parliamentarySpeech' && (
+                  <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Topic / Subject
+                        </label>
+                        <input
+                          type="text"
+                          value={topic}
+                          onChange={(e) => setTopic(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., Union Budget Debate"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Duration (MM:SS)
+                        </label>
+                        <input
+                          type="text"
+                          value={duration}
+                          onChange={(e) => setDuration(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., 14:20"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Session Info
+                        </label>
+                        <input
+                          type="text"
+                          value={sessionInfo}
+                          onChange={(e) => setSessionInfo(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs outline-none font-semibold"
+                          placeholder="e.g., 265th Session"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Excerpt / Summary */}
                 <div>
@@ -1444,8 +2018,8 @@ export default function ContentManager() {
                   )}
                 </div>
 
-                {/* PDF Document Upload (Parliamentary Update only) */}
-                {formType === 'parliamentaryUpdate' && (
+                {/* PDF Document Upload (Parliamentary Update, Question, Speech) */}
+                {(formType === 'parliamentaryUpdate' || formType === 'parliamentaryQuestion' || formType === 'parliamentarySpeech') && (
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">
                       Attached Official Document (PDF)
@@ -1567,10 +2141,34 @@ export default function ContentManager() {
                   {isSubmitting ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin text-saffron-500" />
-                      <span>Saving changes to Sanity...</span>
+                      <span>Saving changes...</span>
                     </>
                   ) : (
-                    <span>{editingDocId ? 'Save and Publish Changes' : 'Publish Document to Sanity'}</span>
+                    <span>
+                      {editingDocId
+                        ? `Save Changes to ${
+                            formType === 'dailyUpdate'
+                              ? 'Daily Updates'
+                              : formType === 'pressRelease'
+                              ? 'Press Releases'
+                              : formType === 'parliamentaryQuestion'
+                              ? 'Questions'
+                              : formType === 'parliamentarySpeech'
+                              ? 'Speeches'
+                              : 'Parliamentary Updates'
+                          }`
+                        : `Publish to ${
+                            formType === 'dailyUpdate'
+                              ? 'Daily Updates'
+                              : formType === 'pressRelease'
+                              ? 'Press Releases'
+                              : formType === 'parliamentaryQuestion'
+                              ? 'Questions'
+                              : formType === 'parliamentarySpeech'
+                              ? 'Speeches'
+                              : 'Parliamentary Updates'
+                          }`}
+                    </span>
                   )}
                 </button>
                 <button
