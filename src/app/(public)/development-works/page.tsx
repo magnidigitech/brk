@@ -17,6 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    keywords: [
+      'Andhra Pradesh development programmes',
+      'Guntur development news',
+      'Guntur political leaders',
+      'Rajya Sabha MP Andhra Pradesh',
+      'TDP Rajya Sabha MP',
+      'Bhashyam Rama Krishna development works'
+    ],
     alternates: {
       canonical: 'https://bhashyamramakrishna.in/development-works',
     },
