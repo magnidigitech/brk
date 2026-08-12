@@ -1,14 +1,21 @@
 import { sanityFetch } from '@/sanity/lib/sanityFetch'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// Helper to safely format text inside CDATA blocks
+function escapeCdata(str: string): string {
+  if (!str) return ''
+  return str.replace(/\]\]>/g, ']]&gt;')
+}
 
 export async function GET() {
   const baseUrl = 'https://bhashyamramakrishna.in'
 
   try {
-    const [releases, updates, daily] = await Promise.all([
+    const [releases, updates, daily, questions, speeches] = await Promise.all([
       sanityFetch<any[]>({
-        query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...20] {
+        query: `*[_type == "pressRelease"] | order(publishedAt desc)[0...30] {
           _id,
           slug,
           title,
@@ -17,7 +24,7 @@ export async function GET() {
         }`
       }),
       sanityFetch<any[]>({
-        query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...20] {
+        query: `*[_type == "parliamentaryUpdate"] | order(date desc)[0...30] {
           _id,
           slug,
           title,
@@ -26,7 +33,25 @@ export async function GET() {
         }`
       }),
       sanityFetch<any[]>({
-        query: `*[_type == "dailyUpdate"] | order(date desc)[0...20] {
+        query: `*[_type == "dailyUpdate"] | order(date desc)[0...30] {
+          _id,
+          slug,
+          title,
+          summary,
+          date
+        }`
+      }),
+      sanityFetch<any[]>({
+        query: `*[_type == "parliamentaryQuestion"] | order(date desc)[0...30] {
+          _id,
+          slug,
+          title,
+          summary,
+          date
+        }`
+      }),
+      sanityFetch<any[]>({
+        query: `*[_type == "parliamentarySpeech"] | order(date desc)[0...30] {
           _id,
           slug,
           title,
@@ -44,10 +69,10 @@ export async function GET() {
         const pubDate = r.publishedAt ? new Date(r.publishedAt).toUTCString() : new Date().toUTCString()
         return `
     <item>
-      <title><![CDATA[${title}]]></title>
+      <title><![CDATA[${escapeCdata(title)}]]></title>
       <link>${baseUrl}/press-releases/${slug}</link>
       <guid isPermaLink="true">${baseUrl}/press-releases/${slug}</guid>
-      <description><![CDATA[${desc}]]></description>
+      <description><![CDATA[${escapeCdata(desc)}]]></description>
       <pubDate>${pubDate}</pubDate>
     </item>`
       }),
@@ -58,10 +83,10 @@ export async function GET() {
         const pubDate = u.date ? new Date(u.date).toUTCString() : new Date().toUTCString()
         return `
     <item>
-      <title><![CDATA[${title}]]></title>
+      <title><![CDATA[${escapeCdata(title)}]]></title>
       <link>${baseUrl}/parliamentary-updates/${slug}</link>
       <guid isPermaLink="true">${baseUrl}/parliamentary-updates/${slug}</guid>
-      <description><![CDATA[${desc}]]></description>
+      <description><![CDATA[${escapeCdata(desc)}]]></description>
       <pubDate>${pubDate}</pubDate>
     </item>`
       }),
@@ -72,10 +97,38 @@ export async function GET() {
         const pubDate = d.date ? new Date(d.date).toUTCString() : new Date().toUTCString()
         return `
     <item>
-      <title><![CDATA[${title}]]></title>
+      <title><![CDATA[${escapeCdata(title)}]]></title>
       <link>${baseUrl}/daily-updates/${slug}</link>
       <guid isPermaLink="true">${baseUrl}/daily-updates/${slug}</guid>
-      <description><![CDATA[${desc}]]></description>
+      <description><![CDATA[${escapeCdata(desc)}]]></description>
+      <pubDate>${pubDate}</pubDate>
+    </item>`
+      }),
+      ...(questions || []).map((q) => {
+        const slug = q.slug?.current || q._id
+        const title = typeof q.title === 'string' ? q.title : q.title?.en || q.title?.te || 'Parliamentary Question'
+        const desc = typeof q.summary === 'string' ? q.summary : q.summary?.en || q.summary?.te || ''
+        const pubDate = q.date ? new Date(q.date).toUTCString() : new Date().toUTCString()
+        return `
+    <item>
+      <title><![CDATA[${escapeCdata(title)}]]></title>
+      <link>${baseUrl}/parliamentary-questions/${slug}</link>
+      <guid isPermaLink="true">${baseUrl}/parliamentary-questions/${slug}</guid>
+      <description><![CDATA[${escapeCdata(desc)}]]></description>
+      <pubDate>${pubDate}</pubDate>
+    </item>`
+      }),
+      ...(speeches || []).map((s) => {
+        const slug = s.slug?.current || s._id
+        const title = typeof s.title === 'string' ? s.title : s.title?.en || s.title?.te || 'Parliamentary Speech'
+        const desc = typeof s.summary === 'string' ? s.summary : s.summary?.en || s.summary?.te || ''
+        const pubDate = s.date ? new Date(s.date).toUTCString() : new Date().toUTCString()
+        return `
+    <item>
+      <title><![CDATA[${escapeCdata(title)}]]></title>
+      <link>${baseUrl}/parliamentary-speeches/${slug}</link>
+      <guid isPermaLink="true">${baseUrl}/parliamentary-speeches/${slug}</guid>
+      <description><![CDATA[${escapeCdata(desc)}]]></description>
       <pubDate>${pubDate}</pubDate>
     </item>`
       })
@@ -86,7 +139,7 @@ export async function GET() {
   <channel>
     <title>Shri Bhashyam Rama Krishna, MP - Official Updates &amp; Press Releases</title>
     <link>${baseUrl}</link>
-    <description>Official Parliamentary Updates, Daily Updates, and Press Releases for Shri Bhashyam Rama Krishna, Member of Parliament (Rajya Sabha).</description>
+    <description>Official Parliamentary Updates, Daily Updates, Press Releases, Questions, and Speeches for Shri Bhashyam Rama Krishna, Member of Parliament (Rajya Sabha).</description>
     <language>en-in</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
@@ -97,7 +150,7 @@ ${rssItems}
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 's-maxage=3600, stale-while-revalidate',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     })
   } catch (error) {
